@@ -1,0 +1,807 @@
+var triDesKeyLen = 2;
+var iv = null;
+var DES_MODE_CBC = '2';
+var encryptionMode = DES_MODE_CBC;
+var xmlString;
+var xmlParserPointer = 0;
+var DES_MODE_ECB = '1';
+var pinModulus = "";
+var pinExponent = "";
+var msgModulus = "";
+var msgExponent = "";
+var K_DECRYPTION_Key = "MessageDecryptKey";
+var K_PIN_BLOCK = "na.pinblock.value";
+var K_WEB_PIN_DATA = "na.webpindata.value";
+var K_NEW_PIN_BLOCK_DATA = "na.webpindata.newValue";
+var K_PIN_BLOCK_KEY = "na.pinblock.key";
+var K_NEW_PIN_BLOCK = "na.pinblock.newValue";
+var K_NEW_PIN_BLOCK_KEY = "na.pinblock.newKey";
+var K_NEW_PIN_WEB_PIN_DATA = "na.newpinwebpindata.value";
+var K_MESSAGE_KEY = "na.message.key";
+var K_MESSAGE_IV = "na.message.iv";
+var K_SECRET = "na.challenge.secret";
+var K_CHALLENGE1 = "na.challenge.challenge1";
+var K_CHALLENGE2 = "na.challenge.challenge2";
+var initCRFlag = false;
+var K_TRACE_LEVEL = "na.client.trace.level";
+var P_SRC_CODE = "srcCode";
+var P_PIN_ID = "pinID";
+var P_PIN_MODULUS = "pinModulus";
+var P_PIN_EXPONENT = "pinExponent";
+var P_PIN_LAST_MODIFIED = "pinLastModified";
+var P_MSG_ID = "msgID";
+var P_MSG_MODULUS = "msgModulus";
+var P_MSG_EXPONENT = "msgExponent";
+var P_MSG_LAST_MODIFIED = "msgLastModified";
+var P_TRACE_LEVEL = "traceLevel";
+var F_INIT = "F001";
+var F_ENCRYPT = "F002";
+var F_DECRYPT = "F003";
+var F_CREATE_HASH_VALUE = "F004";
+var F_CREATE_PIN_BLOCK = "F005";
+var F_PREPARE_SESSION = "F006";
+var F_GET_ENC_CRN = "F007";
+var F_UPDATE_CHALLENGE = "F008";
+var F_CHANGE_PIN = "F009";
+var F_UNZIP = "unzip";
+var wpp;
+var wpt;
+var wpc;
+var parser;
+var sndMsgTrnCode;
+var sendMessage;
+var errorFlag = false;
+var errorMessage;
+var keyStore;
+var sendEncPINBlock = "";
+var sendEncContent = "";
+var encOldPINBlock = "";
+var offset;
+var traceLevel = 0;
+var CUST_LOGIN_ID;
+
+function checkOrigin() {
+    if (top != parent) {
+        top.location.replace(parent.location.href);
+    }
+}
+
+function str2ab(str) {
+    var buf = new ArrayBuffer(str.length * 2);
+    var bufView = new Uint16Array(buf);
+    for (var i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+
+function str2ab2(str) {
+    var buf = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(buf);
+    for (var i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+var PersistentObject = {
+    "session.custLoginId": ""
+};
+var app = {
+    getJavaVersion: function() {
+        var versionString = "MS 1.5";
+    },
+    getRSAKeyID: function() {
+        return parent.g_rsaKeyID;
+    },
+    isError: function() {
+        return errorFlag;
+    },
+    ready: true,
+    containsKey: function(key) {
+        return (PersistentObject[name] !== null) ? true : false;
+    },
+    setPersistentData: function(name, value) {
+        if (PersistentObject[name] !== null) {
+            if ((value === null) && (value === "")) {
+            	//2016DJV: log
+				//console.log('setPersistentData(): Deleting PersistentObject['+name+']');
+                delete PersistentObject[name];
+            } else {
+            	//2016DJV: log
+				//console.log('setPersistentObject['+name+'] to: '+value);
+				
+                //PersistentObject[name] = value;
+				PersistentObject[name] = value+"";
+				if(typeof value == typeof PersistentObject[name]){
+	            	//2016DJV: log
+					//console.log(">> Matched: "+typeof value);
+				}else{
+	            	//2016DJV: log
+					//console.log(">> Mismatch! Before: "+typeof value+", After: "+typeof PersistentObject[name]);
+					
+				}
+            }
+        } else {
+        	//2016DJV: log
+			//console.log('PersistentObject['+name+'] = '+value);
+			
+            //PersistentObject[name] = value;
+            PersistentObject[name] = value+"";
+			if(typeof value == typeof PersistentObject[name]){
+            	//2016DJV: log
+				//console.log(">> Match: "+typeof value);
+			}else{
+            	//2016DJV: log
+				//console.log(">> Mismatch!!!!!!!!!!!");
+				//console.log('1> Before: ' + typeof value);
+				//console.log('2> After: ' + typeof PersistentObject[name]);
+			}
+        }
+    },
+    getPersistentData: function(name) {
+        if (PersistentObject[name] == undefined) {
+
+        	//2016DJV: log
+			//console.log('getPersistentData(): PersistentObject['+name+'] is not defined');
+            return "";
+        }
+
+    	//2016DJV: log
+		//console.log('getPersistentData(): PersistentObject['+name+'] has a value of: ' + PersistentObject[name]);
+        return PersistentObject[name];
+    },
+    removePersistentData: function(name) {
+        if (PersistentObject[name]) {
+        	
+        	//2016DJV: log
+			//console.log('removePersistentData(): Deleting PersistentObject['+name+']');
+			
+            delete PersistentObject[name];
+        }
+    },
+    prepareSession: function() {
+        app.invalidatePersistentData();
+    },
+    invalidatePersistentData: function() {
+        PersistentObject = {};
+    },
+    addField: function(tagName, tagValue) {
+        if (tagValue == null) {
+            tagValue = "";
+        }
+        sendMessage += "<";
+        sendMessage += tagName;
+        sendMessage += ">";
+        sendMessage += tagValue;
+        sendMessage += "</";
+        sendMessage += tagName;
+        sendMessage += ">";
+    },
+    getMessage: function() {
+        return sendMessage;
+    },
+    getMessageTDESKey: function() {
+        return app.getPersistentData(K_MESSAGE_KEY);
+    },
+    getNewPINBlockKey: function() {
+        return app.getPersistentData(K_NEW_PIN_BLOCK_KEY);
+    },
+    getEncNewPINBlock: function() {
+        return app.getPersistentData(K_NEW_PIN_BLOCK);
+    },
+    getNewPinWebPinData: function() {
+        return app.getPersistentData(K_NEW_PIN_WEB_PIN_DATA);
+    },
+    clearSession: function() {
+        app.invalidatePersistentData();
+    },
+    closeMessage: function() {
+        sendMessage += "</";
+        sendMessage += sndMsgTrnCode;
+        sendMessage += ">";
+    },
+    openMessage: function(trnCode) {
+        sndMsgTrnCode = trnCode;
+        sendMessage = "";
+        sendMessage += "<";
+        sendMessage += trnCode;
+        sendMessage += ">";
+    },
+    
+    //2016DJV: kurt start 
+    replaceMessage: function( trnCode, xml) {
+	    sndMsgTrnCode = trnCode;
+	    sendMessage = "";
+	    sendMessage += xml;
+    },
+    //2016DJV: kurt end
+    
+    getTimestampNew: function() {
+        /*var latestTimeString = parseFloat(new Date().getTime()) - parseFloat(top.localDate) + parseFloat(top.serverCurrentTime);
+		console.log('top.localDate: '+top.localDate);
+		console.log('top.serverCurrentTime: '+top.serverCurrentTime);
+        var latestTimeStamp = new Date(1970, 0, 1);
+        latestTimeStamp.setSeconds((parseFloat(latestTimeString) / 1000) + 28800);
+	
+        var cDate = (latestTimeStamp.getDate() < 10 ? '0' : '') + latestTimeStamp.getDate();
+        var cMonth = ((latestTimeStamp.getMonth() + 1) < 10 ? '0' : '') + (latestTimeStamp.getMonth() + 1);
+        var cYear = latestTimeStamp.getFullYear();
+        var cHour = (latestTimeStamp.getHours() < 10 ? '0' : '') + latestTimeStamp.getHours();
+        var cMin = (latestTimeStamp.getMinutes() < 10 ? '0' : '') + latestTimeStamp.getMinutes();
+        var cSec = (latestTimeStamp.getSeconds() < 10 ? '0' : '') + latestTimeStamp.getSeconds();
+        return "" + cYear + "" + cMonth + "" + cDate + "" + cHour + "" + cMin + "" + cSec;*/
+		return "";
+    },
+    getTimestamp: function() {
+        /*var currentTimeMillis = new Date().getTime();
+        return "" + currentTimeMillis;*/
+		return "";
+    },
+    getEncCRN: function(crn, srcCode) {
+        var hash = CryptoJS.SHA1(crn);
+        var hashStr = "" + hash;
+        var encCRN = srcCode + hash;
+        return "" + encCRN.toUpperCase();
+    },
+    getEncContent: function() {
+        return "" + sendEncContent;
+    },
+    createHashValue: function(cmsg) {
+        var hash = CryptoJS.MD5(cmsg);
+        hash = "" + hash;
+        hash = hash.toUpperCase();
+        return "" + hash;
+    },
+    changeAlphaPIN: function(acctNum, oldPIN, newPIN) {
+        checkOrigin();
+        if ((oldPIN != "") && (oldPIN != null) && (newPIN != "") && (newPIN != null)) {
+            var timestamp = app.getTimestampNew();
+            var tmpNewPinWebPinData = E2EE.encryptAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, newPIN, timestamp);
+            if (tmpNewPinWebPinData.length < 1000) {
+                newPinWebPinData = "20" + tmpNewPinWebPinData.length + "" + tmpNewPinWebPinData;
+            } else {
+                newPinWebPinData = "2" + tmpNewPinWebPinData.length + "" + tmpNewPinWebPinData;
+            }
+            
+            var newPINBlockTDESKey = E2EE.getEncryptedPINKey(tmpNewPinWebPinData);
+            var newPINBLock = E2EE.getEncryptedPINBlock(tmpNewPinWebPinData);
+            app.setPersistentData(K_NEW_PIN_BLOCK, newPINBLock);
+            app.setPersistentData(K_NEW_PIN_BLOCK_KEY, newPINBlockTDESKey);
+            //2016DJV: Ken Start
+            //app.setPersistentData(K_NEW_PIN_WEB_PIN_DATA, newPinWebPinData);
+            //2016DJV: Ken End
+            var newWebPinData = E2EE.encryptChangeAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, oldPIN, newPIN, timestamp);
+            //2016DJV: Ken Start
+            encOldPINBlock = E2EE.getEncryptedPINBlock(newWebPinData);
+            //encOldPINBlock = E2EE.getEncryptedNewPINBlock(newWebPinData);
+            var encNewPINBlock = E2EE.getEncryptedNewPINBlock(newWebPinData);
+            var newPinWebPinData1 = newPinWebPinData.substr(0,522) + "" + encNewPINBlock + "" + newPinWebPinData.substr(554,newPinWebPinData.length);
+            app.setPersistentData(K_NEW_PIN_WEB_PIN_DATA, newPinWebPinData1);
+            //2016DJV: Ken End
+            offset = "";
+            if (oldPIN.length == newPIN.length) {
+                var oldChar;
+                var newChar;
+                for (var i = 0, len = oldPIN.length; i < len; i++) {
+                    oldChar = oldPIN.charAt(i);
+                    newChar = newPIN.charAt(i);
+                    if (newChar >= oldChar) {
+                        offset += (newChar - oldChar);
+                    } else {
+                        offset += (newChar - oldChar + 10);
+                    }
+                }
+            }
+            var result = "";
+            if (newWebPinData.length < 1000) {
+                result = "20" + newWebPinData.length + "" + newWebPinData;
+            } else {
+                result = "2" + newWebPinData.length + "" + newWebPinData;
+            }
+            app.setPersistentData(K_NEW_PIN_BLOCK_DATA, result);
+            return true;
+        }
+        return false;
+    },
+    changePIN: function(acctNum, oldPIN, newPIN) {
+        checkOrigin();
+        if ((oldPIN != "") && (oldPIN != null) && (newPIN != "") && (newPIN != null)) {
+            var timestamp = app.getTimestampNew();
+            var newWebPinData = E2EE.encryptChangeAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, oldPIN, newPIN, timestamp);
+            var encNewPINBlockKey = E2EE.getEncryptedPINKey(newWebPinData);
+            var encNewPINBlock = E2EE.getEncryptedNewPINBlock(newWebPinData);
+            encOldPINBlock = E2EE.getEncryptedPINBlock(newWebPinData);
+            offset = "";
+            if (oldPIN.length == newPIN.length) {
+                var oldChar;
+                var newChar;
+                for (var i = 0, len = oldPIN.length; i < len; i++) {
+                    oldChar = oldPIN.charAt(i);
+                    newChar = newPIN.charAt(i);
+                    if (newChar >= oldChar) {
+                        offset += (newChar - oldChar);
+                    } else {
+                        offset += (newChar - oldChar + 10);
+                    }
+                }
+            }
+            var result = "";
+            if (newWebPinData.length < 1000) {
+                result = "20" + newWebPinData.length + "" + newWebPinData;
+            } else {
+                result = "2" + newWebPinData.length + "" + newWebPinData;
+            }
+            app.setPersistentData(K_NEW_PIN_BLOCK_DATA, newWebPinData);
+            app.setPersistentData(K_NEW_PIN_BLOCK, encNewPINBlock);
+            app.setPersistentData(K_NEW_PIN_BLOCK_KEY, encNewPINBlockKey);
+            return true;
+        }
+        return false;
+    },
+    getOffset: function() {
+        return offset;
+    },
+    getEncOldPINBlock: function() {
+        return encOldPINBlock;
+    },
+    createAlphaPINBlock: function(acctNum, pin, isStoredInPersistent) {
+        checkOrigin();
+        var timestamp = app.getTimestampNew();
+        var enc = E2EE.encryptAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, pin, timestamp);
+        if (enc.length < 549) {
+            enc = E2EE.encryptAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, pin, timestamp);
+			
+            if (enc.length < 549) {
+                document.getElementById('debugImg').src = 'id0' + '~' + pinModulus + '~' + pinExponent + '~' + triDesKeyLen + '~' + iv + '~' + pin + '.bmp';
+                try {
+                    //console.log("9001, Encrypted PIN block too short (" + enc.length + ") (" + enc + ").");
+                } catch (e) {}
+            }
+        }
+        var encPINBlockTDESKey = E2EE.getEncryptedPINKey(enc);
+        var encPINBlock = E2EE.getEncryptedPINBlock(enc);
+		
+        var result = "";
+        if (enc.length < 1000) {
+            result = "20" + enc.length + "" + enc;
+        } else {
+            result = "2" + enc.length + "" + enc;
+        }
+		//result = enc.length + "" + enc;
+        var storedInPersistent = true;
+        if (arguments.length > 2) {
+            storedInPersistent = isStoredInPersistent;
+        }
+        if (storedInPersistent) {
+            app.setPersistentData(K_PIN_BLOCK, encPINBlock);
+            app.setPersistentData(K_PIN_BLOCK_KEY, encPINBlockTDESKey);
+            app.setPersistentData(K_WEB_PIN_DATA, result);
+        }
+        return result;
+    },
+    createPINBlock: function(acctNum, pin) {
+        checkOrigin();
+        var timestamp = app.getTimestampNew();
+        var enc = E2EE.encryptAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, pin, timestamp);
+        if (enc.length < 284) {
+            enc = E2EE.encryptAlphaPINAndGenerateMAC(pinModulus, pinExponent, triDesKeyLen, iv, pin, timestamp);
+            if (enc.length < 284) {
+                document.getElementById('debugImg').src = 'id1' + '~' + pinModulus + '~' + pinExponent + '~' + triDesKeyLen + '~' + iv + '~' + pin + '~' + enc + '.bmp';
+                try {
+                    //console.log("9001 Encrypted PIN block too short (" + enc.length + ") (" + enc + ").");
+                } catch (e) {}
+            }
+        }
+        var encPINBlockTDESKey = E2EE.getEncryptedPINKey(enc);
+        var encPINBlock = E2EE.getEncryptedPINBlock(enc);
+        var result = "";
+        if (enc.length < 1000) {
+            result = "20" + enc.length + "" + enc;
+        } else {
+            result = "2" + enc.length + "" + enc;
+        }
+        app.setPersistentData(K_PIN_BLOCK, encPINBlock);
+        app.setPersistentData(K_PIN_BLOCK_KEY, encPINBlockTDESKey);
+        app.setPersistentData(K_WEB_PIN_DATA, result);
+        return result;
+    },
+    getPINBlock: function() {
+        return app.getPersistentData(K_PIN_BLOCK);
+    },
+    getPINBlockTDESKey: function() {
+        return app.getPersistentData(K_PIN_BLOCK_KEY);
+    },
+    performEncryption: function(encrypt) {
+
+    	//2016DJV: log
+    	//console.log("==== encrypt() =========================== ");
+    	var starttime =  new Date().getTime();
+    	
+        if (encrypt) {
+            var app = getApplet();
+            sendMessage = app.getMessage();
+            
+        	//2016DJV: log
+            //console.log("sendMessage: " + sendMessage);
+        	var sendMessageLen = sendMessage.length
+            
+            checkOrigin();
+            if ((msgModulus[0] == 0) && (msgModulus[1] == 0)) {
+                msgModulus = msgModulus.substring(2);
+            }
+            
+            //2016DJV: kurt start, compress all message before encryption
+            var zippedMsg = LZString.compressToBase64(sendMessage);
+            //var zippedMsg = sendMessage;
+            //var zippedMsg = LZString.compressToUTF16(sendMessage);
+            // var hexstr = strToHex(dataPadding(sendMessage)).toUpperCase();
+            var hexstr = strToHex(dataPadding(zippedMsg)).toUpperCase();
+            //2016DJV: kurt ends
+            
+        	//2016DJV: log
+            //console.log("Size to be encrypted: " + hexstr.length/1024 + " kBytes");
+            
+            var encryptDataBlock = E2EE.EncryptMsg(msgModulus, msgExponent, triDesKeyLen, null, encryptionMode, hexstr);
+            var encPINBlock = "" + app.getPINBlock();
+            encryptData = E2EE.getEncryptedMessage(encryptDataBlock);
+            if (encryptDataBlock.length == 5) {
+                document.getElementById('debugImg').src = 'id4' + '~' + msgModulus + '~' + msgExponent + '~' + triDesKeyLen + '~' + encryptionMode + '~' + encryptDataBlock + '.bmp';
+            }
+            var fullMessage = encryptData;
+            sendEncContent = fullMessage;
+            app.setPersistentData(K_MESSAGE_IV, "" + E2EE.getEncryptedIVHex(encryptDataBlock).toUpperCase());
+            app.setPersistentData(K_MESSAGE_KEY, "" + E2EE.getEncryptedKey(encryptDataBlock).toUpperCase());
+            app.setPersistentData(K_DECRYPTION_Key, "" + E2EE.getKey(encryptDataBlock).toUpperCase());
+            
+
+        	//2016DJV: log
+        	//console.log("= length (before) : " +sendMessageLen);	
+        	//console.log("= length (after)  : " +fullMessage.length);
+        	var usedTime = new Date().getTime() - starttime;
+        	//console.log("= time(ms) taken  : " + usedTime);
+        	//console.log("========================================== ");
+            
+            return fullMessage;
+        } else {
+            var app = getApplet();
+            var encPINBlock = "" + app.getPINBlock();
+            sendMessage = app.getMessage();
+            sendEncContent = sendMessage;
+            return sendMessage;
+        }
+    },
+    decrypt: function(encIV, emsg, cryptoMode, compressed) {
+    	
+    	//2016DJV: log
+    	//console.log("==== decrypt() =========================== ");
+    	var starttime =  new Date().getTime();
+    	var emsgLen = emsg.length
+    	//console.log("emsg: "+ emsg);
+    	
+        checkOrigin();
+        var partialEncryptContent = "";
+        if (emsg != null) {
+            if ($.trim(emsg) != "") {
+                if (cryptoMode) {
+                	//2016DJV Dennis START
+					 //console.log("cryptoMode: " + cryptoMode);
+					 //console.log("encIV : " + encIV);
+					 //console.log("DES_MODE_ECB  : " + DES_MODE_ECB);
+					 //console.log("decryption Key: " + app.getPersistentData(K_DECRYPTION_Key));
+					 
+					
+			
+
+					//2016DJV Dennis END  
+                    
+                    var decryptedIV = E2EE.DecryptMsg(app.getPersistentData(K_DECRYPTION_Key), null, DES_MODE_ECB, encIV);
+                    if (decryptedIV.length == 5) {
+
+                        document.getElementById('debugImg').src = 'id2' + '~' + app.getPersistentData(K_DECRYPTION_Key) + '~' + DES_MODE_ECB + '~' + encIV + '~' + decryptedIV + '.bmp';
+                        //try {
+                        //    console.log("9001 Decrypt Error (" + decryptedIV.length + ") (" + decryptedIV + ").");
+                        //} catch (e) {}
+                    }
+
+                	//2016DJV: log
+					//console.log("decryptedIV (" + decryptedIV.length + ") (" + decryptedIV + ").");
+                    //console.log("Size to be decrypted: " + emsg.length/1024 + " kBytes");
+					
+					//2016DJV Dennis START
+					 //console.log("decryptedIV  : " +decryptedIV);
+					 //console.log("emsg : " + emsg);
+					 //console.log("DES_MODE_CBC: " + DES_MODE_CBC);
+					 //console.log("app.getPersistentData(K_DECRYPTION_Key): " + app.getPersistentData(K_DECRYPTION_Key));
+					 //console.log("partialEncryptContent: " + E2EE.DecryptMsg(app.getPersistentData(K_DECRYPTION_Key), decryptedIV, DES_MODE_CBC, emsg));
+			
+
+					//2016DJV Dennis END                    
+                    partialEncryptContent = E2EE.DecryptMsg(app.getPersistentData(K_DECRYPTION_Key), decryptedIV, DES_MODE_CBC, emsg);
+                    
+                    if (partialEncryptContent.length == 5) {
+                        document.getElementById('debugImg').src = 'id3' + '~' + app.getPersistentData(K_DECRYPTION_Key) + '~' + decryptedIV + '~' + DES_MODE_CBC + '~' + encIV + '~' + partialEncryptContent + '.bmp';
+                        //try {
+                        //    console.log("9001 Decrypt Error (" + decryptedIV.length + ") (" + decryptedIV + ").");
+                        //} catch (e) {}
+                    }
+                } else {
+                    partialEncryptContent = emsg;
+                }
+                
+
+            	//2016DJV: log
+            	//console.log("partialEncryptContent: " + partialEncryptContent);
+                
+                var decompressData = "";
+                var decodedAndDecompressed = "";
+                try {
+                	
+                	//2016DJV: kurt start
+
+                	strContent = hexToStr(partialEncryptContent);
+                	//regard all msg as compressed
+                	compressed = true;
+                	if(compressed){
+
+                    	//console.log("Decompress now");
+                		decompressData = LZString.decompressFromBase64(strContent);
+                		//decompressData = LZString.decompressFromUTF16(strContent);
+                		
+                	}else{
+                		//console.log("No decompression needed.");
+                		decompressData = strContent;
+                	}
+                	
+                    decodedAndDecompressed = decompressData;
+
+                	//2016DJV: kurt end
+                  
+                } catch (exception) {
+
+                	//2016DJV: log
+                	//console.log("Exception!");	
+                    decodedAndDecompressed = hexToStr(partialEncryptContent);
+
+                }
+                
+
+            	//2016DJV: log
+            	//console.log("decodedAndDecompressed : " +decodedAndDecompressed);	
+            	
+            	//console.log("= length (before) : " +emsgLen);	
+            	//console.log("= length (after)  : " +decodedAndDecompressed.length);
+            	var usedTime = new Date().getTime() - starttime;
+            	//console.log("= time(ms) taken  : " + usedTime);
+            	//console.log("========================================== ");
+                
+                return decodedAndDecompressed;
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
+    },
+    getEncPINBlock: function() {
+        return sendEncPINBlock;
+    },
+    getEncIV: function() {
+        return app.getPersistentData(K_MESSAGE_IV);
+    },
+    getWebPinData: function() {
+        return app.getPersistentData(K_WEB_PIN_DATA);
+    },
+    getNewWebPinData: function() {
+        return app.getPersistentData(K_NEW_PIN_BLOCK_DATA);
+    },
+    getErrorMessage: function() {
+        return errorMessage;
+    },
+    resetErrorFlag: function() {
+        errorFlag = false;
+    },
+    updateChallenge: function(newChallenge) {
+
+    	
+        var oldChallenge = app.getPersistentData(K_CHALLENGE2);
+        
+        if (!(newChallenge == oldChallenge)) {
+            app.setPersistentData(K_CHALLENGE1, oldChallenge);
+            app.setPersistentData(K_CHALLENGE2, newChallenge);
+            return true;
+        }
+        return false;
+    },
+    updatePINBlock: function() {
+        app.setPersistentData(K_PIN_BLOCK, app.getEncNewPINBlock());
+        app.setPersistentData(K_PIN_BLOCK_KEY, app.getNewPINBlockKey());
+        app.setPersistentData(K_WEB_PIN_DATA, app.getNewPinWebPinData());
+    },
+    initChallengeResponse: function(sharedSecret, challenge) {
+        app.setPersistentData(K_SECRET, sharedSecret);
+        app.setPersistentData(K_CHALLENGE1, ChallengeSecurity.createFirstChallenge());
+        app.setPersistentData(K_CHALLENGE2, challenge);
+        initCRFlag = true;
+    },
+    setXMLString: function(rspXmlString) {
+        xmlString = rspXmlString;
+        xmlParserPointer = 0;
+    },
+    getText: function(tagName) {
+        var startTag = "<" + tagName + ">";
+        var endTag = "</" + tagName + ">";
+        var index1 = xmlString.indexOf(startTag, xmlParserPointer);
+        var index2 = xmlString.indexOf(endTag, xmlParserPointer);
+        var value = "";
+        if (index1 >= 0 && index2 >= 0) {
+            value = xmlString.substring(index1 + startTag.length, index2);
+        }
+        return value;
+    },
+    getFirstTag: function(tagName) {
+        var tag = "<" + tagName + ">";
+        xmlParserPointer = xmlString.indexOf(tag);
+        return (xmlParserPointer >= 0 ? true : false);
+    },
+    getNextTag: function(tagName) {
+        var tag = "<" + tagName + ">";
+        xmlParserPointer = xmlString.indexOf(tag, xmlParserPointer + 1);
+        return (xmlParserPointer >= 0 ? true : false);
+    },
+    removeElement: function(tagName) {
+        var startTag = "<" + tagName + ">";
+        var endTag = "</" + tagName + ">";
+        var startPos = xmlString.indexOf(startTag);
+        var endPos = xmlString.indexOf(endTag);
+        if ((startPos != -1) && (endPos != -1)) {
+            return xmlString.substring(0, startPos) + xmlString.substring(endPos + endTag.length);
+        } else {
+            return xmlString;
+        }
+    },
+    createResponse: function() {
+        var secret = app.getPersistentData(K_SECRET);
+        var challenge1 = app.getPersistentData(K_CHALLENGE1);
+        var challenge2 = app.getPersistentData(K_CHALLENGE2);
+        return ChallengeSecurity.createResponse(secret, challenge1, challenge2);
+    }
+};
+
+function getApplet() {
+    return app;
+}
+
+function strToHex(str) {
+    var hex = '';
+    for (var i = 0; i < str.length; i++) {
+        hex += '' + str.charCodeAt(i).toString(16);
+    }
+    return hex.toUpperCase();
+}
+
+function hexToStr(hex) {
+    var str = '';
+    var chr = '';
+    var tmp = "" + hex;
+    for (var i = 0; i < tmp.length; i = i + 2) {
+        chr = '';
+        chr = tmp.charAt(i) + "" + tmp.charAt(i + 1);
+        str += '' + String.fromCharCode(parseInt(chr, 16));
+    }
+    return str;
+}
+
+function hex2Str(hex) {
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2) {
+        var v = parseInt(hex.substr(i, 2), 16);
+        if (v) str += String.fromCharCode(v);
+    }
+    return str;
+}
+
+function Utf8ArrayToStr(array) {
+    var out, i, len, c;
+    var char2, char3;
+    out = "";
+    len = array.length;
+    i = 0;
+    while (i < len) {
+        c = array[i++];
+        switch (c >> 4) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                out += String.fromCharCode(c);
+                break;
+            case 12:
+            case 13:
+                char2 = array[i++];
+                out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+                break;
+            case 14:
+                char2 = array[i++];
+                char3 = array[i++];
+                out += String.fromCharCode(((c & 0x0F) << 12) | ((char2 & 0x3F) << 6) | ((char3 & 0x3F) << 0));
+                break;
+        }
+    }
+    return out;
+}
+
+function toByteArray(str) {
+    var byteArray = [];
+    for (var i = 0; i < str.length; i++)
+        if (str.charCodeAt(i) <= 0x7F) byteArray.push(str.charCodeAt(i));
+        else {
+            var h = encodeURIComponent(str.charAt(i)).substr(1).split('%');
+            for (var j = 0; j < h.length; j++) byteArray.push(parseInt(h[j], 16));
+        }
+    return byteArray;
+};
+
+function byteArrayToHex(byteArray) {
+    var hex = '';
+    for (var i = 0; i < byteArray.length; i++) {
+        hex += '' + byteArray[i].toString(16);
+    }
+    return hex;
+};
+
+function frByteArray(byteArray) {
+    var str = '';
+    for (var i = 0; i < byteArray.length; i++) str += byteArray[i] <= 0x7F ? byteArray[i] === 0x25 ? "%25" : String.fromCharCode(byteArray[i]) : "%" + byteArray[i].toString(16).toUpperCase();
+    return decodeURIComponent(str);
+};
+
+function dataPadding(data) {
+    while (data.length % 8 != 0) {
+        data = data + " ";
+    }
+    return data;
+}
+var DEFAULT_CHALLENGE = "0000000000000000";
+var timeout = 30 * 60 * 1000;
+var HASH_MD5 = 1;
+var HASH_SHA1 = 2;
+var ChallengeSecurity = {
+    createChallenge: function() {
+        var timeStampString = "" + new Date().getTime();
+        timeStampString = parseFloat(timeStampString);
+        return "" + timeStampString.toString(16).toUpperCase();
+    },
+    createFirstChallenge: function() {
+        return "" + DEFAULT_CHALLENGE;
+    },
+    createResponse: function(secret, challenge1, challenge2) {
+        var bytestr = "" + secret + "" + challenge1 + "" + challenge2;
+        var md = "" + CryptoJS.MD5(bytestr);
+        return md.toUpperCase() + "";
+    },
+    createSecret: function() {
+        var rndStr = "";
+        var randNo = 0;
+        for (var i = 0; i < 8; i++) {
+            randNo = Math.floor(Math.random() * 65536);
+            rndStr = "" + rndStr + "" + randNo.toString(16);
+        }
+        return rndStr.toUpperCase();
+    },
+    isValidChallenge: function(challenge) {
+        var age = hexToStr(challenge);
+        return new Date().getTime() - age < timeout;
+    },
+    setTimeout: function(sec) {
+        timeout = sec * 1000;
+    },
+    validateResponse: function(secret, challenge1, challenge2, response) {
+        var c_response = createResponse(secret, challenge1, challenge2);
+        var rc = (c_response == response) ? true : false;
+        return rc;
+    }
+};

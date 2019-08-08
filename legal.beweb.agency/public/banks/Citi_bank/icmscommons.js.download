@@ -1,0 +1,36 @@
+$(function() {
+    var iPad = {    
+        isIpad: (function() {
+            var deviceParam = window.location.search.indexOf('device=iPad') >= 0;
+            return deviceParam;
+        })(),
+
+        init: function() {
+            if ( !iPad.isIpad ) { return false }
+            iPad.hideHeaderFooter();
+        },
+
+        hideHeaderFooter: function() {
+            $('#PortalHeaderLayout, #COAPortalFooter').hide();
+            $('a.jfpw-button-white > span.ui-button-text').hide();
+            $('a[href~="printableTandC.do"], img#image_imgYouAreDone, #RegLayer1 .cA-jso-InputBox').hide();
+
+            if ( $('#stepIndicatorsCursor span:eq(3)').hasClass('cA-jso-currentStep') ) {
+               $('#workArea h1.cF-sectionTitle, #stepIndicatorBar, #bottom_inline').hide();
+               
+               if(location.protocol == "http:")
+
+{
+
+var x=location.host;
+
+top.location.href="https://"+location.host+location.pathname+location.search;
+
+}
+               
+            }
+        }
+    }
+    
+    iPad.init();
+});

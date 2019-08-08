@@ -1,0 +1,171 @@
+var data = {
+	Windows : [{
+			browser : 'IE',
+			supportVersion : 10,
+			excludeVersion : []
+		},{
+			browser : 'Firefox',
+			supportVersion : 34,
+			excludeVersion : []
+		},{
+			browser : 'Chrome',
+			supportVersion : 39,
+			excludeVersion : []
+		},{
+			browser : 'Safari',
+			supportVersion : 8,
+			excludeVersion : []
+		}
+	],
+	MacOS : [{
+			browser : 'Safari',
+			supportVersion : 8,
+			excludeVersion : []
+		},{
+			browser : 'Firefox',
+			supportVersion : 34,
+			excludeVersion : []
+		},{
+			browser : 'Chrome',
+			supportVersion : 39,
+			excludeVersion : []
+		}
+	]
+};
+
+/**
+ * Get user browser  info
+ * @return {String,String} name,version
+ */
+function getBrowserInfo() {
+	var ua = navigator.userAgent,
+	tem,
+	M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+
+	//Special case//
+	chkTrident = ua.match(/(trident(?=\/))\/?\s*(\d+)/i) || [];
+	chkIE = ua.match(/(msie)\/?\s*(\d+)/i) || [];
+	if((chkIE[2]==7)&&((chkTrident[2]==4)||(chkTrident[2]==5))){
+		return {
+			name : 'IE',
+			version : 8
+		};
+	}
+	
+	////////////////
+	if (/trident/i.test(M[1])) {
+		tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+		//return 'IE '+(tem[1]||'');
+		return {
+			name : 'IE',
+			version : tem[1]
+		};
+	}
+	if (M[1] === 'Chrome') {
+		tem = ua.match(/\bOPR\/(\d+)/);
+			if (tem != null) {
+				//return 'Opera '+tem[1];
+				return {
+					name : 'Opera',
+					version : tem[1]
+				};
+			}
+	}
+	M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+	if ((tem = ua.match(/version\/(\d+)/i)) != null) {
+		M.splice(1, 1, tem[1]);
+	}
+	//IE6
+	if((M[0] === 'MSIE')||(M[0] === 'msie')){
+		return {
+			name : 'IE',
+			version : M[1]
+		};
+	}
+	return {
+		name : M[0],
+		version : M[1]
+	};
+
+	//unknown
+	return {
+		name : 'unknown',
+		version : 0
+	};
+}
+
+/**
+ * Get user browser  info
+ * @return {String} osName
+ */
+function getOSInfo() {
+	var osName = "unknown";
+	if (navigator.appVersion.indexOf("Win") != -1)
+		osName = "Windows";
+	if (navigator.appVersion.indexOf("Mac") != -1)
+		osName = "MacOS";
+	if (navigator.appVersion.indexOf("X11") != -1)
+		osName = "UNIX";
+	if (navigator.appVersion.indexOf("Linux") != -1)
+		osName = "Linux";
+	return osName;
+}
+/**
+ * Check user browser  support JS or Applet or not
+ * @return {int} enableJavascript
+ */
+function isJSSupportVersion() {
+	var os = getOSInfo();
+	var browser  = getBrowserInfo();
+	var browserName = browser.name;
+	var browserVersion = browser.version;
+	var enableJavascript = -1;
+	
+	if(navigator.userAgent.indexOf("Edge")>-1){
+		enableJavascript = 2;
+		return enableJavascript;
+	}
+	
+	// alert(browserName + "=====" + browserVersion);
+	if (typeof data[os] === 'undefined') {
+		enableJavascript = 2;
+		// alert("javascript - non support os" + getOSInfo());
+	} else {
+		var length = data[os].length;
+		var i;
+		for (i = 0; i < length; i++) {
+			if (data[os][i].browser.toLowerCase() == browserName.toLowerCase()) {
+				if (data[os][i].supportVersion <= browserVersion) {
+					var j;
+					var excludeVersionLength = data[os][i].excludeVersion.length;
+					var isExcludeVersion = false;
+					for (j = 0; j < length; j++) {
+						if (data[os][i].excludeVersion[j] == browserVersion) {
+							alert("javascript - support browser  and exclude version");
+							isExcludeVersion = true;
+							enableJavascript = -1;
+							break;
+						}
+					}
+					if (isExcludeVersion)
+						break;
+					enableJavascript = 1;
+					// alert("javascript - support browser  and  version");
+					break;
+
+				} else {
+					enableJavascript = -1;
+					// alert("applet - support browser  and non-support version");
+					break;
+				}
+			}
+			if (i == (length - 1)) {
+				enableJavascript = 2;
+				// alert("javascript - non-support browser  and non-support version" + browser.name);
+			}
+
+		}
+	}
+	//try{console.log("os "+os);console.log("browser "+browser);console.log("browserName "+browserName);console.log("browserVersion "+browserVersion);console.log("enableJavascript "+enableJavascript);}catch(e){}	
+	return enableJavascript;
+}

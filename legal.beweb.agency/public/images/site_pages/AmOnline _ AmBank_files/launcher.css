@@ -1,0 +1,167 @@
+/**
+ * launcher-deck
+ * namespace: lp-lc
+ */
+ /*start outdated browser popup*/
+ @media screen and (max-width: 849px){
+    .header-logo{
+        max-height: 30px;
+        padding-left: 60px;
+    }
+}
+
+.arrow-icon{
+    margin-top: 15px;
+}
+
+.browser-support-title{
+    position: relative;
+    margin: auto;
+    left: 0;
+    right: 0;
+    width: 320px;
+}
+.browser-support-list{
+    position: relative;
+    padding-top:20px;
+    list-style: initial;
+    margin: auto;
+    left: 0;
+    right: 0;
+    width: 320px;
+}
+
+#browserNotSupported {
+    background-color: #f0f2f6;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+}
+
+.nav-container {
+    width: 100%;
+}
+
+.outdated-browser div {
+    color: #6e6e6e;
+}
+
+.outdated-browser {
+    margin-top: 1.6em;
+    position: relative;
+    top: 10%;
+}
+
+.outdated-browser,
+.outdated-browser p,
+#browserNotSupported .footer-container .copyright-bar p {
+    color: #cfcfcf;
+}
+
+.outdated-browser .get-latest-browser {
+    margin-top: 1.6em;
+}
+
+#browserNotSupported .bg-image {
+    display: block !important;
+    z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    // background: transparent none no-repeat center center;
+    // background-size: cover;
+    // background-image: url(../media/AmBankOnline-Background.jpg);
+
+}
+
+#browserNotSupported .footer-container {
+    height: 50px;
+}
+
+#browserNotSupported .footer-container .copyright-bar {
+    padding: 5px 0px;
+}
+
+#browserNotSupported .footer-container .copyright-bar p {
+    margin-bottom: 0px;
+}
+
+.navbar {
+    height: 70px;
+    background-color: #ef4233;
+}
+
+.nav-left {
+    float: left;
+}
+
+.nav-left img {
+    max-height: 40px;
+    margin: 16px 0px;
+}
+
+.nav-right .btn-link {
+    font-size: 16px;
+    margin: 22px 0px 10px 5px;
+    color: #555964;
+    padding: 0px;
+    color: white;
+    padding-right: 10px;
+    text-decoration: none;
+}
+
+.nav-right a, .nav-right img{
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#browserNotSupported .btn{
+    color: #000;
+    z-index: 1;
+    position: relative;
+}
+
+.btn-active, .btn-hover, .btn-normal{
+    position: absolute;
+    z-index: 0;
+    margin: auto;
+    top: 0px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    display: none;
+}
+
+.ie8 .btn-active,.ie8 .btn-hover,.ie8 .btn-normal{
+	top: 5px;
+}
+
+.btn-normal{
+	display: block;
+}
+
+.btn-link p{
+	color: #ffffff;
+
+}
+
+@media screen and (max-width: 849px) {
+    .nav-left {
+        float: none;
+        text-align: center;
+        display: inline-block;
+        width: 100%;
+        height: 50px;
+    }
+    .nav-left img {
+        max-height: 30px;
+        margin: 10px 0px;
+    }
+    .navbar {
+        height: 50px;
+    }
+}
+/*end outdated browser popup*/

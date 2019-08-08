@@ -1,0 +1,331 @@
+function decodeLogin(cryptoMode, userType)
+{
+	
+	setReloadFlagFalse();
+	var sendForm = document.send;
+
+	clearAlertMessage();
+
+	if (!isAppletReady()) {
+		parent.errorMessage = CONST.MSG_SYSTEM_ERROR + "E1005.";
+		showPublicStaticPage(sendForm, "clterror", "login", "clterror");
+		return;
+	}
+
+	var app = getApplet();
+	
+        //-start: record logon time for session checking
+        var logon_TS = String(new Date());
+        parent.logon_ts = logon_TS;
+		//console.log('setPersistentText(app, "THIS_LOGON_SESSION_TS", logon_TS)');
+        setPersistentText(app, "THIS_LOGON_SESSION_TS", logon_TS)
+        //-end
+        
+	if (POK_CHECK_KEY != getPersistentText(app, POK_CHECK_KEY)) {
+		parent.errorMessage = CONST.MSG_SYSTEM_ERROR + "E1008.";
+		showPublicStaticPage(sendForm, "clterror", "login", "clterror");
+		return;
+	}
+	
+	var cmsg = app.decrypt(encIV, emsg, cryptoMode, compressed);
+
+	var count = 0;
+	var working = false;
+	var dataKey = "";
+	var acctId, acctNumDisplay, acctType, curCode, thirdPartyAcct;
+	var bankSpecificMsg;
+	var newPIN;
+	var availBal, availBalDisplay, outBal, outBalDisplay; //version 1.1
+	var adCat, adId, adPopupCount, newVersionInd; // version 1.2
+	var factorEnable, factorLength, factorPattern; // version 1.3 or 1.4
+
+	if (app.isError()) {
+		app.resetErrorFlag();
+		parent.errorMessage = CONST.MSG_SYSTEM_ERROR + "E1006.";
+		showPublicStaticPage(sendForm, "clterror", "login", "clterror");
+		return;
+	}
+
+	app.initChallengeResponse(secret, challenge);
+	app.setXMLString(cmsg);
+//alert(cmsg);
+	var consolidateType = 1;
+	if ((msgVer == "1.1") || (msgVer == "1.2") || (msgVer == "1.3") || (msgVer == "1.4")){
+		working = app.getFirstTag("ConAcctInfo1");
+		if (!working) {
+			working = app.getFirstTag("ConAcctInfo2");
+			consolidateType = 2;
+		}
+	} else {
+		working = app.getFirstTag("AcctInfo");
+	}
+//alert("msgVer = " + msgVer);
+//alert("before loop , working = " + working);
+	var jointACList = "";
+	while (working) {
+		acctId = getXMLText(app, "AcctId");
+		acctNumDisplay = getXMLText(app, "AcctNumDisplay");
+		acctType = getXMLText(app, "AcctType");
+		curCode = getXMLText(app, "CurCode");
+		if (userType =="J" || userType == "S") {
+			//for retails joint account
+			jointACList = jointACList +"<AcctInfo><AcctId>"+acctId+"</AcctId>"
+			                          +"<AcctType>"+acctType+"</AcctType>"
+			                          +"<CurCode>"+curCode+"</CurCode></AcctInfo>";
+		}
+		if ((msgVer == "1.0") || (msgVer == "1.1") || (msgVer == "1.2") || (msgVer == "1.3") || (msgVer == "1.4")){
+			if (consolidateType == 1) {
+				availBal = getXMLText(app, "AvailBal");
+				availBalDisplay = getXMLText(app, "AvailBalDisplay");
+			}
+			outBal = getXMLText(app, "OutstandingBal");
+			outBalDisplay = getXMLText(app, "OutstandingBalDisplay");
+		}
+		thirdPartyAcct = getXMLText(app, "ThirdPartyAcct");
+
+		dataKey = POK_ACCT_ID + count;
+		setPersistentText(app, dataKey, acctId);
+		dataKey = POK_ACCT_NUM_DISPLAY + count;
+		setPersistentText(app, dataKey, acctNumDisplay);
+		dataKey = POK_ACCT_TYPE + count;
+		setPersistentText(app, dataKey, acctType);
+		dataKey = POK_CUR_CODE + count;
+		setPersistentText(app, dataKey, curCode);
+		dataKey = POK_THIRD_PARTY_ACCT + count;
+		setPersistentText(app, dataKey, thirdPartyAcct);
+
+		if ((msgVer == "1.1") || (msgVer == "1.2") || (msgVer == "1.3") || (msgVer == "1.4")){
+			if (consolidateType == 1) {
+	                        		dataKey = POK_AVA_BAL + count;
+	                        		setPersistentText(app, dataKey, availBal);
+	                        		dataKey = POK_AVA_BAL_DISPLAY + count;
+	                        		setPersistentText(app, dataKey, availBalDisplay);
+	                        	}
+	                        	dataKey = POK_OUT_BAL + count;
+	                        	setPersistentText(app, dataKey, outBal);
+	                        	dataKey = POK_OUT_BAL_DISPLAY + count;
+	                        	setPersistentText(app, dataKey, outBalDisplay);
+	                }
+		count++;
+		if ((msgVer == "1.1") || (msgVer == "1.2") || (msgVer == "1.3") || (msgVer == "1.4")){
+			if (consolidateType == 1)
+				working = app.getNextTag("ConAcctInfo1");
+			else
+				working = app.getNextTag("ConAcctInfo2");
+			if (consolidateType == 1 && !working) {
+				working = app.getFirstTag("ConAcctInfo2");
+				consolidateType = 2;
+			}
+		} else {
+			working = app.getNextTag("AcctInfo");
+		}
+//alert("in while loop" + count + " " + working);
+	}
+//alert("count = " + count);		
+	if (count <= 0) {
+		parent.errorMessage = CONST.MSG_SYSTEM_ERROR + "E1007.";
+		showPublicStaticPage(sendForm, "clterror", "login", "clterror");
+		return;
+	}
+
+	bankSpecificMsg = getXMLText(app, "BankSpecificMsg");
+
+	if ((msgVer == "1.2") || (msgVer == "1.4")){
+		adCat = getXMLText(app, "AdCat");
+		adId = getXMLText(app, "AdId");
+		adPopupCount = getXMLText(app, "AdPopupCount");
+		newVersionInd = getXMLText(app, "NewVersionInd");
+
+		setPersistentText(app, "AdCat", adCat);
+		setPersistentText(app, "AdId", adId);
+		setPersistentText(app, "AdPopupCount", adPopupCount);
+		setPersistentText(app, "NewVersionInd", newVersionInd);
+	}
+
+	if ((msgVer == "1.3") || (msgVer == "1.4")){
+		factorEnable = getXMLText(app, "FactorEnable");
+		factorLength = getXMLText(app, "FactorLength");
+		factorPattern = getXMLText(app, "FactorPattern");
+
+		setPersistentText(app, "CheckFactor", factorEnable);  //for check logon flow
+		setPersistentText(app, "FactorEnable", factorEnable); //for record
+		setPersistentText(app, "FactorLength", factorLength);
+		setPersistentText(app, "FactorPattern", factorPattern);
+	}
+
+	
+	setPersistentText(app, POK_LOGIN_BANK_SPECIFIC_MSG, bankSpecificMsg);
+	setPersistentText(app, POK_LOGIN_MSG_CODE, msgCode);
+	setPersistentText(app, POK_LOGIN_MSG_DESC, msgDesc);
+	
+	var lastlogontime = getXMLText(app, "LastSignOnTime");
+	setPersistentText(app, POK_LAST_LOGON_TIME, lastlogontime);
+
+	setPersistentText(app, POK_ACCT_COUNT, count);
+
+	newPIN = getXMLText(app, "NewPIN");
+	setPersistentText(app, POK_NEW_PIN, newPIN);
+	enqOnly = getXMLText(app, "EnqOnly");
+	setPersistentText(app, POK_ENQ_ONLY, enqOnly);
+	
+	//Get access control
+	var i=0;
+	var Accounts = new Array();
+	
+	var tempAccess = "<dummy>"+getXMLText(app, "access_controls")+"</dummy>";
+	var tempTranAccounts = "<dummy>"+getXMLText(app, "tranAccounts")+"</dummy>";
+	var tempTransWithAC = "<dummy>"+getXMLText(app, "transWithAC")+"</dummy>";
+	var tempTransWithOutAC = "<dummy>"+getXMLText(app, "transWithOutAC")+"</dummy>";
+	var CustomerLastUpdCnt = getXMLText(app, "CustomerLastUpdCnt");
+	setPersistentText(app, "CustomerLastUpdCnt", CustomerLastUpdCnt);
+    var CustomerReadonlyind = getXMLText(app, "CustomerReadonlyind");
+	setPersistentText(app, "CustomerReadonlyind", CustomerReadonlyind);
+			
+	
+	app.setXMLString(tempAccess);
+	while (app.getNextTag("access_control")) {				
+		var TranCode = getXMLText(app, "tranCode");				
+		var TranType = getXMLText(app, "desc");				
+		Accounts[i] = "<dummy>"+getXMLText(app, "tranAccounts")+"</dummy>";						
+		setPersistentText(app, "accessType"+i, TranCode);		
+		setPersistentText(app, "accessDesc"+i, TranType);		
+		i++;
+	}
+	setPersistentText(app, "accessTypeCount", i);			
+	for(k=0; k<Accounts.length; k++) {
+		app.setXMLString(Accounts[k]);			
+		j=0;		
+		while (app.getNextTag("tranAccount")) {							
+			var id = getXMLText(app, "acctNo");
+			var ccy = getXMLText(app, "acctCur");
+			var type = getXMLText(app, "acctType");	
+			setPersistentText(app, "accessType"+k+"Acct"+j, id);
+			setPersistentText(app, "accessType"+k+"AcctCur"+j, ccy);
+			setPersistentText(app, "accessType"+k+"AcctTyp"+j, type);		
+			setPersistentText(app, "accessType"+id, "Y"); //20031117 : distinct list of accessible account
+			j++;			
+		}
+		setPersistentText(app, "accessType"+k+"Count", j);				
+	}
+	
+	if(userType == "X") {
+		
+		//admin get tran code & account fulllist 
+		app.setXMLString(tempTranAccounts);
+		count=0;
+		dataKey= "";
+		while (app.getNextTag("tranAccount")) {				
+			acctId = getXMLText(app, "acctNo");		
+			acctType = getXMLText(app, "acctType");
+			curCode = getXMLText(app, "ccy");		
+			thirdPartyAcct = getXMLText(app, "thirdParty");
+			
+			dataKey = POK_ACCT_ID + count;
+			setPersistentText(app, dataKey, acctId);
+			//dataKey = POK_ACCT_NUM_DISPLAY + count;
+			//app.setPersistentData(dataKey, acctNumDisplay);
+			
+			//20031007 - performance tuning ------------
+			dataKey = POK_ACCT_TYPE + count;
+			setPersistentText(app, dataKey, acctType);
+			dataKey = POK_ACCT_TYPE + acctId;               //20031007
+			setPersistentText(app, dataKey, acctType);       //20031007
+			dataKey = POK_CUR_CODE + count;
+			setPersistentText(app, dataKey, curCode);
+			dataKey = POK_CUR_CODE + acctId;                //20031007
+			setPersistentText(app, dataKey, curCode);        //20031007	
+			dataKey = POK_THIRD_PARTY_ACCT + count;
+			setPersistentText(app, dataKey, thirdPartyAcct);
+			dataKey = POK_THIRD_PARTY_ACCT + acctId;        //20031007
+			setPersistentText(app, dataKey, thirdPartyAcct); //20031007
+
+			//20031114
+			acctNumDisplay = formatAccountNoWithType(acctId,acctType) ;
+			dataKey = POK_ACCT_NUM_DISPLAY + count;        
+			setPersistentText(app, dataKey, acctNumDisplay);
+			
+			count++;
+		}
+		setPersistentText(app, POK_ACCT_COUNT, count);
+		
+		app.setXMLString(tempTransWithAC);
+		count=0;	
+		while (app.getNextTag("trans")) {				
+			var tempTranCode = getXMLText(app, "tranCode");				
+			var tempTranDesc = getXMLText(app, "desc");
+			var tempTranSubCode = getXMLText(app, "tranSubCode");
+			setPersistentText(app, "AllTranCode"+count, tempTranCode);
+			setPersistentText(app, "AllTranDesc"+count, tempTranDesc);
+			setPersistentText(app, "AllTranDesc"+tempTranCode+tempTranSubCode, tempTranDesc);  //20031007
+			setPersistentText(app, "AllTranSubCode"+count, tempTranSubCode);
+			setPersistentText(app, "AuthTranName"+tempTranCode, "");
+			setPersistentText(app, "AuthTranName"+tempTranSubCode, "");
+			setPersistentText(app, "AuthTranName"+tempTranCode+tempTranSubCode+"AcctCount", "0");			
+			count++;
+		}
+		app.setXMLString(tempTransWithOutAC);	
+		while (app.getNextTag("trans")) {				
+			var tempTranCode = getXMLText(app, "tranCode");				
+			var tempTranDesc = getXMLText(app, "desc");
+			var tempTranSubCode = getXMLText(app, "tranSubCode");
+			setPersistentText(app, "AllTranCode"+count, tempTranCode);
+			setPersistentText(app, "AllTranDesc"+count, tempTranDesc);
+			setPersistentText(app, "AllTranDesc"+tempTranCode+tempTranSubCode, tempTranDesc);  //20031007
+			setPersistentText(app, "AllTranSubCode"+count, tempTranSubCode);
+			count++;
+		}
+	} else if (userType =="J" || userType == "S") {
+		//for retails joint account
+		jointACList = "<jointACList>"+jointACList+"</jointACList>";
+		setPersistentText(app, "jointACList", jointACList);
+	}
+
+	setPersistentText(app, "AllTranCodeCount", count);
+	setPersistentText(app, "TransWithAC", tempTransWithAC);
+	setPersistentText(app, "TransWithOutAC", tempTransWithOutAC);
+	
+//alert("userType = " + userType);
+	if (userType == "R") {		
+		custshowAcctPage(document.send);
+	} else if (userType == "X") {		
+		custshowAdminPage(document.send);
+	} else if ((userType == "J")||(userType == "S")||(userType == "C")||(userType == "P")) {
+		custshowTAPage(document.send);
+	} 
+}
+
+function showLoginPage(send)
+{ 
+//  self.location="/servlet/WebPublicStaticPageServlet?trnCode=loginpage&appCode=WEB&srcCode="+g_srcCode+"&destCode=0000&langCode="+g_langCode+"&actCode=loginpage&pageCode=loginpage&oriDt=0";
+    self.location="/loginpage"+g_srcCode+g_langCode+".html";
+}
+
+// 2016DJV: start
+/*
+
+function checkJREAvailable(send)
+{
+	if (!navigator.javaEnabled()) {
+		self.location="/jreError"+g_langCode+".html";
+	} else {
+		if (!parent.appletPageReady) {
+			setTimeout('checkJREAvailable()', 500);
+			if (count<3) {
+				loadingText = loadingText + "...";
+				count = count + 1;
+			} else {
+				loadingText = initLoadingText;
+				count = 0;
+			}
+			window.status = loadingText;
+		} else {
+			if (getApplet().ready == null) {
+				window.status = errloadingText;
+				self.location="/jreError"+g_langCode+".html";
+			} else {
+				self.location="/loginpageAlphaPin"+g_srcCode+g_langCode+".html";
+			}
+		}
+	}
+}*/
+// 2016DJV: end

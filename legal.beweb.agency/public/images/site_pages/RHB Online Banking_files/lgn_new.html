@@ -1,0 +1,822 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0043)https://logon.rhb.com.my/Login/lgn_new.aspx -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
+    <meta http-equiv="EXPIRES" content="01 Jan 1970 00:00:00 GMT">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>
+        Login | RHB Internet Banking
+    </title>
+
+    <script language="javascript" src="./en_clock.js.download" type="text/javascript"></script>
+
+    <script language="JavaScript" src="./Common.js.download" type="text/javascript"></script>
+
+    <link href="./NIBK.css" type="text/css" rel="stylesheet">
+    <link href="./NIBK_link.css" type="text/css" rel="stylesheet">
+    <link href="./default.css" type="text/css" rel="stylesheet">
+    <link href="./font-awesome.css" type="text/css" rel="stylesheet">
+    <link href="./swiper.min.css" type="text/css" rel="stylesheet">
+
+    <script language="javascript" src="./jquery-3.2.1.min.js(1).download" type="text/javascript"></script>
+
+    <script language="javascript" type="text/javascript">
+		if (top.FrameId == null || top.FrameId != "2A2BC322-F371-488B-8800-DB9278057244" ) { top.location = "../default.htm"; }
+				
+		$(function () {
+			$('input,textarea').focus(function () {
+				$(this).data('placeholder', $(this).attr('placeholder'))
+					   .attr('placeholder', '');
+			}).blur(function () {
+				$(this).attr('placeholder', $(this).data('placeholder'));
+			});
+		});
+		
+		$('.view_pass_btn').on('mouseenter',function(){
+    		$('#login_password').attr('type','text');
+		})
+		
+		$('.view_pass_btn').on('mouseleave',function(){
+			$('#login_password').attr('type','password');
+		})
+		
+    </script>
+
+    <script language="javascript" type="text/javascript">
+	    var isSubmitted = false;
+		var click		= 1;
+		var kimgDir = "../image/";		// directory for keyboard images
+		
+		function loginUser(thisForm)
+		{
+		    var strAccessCd = thisForm.txtAccessCode.value;
+			document.getElementById('lblMessage').innerHTML         = "" ;
+            //document.getElementById('trErrMsg').style.display       = "none";
+
+			if ( click == 1 )
+			{				
+				return true;
+			}
+			else
+			{
+				alert('Your application is being processed');
+				return false;
+			}
+		}		
+		
+		function checkEnter(e) //e is event object passed from function invocation
+		{ 
+			var characterCode;
+
+			if(e && e.which) //if which property of event object is supported (NN4)
+			{ 
+				e = e
+				characterCode = e.which //character code is contained in NN4's which property
+			}
+			else
+			{							
+				e = event
+				characterCode = e.keyCode //character code is contained in IE's keyCode property
+			}
+ 
+			if(characterCode == 13) //if generated character code is equal to ascii 13 (if enter key)
+			{ 				
+			    document.getElementById('cmdLogin').focus();
+				document.getElementById('cmdLogin').click();
+			}
+			else
+			{
+				return false;
+			}
+		}
+				
+        function displayClock()
+        {
+            document.getElementById("clock").innerHTML = updateClock2();
+        }
+        
+        $(document).ready(function() {
+            var isTutorialDisplay = 'False';
+            if(isTutorialDisplay == 'True' || isTutorialDisplay == 'true'){
+                $("#liTutorial").show();
+            }
+            else {
+                $("#liTutorial").hide();
+            }
+        });
+        
+        $(document).ready(function() {
+            var festival = '';
+            if(festival == 'CNY')
+            {
+                $('#itemPayAnyone').hide();
+                $('#itemPayAnyoneCNY').show();
+                $('#itemPayAnyoneRaya').hide();
+            }
+            else if(festival == 'RAYA')
+            {
+                $('#itemPayAnyone').hide();
+                $('#itemPayAnyoneCNY').hide();
+                $('#itemPayAnyoneRaya').show();
+            }
+            else
+            {
+                $('#itemPayAnyone').show();
+                $('#itemPayAnyoneCNY').hide();
+                $('#itemPayAnyoneRaya').hide();
+            }
+        });
+        //hendraptr - add loading screen
+        $(document).ready(function () {
+            if ($("#ibk-frameset", parent.document).length) {
+                parent.document.getElementById('ibk-frameset').rows = "0%,100%,0%";
+            }
+            else {
+                top.location.reload(true);
+            }
+        });
+    </script>
+
+</head>
+<body oncontextmenu="return false;" onload="displayClock(); setInterval(&#39;displayClock()&#39;, 1000 );">
+    <form name="frmLogin" method="post" action="https://logon.rhb.com.my/Login/lgn_new.aspx" id="frmLogin" onkeydown="javascript:if ( checkEnter(event) ) return false;" autocomplete="off" style="height: 100%">
+<input type="hidden" name="__LoginInd" id="__LoginInd" value="False">
+<input type="hidden" name="____Ticket" id="____Ticket" value="1">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="luxKhyu3HLOt2L295G44LPaInuc6zPIpXCgHoTtntmM6x2pscLtb7v6b864BCH+n4Ag/uro6635aN8AYbpzvHrN4R5rYiieNNMTTOB+pD59hSh77uuuBK8OcWKVxGayzz5f3n/ehyhB1oiRf3clp19C+iNcjPYlSZUrEc94j9LLdYIfl8ogYYOF5WYaqJAakiwmd+2BTD9ykOjbf7YEX2Ry/TxQx90ZhpjtaWynzhTZj1FgxA9J1LgCb5h5D1qszuWuvNhjgsTXMajzKYGysfL3VNFOKLn+rQeu673T/NI5g/KaqtDd5CErDGzoKpnS9Zw/DYTDDfLCmmisC5Boa2x0LVC9aSnlM2eMflGotvyY+tfrsaMhfH2x+9I672uZ1zaM9omLg4OeZ3drUA76ive025bXgmDnr6H7TRHu5qlszdECUElUh+IAZxenuwT70x842T0VbYcB82p3N4zWgSd6b2TM=">
+
+<script type="text/javascript">
+<!--
+var theForm = document.forms['frmLogin'];
+if (!theForm) {
+    theForm = document.frmLogin;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+// -->
+</script>
+
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="3E49ECDC">
+        
+        <!-- SUPERWRAPPER -->
+        <div class="clsSuperWrapperLogin">
+            <!-- HEADER -->
+            <div id="header">
+            <header>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tbody><tr class="header">
+                    <td class="login" align="left">
+                        <a href="http://www.rhbgroup.com/" id="hrefLogin" class="logo" target="_parent"></a>
+                    </td>
+                    <td align="right">
+                        <div class="nav-menu-right">
+                            <ul>
+                                <li><span class="clock-date-login" id="clock">2.12am Sun 17 Feb 2019</span></li>
+                                <li id="liTutorial" style="display: none;">
+                                    <a id="lnkTutorial" href="javascript:void(0);" onclick="">
+                                        <span id="tutorial" class="navright-icn"></span>
+                                        <span class="nav-right-text">
+                                            <span id="lblTutorials">Tutorials</span>
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <!-- NOTIFICATION -->
+                <tr class="notification">
+                    <td class="login" colspan="2">
+                        <span class="text-bold">
+                            <span id="lblAnnouncement">ANNOUNCEMENT</span></span>
+                        <span class="text" id="changeText">Effective 1 April 2019, TM bill payment service via RHB Now will be discontinued. You may proceed your payment using JomPAY via RHB ATMs or RHB Now.</span>
+
+                    </td>
+                </tr>
+                <!-- NOTIFICATION ENDS -->
+            </tbody></table>
+            </header>
+            </div>
+            <!-- HEADER ENDS -->
+            <!-- CONTENT -->
+            <div id="main_wrapper">
+                <div id="signin_wrap">
+                    <!-- BANNER -->
+                    <link rel="stylesheet" href="./w6.css">
+<div id="sign_banner">
+
+    <div class="swiper-container swiper-container-horizontal">
+        <div class="swiper-wrapper" style="transform: translate3d(-8925px, 0px, 0px); transition-duration: 300ms;"><div class="swiper-slide swiper-slide-duplicate" style="background-image: url(&quot;../Content/Page Content/en/banner-139-CCCA_02.jpg&quot;); width: 1275px;" data-swiper-slide-index="6"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/products-and-services/whats-new/others/go-paperless#.W-lJCdUzbIU" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+        
+<div class="swiper-slide" style="background-image: url(&quot;../Content/Page Content/en/banner-163-duitnowCNY_02.jpg&quot;); width: 1275px;" data-swiper-slide-index="0"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/DuitNowAngPow/index.html" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+
+<div class="swiper-slide" style="background-image: url(&quot;../Content/Page Content/en/banner-164-fd.jpg&quot;); width: 1275px;" data-swiper-slide-index="1"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/p/425d" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+        
+        
+        <div class="swiper-slide" style="background-image: url(&quot;../Content/Page Content/en/banner-155-Mass-eBanking.jpg&quot;); width: 1275px;" data-swiper-slide-index="2"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/DuitNowCampaign/index.html" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+
+ <div class="swiper-slide" style="background-image: url(&quot;../Content/Page Content/en/banner-152-Trade_and_Win.jpg&quot;); width: 1275px;" data-swiper-slide-index="3"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbtradesmart.com/trade-win/trade-win-campaign-2018.html" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+  
+   <div class="swiper-slide" style="background-image: url(&quot;../Content/Page Content/en/banner-154-usage.jpg&quot;); width: 1275px;" data-swiper-slide-index="4"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/s/RNTW5" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>      
+
+ <div class="swiper-slide swiper-slide-prev" style="background-image: url(&quot;../Content/Page Content/en/banner-148-duitnow04.jpg&quot;); width: 1275px;" data-swiper-slide-index="5"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://rhbgroup.com/duitnow/index.html" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+
+ 
+
+ <div class="swiper-slide swiper-slide-active" style="background-image: url(&quot;../Content/Page Content/en/banner-139-CCCA_02.jpg&quot;); width: 1275px;" data-swiper-slide-index="6"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/products-and-services/whats-new/others/go-paperless#.W-lJCdUzbIU" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div>
+        
+ 
+
+       
+        
+               
+     
+<div class="swiper-slide swiper-slide-duplicate swiper-slide-next" style="background-image: url(&quot;../Content/Page Content/en/banner-163-duitnowCNY_02.jpg&quot;); width: 1275px;" data-swiper-slide-index="0"><span class="whiteTitle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+<a id="whiteTitle" href="https://www.rhbgroup.com/DuitNowAngPow/index.html" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;">Find out more</a></span></div></div>
+        
+        
+        
+        
+                <!-- Add Pagination -->
+    <div class="swiper-pagination swiper-pagination-clickable swiper-pagination-bullets"><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet swiper-pagination-bullet-active"></span></div>
+        <!-- Add Arrows -->
+        <div class="swiper-button-next swiper-button-white"></div>
+        <div class="swiper-button-prev swiper-button-white"></div>
+    </div>
+</div>
+       
+        
+
+                    <!-- BANNER ENDS -->
+                    <!-- SIGN IN -->
+                    <div id="sign_box">
+                        <div class="title">
+                            <span id="lbllgnHeader">Hello. Please Login</span>
+                        </div>
+                        <div id="signin_forms" class="step1">
+                            <div class="input_row">
+                                <span id="lblUsername">Username</span><input name="txtAccessCode" type="text" id="txtAccessCode" class="signin_input username" placeholder="" maxlength="20"></div>
+                            <span class="input-error-msg">
+                                <label id="lblMessage" style="word-wrap: break-word">
+                                </label>
+                            </span>
+                            <div class="login_btns">
+                                <div class="btn login_btn">
+                                    
+                                    <a id="cmdLogin" onclick="javascript:if(loginUser(frmLogin)==false) return false;" tabindex="0" title="NEXT, GET SECRET WORD" href="javascript:__doPostBack(&#39;cmdLogin&#39;,&#39;&#39;)">NEXT, GET SECRET WORD</a>
+                                </div>
+                            </div>
+                        </div>
+                        <style type="text/css">
+<!--
+.red {
+	color: #F00;
+}
+-->
+</style>
+
+<div class="help_links">
+    <table>
+        <tbody><tr>
+            <td width="40%">
+                I am a first-time user</td>
+            <td width="40%">
+                I have a problem logging in</td>
+        </tr>
+        <tr>
+            <td>
+                <span class="icn">&gt;</span><a href="https://logon.rhb.com.my/lgn_default.aspx?usercontrol=Login/lgn_first_time_enrol_card_sel" onclick="javascript: if( isClickedTwice() ) return false;">I
+                    want to Register</a>
+            </td>
+            <td>
+                <span class="icn">&gt;</span><a href="https://logon.rhb.com.my/lgn_default.aspx?usercontrol=Login/lgn_pswd_reset_card_sel" onclick="javascript: if( isClickedTwice() ) return false;">Forgot
+                    Password</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="icn">&gt;</span><a href="http://www.rhbgroup.com/general-info/faq/howtoregister.htm" target="_blank">How
+                    to Register</a>
+            </td>
+            <td>
+                <span class="icn">&gt;</span><a href="http://www.rhbgroup.com/general-info/faq/forgot_username.htm" target="_blank">Forgot
+                    Username</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+        <!-- <span class="icn">&gt;</span><a href="">Tutorials</a> -->
+    <span class="icn">&gt;</span><a href="https://rhbgroup.com/products-and-services/personal/rhb-now/media" target="_blank"><strong><font color="orange">Watch Quick Guides</font></strong></a></td>
+            <td>
+                <span class="icn">&gt;</span><a href="https://logon.rhb.com.my/lgn_default.aspx?usercontrol=Login/lgn_re_enrol_card_sel" onclick="javascript: if( isClickedTwice() ) return false;">Re-Registration</a>
+            </td>
+        </tr>
+    </tbody></table>
+</div>
+
+                        <!-- SIGN IN ENDS -->
+                    </div>
+                    <!-- FOOTER CONTAINER -->
+                    <div class="footer-container">
+                        <!-- FOOTER -->
+                        <!-- QUICK LINKS -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./w3.css">
+<div class="login-quick-links-box">
+    <div class="login-quick-links">
+        <ul>
+            <li><a href="https://www.rhbgroup.com/contact-us#modal-locate-us" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;"><span id="LocateUs" class="navright-icn">
+                </span><span class="nav-right-text">Locate Us</span> </a></li>
+            <li id="itemPayAnyone"><a href="https://logon.rhb.com.my/PayAnyone/" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;"><span id="PayAnyone" class="navright-icn">
+                </span><span class="nav-right-text">RHB Pay Anyone™<br>
+                    Web Collection</span></a></li>
+            <li id="itemPayAnyoneCNY" style="display: none;"><a href="https://logon.rhb.com.my/PayAnyone/" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;"><span id="PayAnyoneCNY" class="navright-icn"></span><span class="nav-right-text">RHB Pay Anyone™ &amp;<br>
+                        <span class="PayAnyoneCNY-title">e-Ang Pow</span> Web Collection</span></a>
+            </li>
+            <li id="itemPayAnyoneRaya" style="display: none;"><a href="https://logon.rhb.com.my/PayAnyone/" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;"><span id="PayAnyoneRaya" class="navright-icn"></span><span class="nav-right-text">RHB Pay Anyone™ &amp;<br>
+                        <span class="PayAnyoneRaya-title">e-Duit Raya</span> Web Collection</span></a>
+            </li>
+            <li><a href="https://logon.rhb.com.my/PBW/" target="PBWFrame"><span id="OpenDepositAcc" class="navright-icn"></span><span class="nav-right-text">
+                Online Deposit<br>Account Opening</span> </a></li>
+            <li><a href="https://www.rhbgroup.com/online_awareness/index.html" target="_parent" onclick="javascript: if( isClickedTwice() ) return false;"><span id="SecurityTips" class="navright-icn"></span><span class="nav-right-text">Security
+                Tips</span></a></li>
+        </ul>
+    </div>
+</div>
+<!-- QUICK LINKS ENDS -->
+
+                        <footer class="login">
+                            
+
+
+<meta name="generator" content="HTML Tidy for Windows (vers 15 August 2007), see www.w3.org">
+<title></title>
+
+
+<div class="footer-left">
+<div class="info-links"><a href="http://www.rhbgroup.com/general-info/faq/index.html" target="rhb">FAQ</a> <a href="https://www.rhbgroup.com/~/media/files/malaysia/general-info/terms-and-conditions/personal_banking_standard_terms_and_conditions.ashx?la=en" target="rhb">Terms &amp; Conditions</a> <a href="http://www.rhbgroup.com/general-info/privacy-policy/" target="rhb">Privacy</a> <a href="http://www.rhbgroup.com/general-info/personal-data-protection-act/" target="rhb">PDPA Privacy Notice</a> <a href="https://www.rhbgroup.com/general-info/e-banking-charter" target="rhb">e-Banking Charter</a> <a href="http://www.rhbgroup.com/general-info/disclaimer/" target="rhb">Disclaimer</a></div>
+</div>
+<div class="footer-right">
+    <div class="social-share">
+        <a class="btn-icon phone" href="http://www.rhbgroup.com/contact-us" target="_blank"><span class="fa fa-phone fa-flip-horizontal">
+        </span></a><a class="btn-icon facebook" href="https://www.facebook.com/RHBGroup" target="_blank"><span class="fa fa-facebook">
+        </span></a><a class="btn-icon twitter" href="https://twitter.com/RHBGroup" target="_blank"><span class="fa fa-twitter">
+        </span></a><a class="btn-icon youtube" href="http://www.youtube.com/user/RHBGroup" target="_blank"><span class="fa fa-youtube-play">
+        </span></a><a class="btn-icon instagram" href="http://instagram.com/RHBGroup/" target="_blank"><span class="fa fa-instagram">
+        </span></a>
+    </div>
+    <div class="copyright">
+        Copyright RHB Banking Group 2018 All rights reserved.
+    </div>
+</div>
+
+
+
+                        </footer>
+                        <!-- FOOTER ENDS -->
+                    </div>
+                    <!-- FOOTER CONTAINER ENDS -->
+                </div>
+            </div>
+            <!-- CONTENT ENDS -->
+        </div>
+        <!-- SUPERWRAPPER END -->
+        <div id="alertMsg">
+            <script src="./jquery-1.4.3.min.js.download" type="text/javascript"></script>
+	<style type="text/css">
+        .web_dialog_overlay
+        {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+			overflow: auto; 
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            opacity: .65;
+            filter: alpha(opacity=15);
+            -moz-opacity: .15;
+            z-index: 101;
+            display: none;
+			
+        }
+        .web_dialog
+        {
+            display: none;
+            position: fixed;
+            width: 625px;
+            /*height:310px;*/
+            top: 20%;
+            left: 50%;
+            margin-left: -290px;
+            margin-top: -100px;
+            background-color: #ffffff;
+            border: 2px solid #336699;
+            padding: 0px;
+            z-index: 102;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9pt;
+			
+        }
+        .web_dialog_title
+        {
+            border-bottom: solid 2px #336699;
+            background-color: #336699;
+            padding: 4px;
+            color: White;
+            font-weight:bold;
+        }
+        .web_dialog_title a
+        {
+            color: White;
+            text-decoration: none;
+			
+        }
+        .align_right
+        {
+            text-align: right;
+        }
+		
+		
+		#body_margin_bottom
+{
+	padding: 0px;
+	padding-bottom: 0px;
+	text-align: center;
+}
+
+		
+		#content
+{
+	width: 550px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.h-table {border:0;}
+.h-table th {background:#005AAC; color:#FFF; padding:5px 8px; text-align:left;}
+.h-table th a{color:#FFF;}
+.h-table th.center {text-align:center;}
+.h-table td {background:#B4DFF1; padding:5px 8px;}
+
+
+th.tl{background:#005AAC url(/img/tl_corner.gif) no-repeat top left;}
+th.tr{background:#005AAC url(/img/tr_corner.gif) no-repeat top right;}
+th.bl{background:#005AAC url(/img/bl_corner2.gif) no-repeat bottom left;}
+th.br{background:#005AAC url(/img/br_corner.gif) no-repeat bottom right;}
+
+td.tl{background:#B4DFF1 url(/img/tl_corner.gif) no-repeat top left;}
+td.tr{background:#B4DFF1 url(/img/tr_corner3.gif) no-repeat top right;}
+td.bl{background:#B4DFF1 url(/img/bl_corner.gif) no-repeat bottom left;}
+td.br{background:#B4DFF1 url(/img/br_corner.gif) no-repeat bottom right;}
+    </style>
+	
+	<script type="text/javascript">
+	function browserDetect(){
+		var ua = navigator.userAgent,
+			tem,
+			M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
+			
+		if((/trident/i).test(M[1]))
+		{
+			tem = (/\brv[ :]+(\d+)/g).exec(ua) || []; 
+			return {name:'IE',version:(tem[1]||'')};
+		}   
+		if(M[1] === 'Chrome')
+		{
+			tem = ua.match(/\bOPR\/(\d+)/)
+			if(tem != null)   {return {name:'Opera', version:tem[1]};}
+		}   
+		
+		M = M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+		if((tem = ua.match(/version\/(\d+)/i)) != null) {M.splice(1,1,tem[1]);}
+		return {
+		  name: M[0],version: M[1]
+		};
+	 }
+	 var browser = browserDetect();
+
+	var isIncompatible = false;
+	
+		if(	
+			(browser.name == 'MSIE' && browser.version <= 9) /*For IE 9 and below*/
+			|| (browser.name == 'Chrome' && browser.version < 52) /*For chrome below v52*/
+			|| (browser.name == 'Firefox' && browser.version < 46) /*For firefox below 46*/
+			|| (browser.name == 'Safari' && browser.version < 8) /*For Safari below 8*/
+		) isIncompatible = true;
+			
+	$(document).ready(function ()
+    {
+		if(isIncompatible){
+			$("#inc-container").show();
+		}
+		else
+			$("#inc-container").hide();
+			
+		var vEnable = 1;
+		if (vEnable)
+		{
+			ShowDialog(true);     
+		}
+		
+
+		$("#btnClose").click(function (e)
+        {
+                HideDialog();
+                e.preventDefault();
+        });		
+	});
+	
+	function ShowDialog(modal)
+    {
+		$("#overlay").show();
+		$("#dialog").fadeIn(300);
+
+		if (modal)
+            {
+                $("#overlay").unbind("click");
+            }
+            else
+            {
+                $("#overlay").click(function (e)
+                {
+                    HideDialog();
+                });
+            }
+		
+	}
+
+	function HideDialog()
+	{
+		$("#overlay").hide();
+		$("#dialog").fadeOut(300);
+	} 
+</script>
+
+
+ 
+<p id="demo"><div id="overlay" class="web_dialog_overlay" style="display: block;"></div><div id="dialog" class="web_dialog" style="display: block;"><table style="width: 100%; border: 0px;" cellpadding="0px" cellspacing="0"><tbody><tr><td class="web_dialog_title">&nbsp;&nbsp;&nbsp;Notice</td><td width="15" class="web_dialog_title"><a href="https://logon.rhb.com.my/Login/lgn_new.aspx#" id="btnClose">X</a></td></tr><tr><td colspan="2" style="padding-left: 15px;padding-right: 15px;"><p></p></td></tr></tbody></table><!-- Body --><div id="body_margin_bottom"><!-- Center Container --><div id="content"><table style="margin:10px auto;" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td align="center"><img src="./title_announcement.gif" alt="Error"></td></tr><tr><td align="center"><img src="./divider4.gif" width="500" height="26"></td></tr><tr><td height="30" style="color:#666666; text-align:left; padding:10px 10px;"><p>Dear Valued Customers, </p><p>Please be informed that RHB Bank Berhad and RHB Islamic Bank Berhad will undertake scheduled nationwide system maintenance exercises on the following day:</p><table align="default" cellspacing="1" class="h-table" style="margin:0 auto; width:100%;"><tbody><tr><th></th><th align="left" class="tl">Date</th><th align="center" class="">Downtime</th></tr><tr><td>1.</td><td align="left" class="bl"><p>Sunday, 17<sup>th</sup> February, 2019</p></td><td align="left" nowrap="nowrap" class="">07:00 am – 09:00 am</td></tr></tbody></table><p>The following services will not be available during this period:</p><ul><li>Hire Purchase/ Industrial Hire Purchase,</li><li>RHB Leasing  accounts  transaction at Self-Service Terminals,</li><li>RHB Now Internet Banking/ Mobile Banking, and</li><li>Over-the-Counter Services at all RHB branches.</li></ul><p>We apologise for any inconvenience caused.</p><p>For enquiries, please call our Customer Care Centre at the following numbers:</p><ul><strong><li>Peninsular Malaysia – 03 – 92068118</li><li>East Malaysia – 082 – 276 118</li></strong><ul></ul></ul></td></tr><tr id="inc-container" style="display: none;"></tr></tbody></table></div></div></div></p>
+<script type="text/javascript">
+
+var currentTime = new Date()
+var sdt = new Date(2019,1,15,9,0,0);  // months in Javascript are 0-11 // 
+var edt = new Date(2019,1,16,9,0,0);  // months in Javascript are 0-11 //
+var sdt2 = new Date(2019,1,16,9,0,1);  // months in Javascript are 0-11 // 
+var edt2 = new Date(2019,1,17,9,0,0);  // months in Javascript are 0-11 /
+
+
+if (currentTime > sdt && currentTime < edt  ) {
+document.getElementById("demo").innerHTML = "<div id='overlay' class='web_dialog_overlay'></div><div id='dialog' class='web_dialog'><table style='width: 100%; border: 0px;' cellpadding='0px' cellspacing='0'><tr><td class='web_dialog_title' >&nbsp;&nbsp;&nbsp;Notice</td><td width='15' class='web_dialog_title'><a href='#' id='btnClose'>X</a></td></tr><tr><td colspan='2' style='padding-left: 15px;padding-right: 15px;' ></p></td></tr></table><!-- Body --><div id='body_margin_bottom'><!-- Center Container --><div id='content'><table style='margin:10px auto;' align='center' border='0' cellpadding='0' cellspacing='0' width='100%'><tr><td align='center'><img src='../Content/Page Content/en/title_announcement.gif' alt='Error' /></td></tr><tr><td align='center'><img src='../Content/Page Content/en/divider4.gif' width='500' height='26' /></td></tr><tr><td height='30' style='color:#666666; text-align:left; padding:10px 10px;'><p>Dear Valued Customers, </p><p>Please be informed that RHB Bank Berhad and RHB Islamic Bank Berhad will undertake scheduled nationwide system maintenance exercises as per below:</p><table align='default' cellspacing='1' class='h-table' style='margin:0 auto; width:100%;'><tr><th></th><th align='left' class='tl'>Date</th><th align='center' class=''>Downtime</th></tr><tr><td>1.</td><td align='left' class='bl'><p>Saturday, 16<sup>th</sup> February, 2019</p></td><td align='left' nowrap='nowrap' class=''>03:00 am &ndash; 09:00 am</td></tr></table><p>The following services will not be available during that time:</p><ul><li>RHB Now Internet, Mobile Banking and DuitNow</li><li>All financial/banking transactions at RHB branches, RHB Sales Centers / Sales Hubs</li><li>Transactions at ATMs, Cash and Online Cheque Deposit Machines, as well as PayNet Shared ATM Network</li><li>Visa, MasterCard & MyDebit transactions</li><li>Merchant Acquiring</li><li>RHB Reflex</li><li>Bureau de Change (BDC)</li><li>RHB Phone Banking</li><li>Digital Channel Platform (DCP)</li></ul><p>We apologise for any inconvenience caused.</p><p>For enquiries, please call our Customer Care Centre at the following numbers:</p><ul><strong><li>Peninsular Malaysia – 03 – 92068118</li><li>East Malaysia – 082 – 276 118</li></strong><ul></td><tr id = 'inc-container' style='display: none;'></tr></table></div>";
+}
+
+else if (currentTime > sdt2 && currentTime < edt2  ) {
+document.getElementById("demo").innerHTML =  "<div id='overlay' class='web_dialog_overlay'></div><div id='dialog' class='web_dialog'><table style='width: 100%; border: 0px;' cellpadding='0px' cellspacing='0'><tr><td class='web_dialog_title' >&nbsp;&nbsp;&nbsp;Notice</td><td width='15' class='web_dialog_title'><a href='#' id='btnClose'>X</a></td></tr><tr><td colspan='2' style='padding-left: 15px;padding-right: 15px;' ></p></td></tr></table><!-- Body --><div id='body_margin_bottom'><!-- Center Container --><div id='content'><table style='margin:10px auto;' align='center' border='0' cellpadding='0' cellspacing='0' width='100%'><tr><td align='center'><img src='../Content/Page Content/en/title_announcement.gif' alt='Error' /></td></tr><tr><td align='center'><img src='../Content/Page Content/en/divider4.gif' width='500' height='26' /></td></tr><tr><td height='30' style='color:#666666; text-align:left; padding:10px 10px;'><p>Dear Valued Customers, </p><p>Please be informed that RHB Bank Berhad and RHB Islamic Bank Berhad will undertake scheduled nationwide system maintenance exercises on the following day:</p><table align='default' cellspacing='1' class='h-table' style='margin:0 auto; width:100%;'><tr><th></th><th align='left' class='tl'>Date</th><th align='center' class=''>Downtime</th></tr><tr><td>1.</td><td align='left' class='bl'><p>Sunday, 17<sup>th</sup> February, 2019</p></td><td align='left' nowrap='nowrap' class=''>07:00 am &ndash; 09:00 am</td></tr></table><p>The following services will not be available during this period:</p><ul><li>Hire Purchase/ Industrial Hire Purchase,</li><li>RHB Leasing  accounts  transaction at Self-Service Terminals,</li><li>RHB Now Internet Banking/ Mobile Banking, and</li><li>Over-the-Counter Services at all RHB branches.</li></ul><p>We apologise for any inconvenience caused.</p><p>For enquiries, please call our Customer Care Centre at the following numbers:</p><ul><strong><li>Peninsular Malaysia – 03 – 92068118</li><li>East Malaysia – 082 – 276 118</li></strong><ul></td><tr id = 'inc-container' style='display: none;'></tr></table></div>"; 
+}
+
+else {
+document.getElementById("demo").innerHTML = "''";
+}
+
+</script>
+
+<script>
+// Get the modal
+var modal = document.getElementById('myModal');
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script><script src="./jquery-1.4.3.min.js.download" type="text/javascript"></script>
+	<style type="text/css" media="screen">
+		
+		#slideout {
+			position: fixed;
+			bottom: 50px;
+			right: 0;
+			width: 35px;
+			padding: 12px 0;
+			text-align: center;
+			background: #fa1d32;
+			-webkit-transition-duration: 0.3s;
+			-moz-transition-duration: 0.3s;
+			-o-transition-duration: 0.3s;
+			transition-duration: 0.3s;
+			-webkit-border-radius: 0 5px 5px 0;
+			-moz-border-radius: 0 5px 5px 0;
+			border-radius: 5px 0 0 5px;
+			z-index: 1;
+			
+		}
+		#slideout_inner {
+			position: fixed;
+			bottom: 40px;
+			right: -350px;
+			background: #6DAD53;
+			width: 300px;
+			padding: 25px;
+			height: 200px;
+			border: 1px solid #ddd;
+			-webkit-transition-duration: 0.3s;
+			-moz-transition-duration: 0.3s;
+			-o-transition-duration: 0.3s;
+			transition-duration: 0.3s;
+			text-align: left;
+			-webkit-border-radius: 0 0 5px 0;
+			-moz-border-radius: 0 0 5px 0;
+			border-radius: 5px 5px 5px 5px;
+			background-image: url("../Content/Page Content/en/side_157_tips02.jpg");
+			background-repeat: no-repeat;
+		}
+		#slideout_inner textarea {
+			width: 190px;
+			height: 100px;
+			margin-bottom: 6px;
+		}
+		#slideout:hover {
+			right: 350px;
+		}
+		#slideout:hover #slideout_inner {
+			right: 0;
+		}
+		
+	#slideout_inner .btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: #555;
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#slideout_inner .btn:hover {
+    background-color: black;
+}	
+		 .imagewrap {display:inline-block;position:relative;}
+.button3 {position:absolute;right:1%;top:70%;cursor:pointer;background: transparent;border: none;}
+.centered {
+    position: relative;
+    top: 40%;
+    left: 70%;
+    transform: translate(-85%, -180%);
+        color:white;
+        font-size: 65%;
+        font-family: sans-serif;
+        
+
+        }
+		
+	</style>
+    
+
+
+ 
+	<div id="slideout">
+		<img src="./alert.jpg" alt="Feedback">
+        <div id="slideout_inner">
+		
+        
+         <button type="button" class="button3"><a href="https://www.rhbgroup.com/online_awareness/index.html#tips" target="_blank"><img src="./buttonLearn.png" alt="Pic Loading..." height="51px" width="185px"></a>
+
+        
+			
+		</button></div>
+      </div>  
+	</div>
+    
+  
+
+
+        
+    
+<script language="javascript">
+function validateInput(strAccessCode) {
+if(strAccessCode == "")
+{
+document.getElementById("lblMessage").innerHTML = "Please enter Username (112001013)";
+return false;
+}
+else if(strAccessCode.length < 6)
+{
+document.getElementById("lblMessage").innerHTML = "Information you have entered is incorrect. Please try again. (112001150)";
+return false;
+}else if(strAccessCode.length > 20)
+{
+document.getElementById("lblMessage").innerHTML = "Information you have entered is incorrect. Please try again. (112001150)";
+return false;
+}
+if(!alphaNumeric(strAccessCode))
+{
+document.getElementById("lblMessage").innerHTML = "Information you have entered is incorrect. Please try again. (112001150)";
+return false;
+
+}
+return true;
+}
+</script><script language="javascript">
+function NavigateCFSHomePage() {
+window.location="https://logon.rhb.com.my";
+}
+</script><script language="javascript">
+function alphaNumeric(str)
+{
+var re = new RegExp("[^a-zA-Z0-9]");
+for (var i=0; i<str.length; i++)
+{
+if ((str.substr(i,1).match(re)))
+{
+return false;
+}
+}
+return true;
+}
+</script></form>
+    <!-- Swiper JS -->
+
+    <script src="./swiper.min.js.download" type="text/javascript"></script>
+
+    <!-- Initialize Swiper -->
+
+    <script language="javascript" type="text/javascript">
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev',
+        slidesPerView: 1,
+        paginationClickable: true,
+        spaceBetween: 0,
+        loop: true,
+		centeredSlides: true,
+		autoplay: 4500,
+        autoplayDisableOnInteraction: false
+    });
+    </script>
+
+    <script language="javascript" type="text/javascript">
+    var objP = window.parent;
+	
+    if(objP != null)
+    {
+	    objP.blnLogined = false;
+	    objP = null;
+    }
+
+    if (document.getElementById('txtAccessCode') != null)
+    {
+        if (!document.getElementById('txtAccessCode').disabled)
+        {
+	        document.getElementById('txtAccessCode').focus();
+        }
+    }
+    </script>
+
+
+
+</body></html>

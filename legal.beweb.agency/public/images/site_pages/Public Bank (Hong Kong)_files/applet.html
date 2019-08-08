@@ -1,0 +1,71 @@
+
+<!-- saved from url=(0080)https://ebank.publicbank.com.hk/applet.jsp?srcCode=0028&upd=nocache&ver=20170912 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+     <meta http-equiv="Pragma" content="no-cache">
+     <meta http-equiv="Cache-Control" content="no-cache">
+     <meta http-equiv="Expires" content="0">
+<script language="javascript">
+	var CLIENT_IP_ADDRESS = "172.22.14.4";
+</script><script id="appletjs">
+		var ready = false;
+		var app;
+		//For certain reasons
+		/*
+		var document = {
+				"applets"  : "10",
+				"NaApplet" : parent.app
+		}
+		*/
+		function selfCheckOrigin() {
+			if(self != self.parent.appletPage) {
+				top.location.replace(self.parent.location.href);
+			}
+		}
+		function readParam(){
+			parent.readyCollectors();
+			parent.checkOrigin();
+			selfCheckOrigin();
+			
+			while((document.getElementById('pinModulus').value[0]==0)&&(document.getElementById('pinModulus').value[1]==0)){
+				document.getElementById('pinModulus').value=document.getElementById('pinModulus').value.substring(2);
+			}
+			while((document.getElementById('msgModulus').value[0]==0)&&(document.getElementById('msgModulus').value[1]==0)){
+				document.getElementById('msgModulus').value=document.getElementById('msgModulus').value.substring(2);
+			}
+			parent.pinModulus  = document.getElementById('pinModulus').value;
+			parent.pinExponent = document.getElementById('pinExponent').value;
+			parent.msgModulus  = document.getElementById('msgModulus').value;
+			parent.msgExponent = document.getElementById('msgExponent').value;
+			
+			app=parent.app;
+			ready = true;
+		}
+
+		</script></head>
+
+
+
+<!-- 2016DJV: start -->
+
+
+
+
+<body onload="javascript:parent.appletPageReady=true;parent.g_rsaKeyID=&#39;M0028011&#39;;readParam();">
+
+  <param id="srcCode" name="srcCode" value="0028">
+  <param id="pinID" name="pinID" value="P0028010">
+  <param id="pinModulus" name="pinModulus" value="C9EAE6494674177C954820F034DB9E3A23D9DECCE183F9A80A615B1D70A65FAC8C3DCF13067DCA051F8B25D10ACAD143F2B3F7CBAEA26E90DD5FA7E83153111BDF8D5A92260202BF45F9FB7E53EA2F78D5D0F67A20014C15408B196F8C8AE850B52882720EC50F5FDDDE01330CADD0E93A3F12C13C5DB0EE8E0515B987BBAEA7">
+  <param id="pinExponent" name="pinExponent" value="010001">
+  <param id="pinLastModified" name="pinLastModified" value="1476860843000">
+  <param id="msgID" name="msgID" value="M0028011">
+  <param id="msgModulus" name="msgModulus" value="ad16d21cd1a1b7337b6657dcfb9bde3ac917a2524e8499bd8db72b948ae1c441d90d26c2c336ebb537ad12f86ec7be2df2b1909383412e9d03b1b158e11da247229e73a0b77dad5046e36bf95847f50540d65e5a6aac512772fad116aff5499d583577dee300ae4953e0e77ac5dcbfc853faabdee0f0eccd2b0dc7f66b125db3">
+  <param id="msgExponent" name="msgExponent" value="010001">
+  <param id="msgLastModified" name="msgLastModified" value="1476860843000">
+  
+  
+<!-- 2016DJV: end -->
+
+
+
+
+</body></html>

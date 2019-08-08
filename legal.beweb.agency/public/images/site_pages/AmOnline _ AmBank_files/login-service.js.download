@@ -1,0 +1,96 @@
+define( function (require, exports, module) {
+
+    'use strict';
+
+    // @ngInject
+    exports.loginService = function($http, lpWidget) {
+        var loginEndPoint;
+
+        return {
+            setConfig: function(loginEP) {
+                loginEndPoint = loginEP;
+            },
+            authentication: function(reqObj, config) {
+                return $http.post(loginEndPoint, reqObj, config) //lilsizzo: uncomment this when done
+                //return $http.get(loginEndPoint, reqObj)//lilsizzo: comment this when done
+                .then(function(resp) {
+                     if (resp.status >= 200 && resp.status < 300) {
+                        return resp;
+                    }
+                })
+                .catch(function(err) {
+                    // throw err.data;
+                    //Status code 'found'
+                    if(err.status == 302) {
+                        return err;
+                    }  else {
+                        throw err;
+                    }
+                  
+                })           
+            },
+            authorizeUser: function(reqObj, config) {
+                return $http.post(loginEndPoint, reqObj, config) //lilsizzo: uncomment this when done
+                //return $http.get(loginEndPoint, reqObj, config) //lilsizzo: comment this when done
+                // console.log(config)
+                // var  eeEndPoint = lpWidget.getResolvedPreference('usernameErrorDataSrc');
+                // return  $http.get(eeEndPoint)
+                // return $http.get(loginEndPoint, config)
+                .then(function(resp) {
+                    // throw resp;
+                    if (resp.status >= 200 && resp.status < 300) {
+                        return resp;
+                    } 
+                })
+                .catch(function(err) {
+                    // throw err.data;
+                    throw err;                
+                })    
+            }
+          
+        }
+    }
+
+    // @ngInject
+    exports.amProfileService = function($http, lpWidget) {
+        var profileEndPoint;
+        return {
+            setConfig: function(profileEP) {
+                profileEndPoint = profileEP;
+            },            
+            loadProfile: function(config) {
+                return $http.get(profileEndPoint, config)
+                .then(function(resp) {
+                    if (resp.status >= 200 && resp.status < 300) {
+                        return resp;
+                    } 
+                })
+                .catch(function(err) {
+                    throw err;                
+                })   
+            }
+        }
+    }    
+
+    // @ngInject
+    exports.amW2wService = function($http, lpWidget) {
+        var w2wMerchantDetailsEndPoint;
+        return {
+            setConfig: function(w2wEP) {
+                w2wMerchantDetailsEndPoint = w2wEP.w2wMerchantDetailsEndPoint;
+            },            
+            loadMerchantDetails: function() {
+                return $http.get(w2wMerchantDetailsEndPoint)
+                .then(function(resp) {
+                    if (resp.status >= 200 && resp.status < 300) {
+                        return resp;
+                    } 
+                })
+                .catch(function(err) {
+                    throw err;                
+                })   
+            }
+        }
+    }    
+
+});

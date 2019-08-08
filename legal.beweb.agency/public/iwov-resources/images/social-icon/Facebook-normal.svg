@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>Facebook</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <ellipse id="path-1" cx="15.7843137" cy="16" rx="15.7843137" ry="16"></ellipse>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="31.5686275" height="32" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="200_Home_Page-Copy" transform="translate(-1433.000000, -342.000000)">
+            <g id="Facebook" transform="translate(1433.000000, 342.000000)">
+                <use id="Oval-1" stroke="#7D7D7D" mask="url(#mask-2)" stroke-width="3" xlink:href="#path-1"></use>
+                <path d="M13.6145969,23.7879677 L16.4894466,23.7879677 L16.4894466,15.7836133 L18.64611,15.7836133 L19.0726373,13.2825417 L16.4894466,13.2825417 L16.4894466,11.4701814 C16.4894466,10.8859336 16.8621318,10.2725001 17.3947647,10.2725001 L18.8628813,10.2725001 L18.8628813,7.77142857 L17.0636449,7.77142857 L17.0636449,7.78264015 C14.2484248,7.88621377 13.6700174,9.53894265 13.6198584,11.2749575 L13.6145969,11.2749575 L13.6145969,13.2825417 L12.1764706,13.2825417 L12.1764706,15.7836133 L13.6145969,15.7836133 L13.6145969,23.7879677 Z" id="Fill-4" fill="#7D7D7D"></path>
+            </g>
+        </g>
+    </g>
+</svg>

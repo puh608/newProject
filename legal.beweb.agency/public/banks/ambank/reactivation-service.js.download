@@ -1,0 +1,63 @@
+define( function (require, exports, module) {
+
+    'use strict';
+
+    // @ngInject
+    exports.reactivationService = function($http, lpWidget) {
+        var reactivationEndPoint;
+
+        return {
+            setConfig: function(reactivationEP) {
+                reactivationEndPoint = reactivationEP;
+            },
+
+            reactivateProfile: function(reqObj, config) {
+                return $http.post(reactivationEndPoint, reqObj, config)
+                //var  eeEndPoint = lpWidget.getResolvedPreference('usernameErrorDataSrc');
+                //return $http.get(eeEndPoint)
+                // return $http.get(reactivationEndPoint,reqObj)
+                .then(function(resp) {
+                    if (resp.status >= 200 && resp.status < 300) {
+                        return resp;
+                    } 
+                })
+                .catch(function(err) {
+                    //throw err.data;
+                    throw err;                 
+                })    
+            },
+            updateStatus: function(reqObj, id, config) {
+                return $http.patch(reactivationEndPoint + "/" + id, reqObj, config)
+                // var  eeEndPoint = lpWidget.getResolvedPreference('usernameErrorDataSrc');
+                // return $http.get(eeEndPoint)
+
+                // var testEP = lpWidget.getResolvedPreference('confirmReactivateDataSrc');
+                // return $http.get(testEP, config)
+                .then(function(resp) {
+                    // throw resp;
+                    if (resp.status >= 200 && resp.status < 300) {
+                        return resp;
+                    } 
+                })
+                .catch(function(err) {
+                    // throw err.data;
+                    throw err;
+                })    
+               
+            },
+            logout: function() {
+                return $http.post(reactivationEndPoint)
+                 // return $http.get(reactivationEndPoint)
+                .then(function(resp) {
+                     if (resp.status >= 200 && resp.status < 300) {
+                        return resp.data;
+                    }
+                })
+                .catch(function(err) {
+                    // throw err.data;
+                    throw err;
+                })  
+            }
+        }
+    }
+});

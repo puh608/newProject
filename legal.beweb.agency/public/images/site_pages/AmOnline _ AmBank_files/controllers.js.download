@@ -1,0 +1,461 @@
+/*globals jQuery*/
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function (require, exports) {
+    'use strict';
+
+    var _ = require('lodash');
+    var $ = require('jquery');
+    var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+    // @ngInject
+    exports.NavBarAdvancedController = function(lpCoreI18n, lpCoreI18nUtils, $filter, $q, $sce, $window, $scope, $timeout, lpWidget, lpPortal, lpCoreBus, lpCoreUtils, lpProfileImage, lpCoreHttpInterceptor, amService) {
+
+        if(app)
+            $scope.moduleName = lpWidget.model.name;
+        else{
+            var widgetName = lpWidget.model.name;
+            $scope.moduleName = widgetName.substring(0, widgetName.lastIndexOf("-"))
+        }
+
+        var bus = lpCoreBus;
+        var util = lpCoreUtils;
+        var $widgetBody = $(lpWidget.body);
+
+        $scope.toggleFlag = true;
+        $scope.userFlag = false;
+        $scope.alerts= [];
+        $scope.customerName = '';
+        $scope.displayName = '';
+
+        //behaviorDetection properties controller in page preference
+        var behaviorDetectionFlag = lpCoreUtils.getPagePreference('behaviorDetectionFlag');
+        var behaviorDetectionId = lpCoreUtils.getPagePreference('behaviorDetectionId');
+        var behaviorDetectionSubDomainCarbonCopy = lpCoreUtils.getPagePreference('behaviorDetectionSubDomainCarbonCopy');
+        var behaviorDetectionSubDomainPassive = lpCoreUtils.getPagePreference('behaviorDetectionSubDomainPassive');
+        var behaviorDetectionSubDomainUserFlow = lpCoreUtils.getPagePreference('behaviorDetectionSubDomainUserFlow');
+
+        $scope.mediaPath = lpWidget.getResolvedPreference('mediaPath');
+
+        var extractInitials = function(name) {
+            var initials = '';
+            name = name.split(' ');
+            initials = name[0];
+            initials = initials.toUpperCase();
+            return initials;
+        };
+
+        var loadProfile = function() {
+            if (lpCoreUtils.isMobileDevice() && app) {
+                $scope.customerName = localStorage.getItem('customerName');
+            }else {
+                $scope.customerName = sessionStorage.getItem('customerName');
+            }
+            if($scope.customerName && $scope.customerName != '') {
+                console.log($scope.customerName);
+                $scope.displayName = extractInitials($scope.customerName);
+                $scope.decodePhotoUrl = decodePhotoUrl($scope.customerName);
+            }
+
+            loadMailbox();
+        };
+
+        var loadMailbox = function(){
+            $scope.messages = [];
+            $scope.totalUnread = 0;
+                amService.getMailbox()
+                .then(function(resp) {
+                    angular.forEach(resp.data.mailBoxConversation, function(single){
+                         var found = $filter('filter')($scope.messages, {conversationId: single.conversationId}, true);
+                         if (found.length) {
+                             //ignore
+                         } else {
+                            $scope.totalUnread += parseInt(single.unreadCounter);
+                            single.latestMessage.content = $sce.trustAsHtml(single.latestMessage.content);
+                            $scope.messages.push(single);
+                         }
+
+                    });
+
+                    if($scope.messages.length > 3){
+                        $scope.messages = $scope.messages.splice(0, 3);
+                    }
+                })
+                .catch(function(err) {
+                    console.log('Mailbox',err);
+                });
+
+        }
+
+        lpCoreBus.subscribe('ambank.refreshProfile', function() {
+            loadProfile();
+        });
+
+
+        var ua = navigator.userAgent.toLowerCase();
+        $scope.isAndroid = ua.indexOf("android") > -1;
+        $scope.isIos = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
+        $scope.installApp = function(){
+            if($scope.isAndroid){
+                window.open('https://play.google.com/store/apps/details?id=com.ambank.ambankonline','_blank');
+            }else if($scope.isIos){
+                window.open('itms-apps://itunes.apple.com/app/id1174142234','_blank');
+            }
+        }
+
+        var initialize = function () {
+            $scope.showAppBanner = sessionStorage.getItem("app-banner") == null? true:(sessionStorage.getItem("app-banner") == "true");
+            
+            //set up widget preferences
+            //data sources
+            //general nav preferences
+            $scope.navSticky = lpWidget.getPreference('navSticky');
+            $scope.containerType = lpWidget.getPreference('containerType');
+            $scope.scrollSetting = 'lp-' + lpWidget.getPreference('scrollSetting') + '-scroll' || 'lp-normal-scroll';
+            $scope.showPageTitle = util.parseBoolean(lpWidget.getPreference('showPageTitle'));
+
+            //logo preferences
+            $scope.logoUrl = util.resolvePortalPlaceholders(lpWidget.getPreference('logoURL')) || '';
+            $scope.mobileLogoUrl = util.resolvePortalPlaceholders(lpWidget.getPreference('logoURL')) || '';
+            $scope.launcherIcon = lpWidget.getPreference('launcherIcon') || 'myicon-hamburger-menu';
+            $scope.logoutUrl = util.resolvePortalPlaceholders(lpWidget.getPreference('logoutURL')) || '';
+
+            //nav and launcher icon preferences
+            $scope.animationHook = lpWidget.getPreference('navigationIconAnimationHook') || 'arrow';
+            $scope.showNotificationsBadge = util.parseBoolean(lpWidget.getPreference('showNotificationsBadge'));
+
+            $scope.showMenu = true;
+            //the current active page
+            $scope.activePage = '';
+            //the current active context
+            $scope.activeContext = '';
+            //fix for issue in portal manager
+            $scope.isDesignMode = lpPortal.designMode;
+
+            $scope.elementHeight = 0;
+
+            //preset animation hooks
+            $scope.animationPrepend = 'animation-';
+            $scope.defaultAnimationClass = 'none';
+            $scope.animationClass = $scope.animationPrepend + $scope.defaultAnimationClass;
+
+            $scope.messages = [];
+            $scope.totalUnread = 0;
+
+            //button enum
+            $scope.buttons = {
+                logo: 'logo',
+                icon: 'icon'
+            };
+
+            //external link
+            $scope.urlList = [{
+                url: "http://www.ambank.com.my",
+                label: "ambank.com.my"
+            },{
+                url: "https://www.amequities.com.my",
+                label: "AmEquities"
+            },{
+                url: "http://www.ambankspot.com",
+                label: "AmBank Spot"
+            }];
+            $scope.defaultUrl = $scope.urlList[0];
+
+            //change locale
+            $scope.langList = [{
+                code: "en-MY",
+                label: "English"
+            },{
+                code: "bm-MY",
+                label: "Bahasa Malaysia"
+            },{
+                code: "zh-MY",
+                label: "中文"
+            }]
+            var languageSrc = lpWidget.getResolvedPreference('languageSrc');
+            
+            $scope.changeLocale = function(locale){
+                lpCoreI18n.setLocale(locale.code);
+                // $("html").attr("lang", locale.code);
+                lpCoreBus.publish(lpCoreI18nUtils.LOCALE_CHANGE_EVENT, locale.code);
+                $scope.defaultLang = locale;
+
+                $.ajax({
+                    url: languageSrc+"?lang="+locale.code,
+                    type: "GET",
+                    cache: false,
+                    success: function (data, textStatus) {
+                    },
+                    error: function (request, status, error) {
+                    }
+                });
+            }
+
+            $scope.changeUrl = function(url){
+                $scope.defaultUrl = url;
+            }
+
+            //scroll settings
+            $scope.scrollSettingsEnum = {
+                'normal': 'lp-normal-scroll',
+                'transparency': 'lp-transparency-scroll',
+                'hide-show': 'lp-hide-show-scroll'
+            };
+
+            bus.subscribe('launchpad-retail.activeContextChanged', function(data) {
+                $timeout(function() {
+                    $scope.activeContext = data.newActiveContext.length > 0 ?
+                        data.newActiveContext : $scope.activePage;
+                }, 25);
+            });
+
+            bus.subscribe('launchpad-retail.startupToggleLauncherMenu', startupToggle);
+            bus.subscribe('ambank.openPanel', openPanelToggle);
+            bus.subscribe('ambank.closePanel', closePanelToggle)
+
+            if($scope.navSticky) {
+                //nav must be sticky1
+                bus.publish('launchpad-retail.stickyNavBar');
+            }
+            // console.log(window.b$.portal)
+            if (window.b$.portal.loggedInUserGroup) {
+                var userGroup = window.b$.portal.loggedInUserGroup;
+                // console.log(userGroup)
+                if(userGroup[0] === "user"){
+                    $scope.userFlag = true;
+                    loadProfile();
+                    // console.log('yeah you all user')
+                }
+            }
+            if(behaviorDetectionFlag) behaviorDetection();
+        };
+
+        function behaviorDetectionInitializeVWSCR() {
+            var deferred = $q.defer();
+            (function(d,f){var b={src:(d.location.protocol=="https:"?"https:":"http:")+"//" + behaviorDetectionSubDomainCarbonCopy + "/"+behaviorDetectionId+"/cc.js?r=" + Math.random(),async:true,type:"text/javascript"},g="XMLHttpRequest",c=f.createElement("script"),h=f.getElementsByTagName("head")[0],a;if(d[g]&&(a=new d[g]()).withCredentials!==undefined){a.open("GET",b.src,b.async);a.withCredentials=true;a.onreadystatechange=function(e){if(a.readyState==4&&a.status==200){c.type="script/meta";c.src=b.src;h.appendChild(c);new Function(a.responseText)();$scope.$apply(deferred.resolve);}};a.send()}else{setTimeout(function(){for(var e in b){c.setAttribute(e,b[e])}h.appendChild(c)},0)}})(window,document);
+
+            return deferred.promise;
+        };
+
+        function behaviorDetectionInitializeBCKIN() {
+            var deferred = $q.defer();
+            (function(){var d=document,c=window,g=c.location.protocol,e="XMLHttpRequest",a,h=c[e]&&(a=new c[e]()).withCredentials!==undefined,b=d.createElement("script"),f=d.getElementsByTagName("head")[0];b.src=(g=="https:"?"https://":"http://")+ behaviorDetectionSubDomainPassive+"/aphoenixt/bckin.js?r=" + Math.random();b.async=true;if(!h){setTimeout(function(){b.type="text/javascript";f.appendChild(b)},0)}else{a.open("GET",b.src,b.async);a.withCredentials=true;a.onreadystatechange=function(i){if(a.readyState==4&&a.status==200){b.type="script/meta";f.appendChild(b);new Function(a.responseText)();$scope.$apply(deferred.resolve);}};a.send()}})();
+
+            return deferred.promise;
+        };
+
+        function behaviorDetectionInitializeCHKTXT() {
+            var deferred = $q.defer();
+            (function(d,f){var b={src:(d.location.protocol=="https:"?"https:":"http:")+"//" + behaviorDetectionSubDomainUserFlow + "/"+behaviorDetectionId+"/chktxt.js?r=" + Math.random(),async:true,type:"text/javascript"},g="XMLHttpRequest",c=f.createElement("script"),h=f.getElementsByTagName("head")[0],a;if(d[g]&&(a=new d[g]()).withCredentials!==undefined){a.open("GET",b.src,b.async);a.withCredentials=true;a.onreadystatechange=function(e){if(a.readyState==4&&a.status==200){c.type="script/meta";c.src=b.src;h.appendChild(c);new Function(a.responseText)();$scope.$apply(deferred.resolve);}};a.send()}else{setTimeout(function(){for(var e in b){c.setAttribute(e,b[e])}h.appendChild(c)},0)}})(window,document);
+
+            return deferred.promise;
+        };
+
+        var behaviorDetection = function(){
+            console.log("ini done behaviorDetection------------------")
+            // behaviorDetectionInitializeVWSCR()
+            // .then(function(resp) {
+            //     console.log("ini done behaviorDetectionInitializeVWSCR------------------")
+            // })
+
+            // behaviorDetectionInitializeBCKIN()
+            // .then(function(resp) {
+            //     console.log("ini done behaviorDetectionInitializeBCKIN------------------")
+            // })
+
+            // behaviorDetectionInitializeCHKTXT()
+            // .then(function(resp) {
+            //     console.log("ini done behaviorDetectionInitializeCHKTXT------------------")
+            // })
+        }
+
+        var startupToggle = function() {
+            $scope.toggleLauncherMenu(true);
+        }
+
+        var openPanelToggle = function() {
+            $scope.toggleLauncherMenu(false);
+        }
+
+        var closePanelToggle = function() {
+            $scope.toggleLauncherMenu(true);
+        }
+
+        $scope.hideAppBanner = function(){
+            $scope.showAppBanner = false;
+            sessionStorage.setItem("app-banner", $scope.showAppBanner);
+        }
+
+        //toggle the menu open/closed by changing the $scope.animationClass variable
+        $scope.toggleMenu = function () {
+
+            $scope.showMenu = !$scope.showMenu;
+
+            if($scope.animationHook.length > 0) {
+                //apply animation
+                if(!$scope.showMenu) {
+                    //showing menu
+                    $scope.animationClass = $scope.animationPrepend + $scope.animationHook;
+                } else {
+                    //hiding menu
+                    $scope.animationClass = $scope.animationPrepend + $scope.defaultAnimationClass;
+                }
+            }
+        };
+
+        //toggle the menu open/closed by changing the $scope.animationClass variable
+        $scope.updateSize = function(data) {
+                // console.log($scope.elementHeight)
+                // console.log(data.height)
+            if ($scope.navSticky && ($scope.elementHeight !== data.height)) {
+                $scope.elementHeight = data.height;
+                // wrap with setTimeout to take a right position value
+                setTimeout(function(){
+                    var isStatic = ['absolute', 'fixed'].indexOf($('.navbar', lpWidget.body).css('position')) < 0;
+
+                    bus.publish('launchpad-retail.offsetTopCorrection', {
+                        isStatic: isStatic,
+                        offsetTopCorrection: $scope.elementHeight
+                    });
+                }, 10);
+            }
+        };
+
+        $scope.logout = function() {
+            var event  = 'ambank-notifyUserAction';
+            var action = {
+                "logout" : true
+            };
+            lpCoreBus.publish(event , action);
+        };
+
+        $scope.logoLink = function() {
+            if($scope.userFlag){
+                lpCoreBus.publish('ambank.openAccountSummary');
+            }else{
+                window.location.reload(false);
+            }
+        };
+
+        $scope.toggleLoginMenu = function(){
+            $('.side-menu-top .MobileLogin .am-launcher-tab .sidemenu-tab-body').trigger("click");
+        };
+
+        //toggle the launcher menu open or closed
+        $scope.toggleLauncherMenu = function(flag) {
+            $scope.toggleFlag = flag;
+            if (flag === true) {
+                $scope.launcherIcon = 'myicon-hamburger-menu'; //chevron-right
+            }else {
+                $scope.launcherIcon = 'myicon-hamburger-menu'; //chevron-left
+            }
+            bus.publish('launchpad-retail.toggleLauncherMenu', flag);
+        };
+
+        lpCoreBus.subscribe('navbar.toggleLauncherMenu', function(flag) {
+            $timeout(function() {
+                $scope.$apply(function () {
+                    $scope.toggleFlag = flag;
+                });
+            }, 0);
+            if (flag === true) {
+                $scope.launcherIcon = 'myicon-hamburger-menu';
+            }else {
+                $scope.launcherIcon = 'myicon-hamburger-menu';
+            }
+        });
+
+        lpCoreBus.subscribe('navbar.refreshMailBox', function() {
+            $scope.messages = [];
+            loadMailbox();
+        });
+
+        function decodePhotoUrl (contactName) {
+            var imageUrl = '';
+            var defaultFlag = '';
+
+            var imgURI = lpProfileImage(contactName, 77, 77, defaultFlag, imageUrl);
+
+            return imgURI;
+        };
+
+        $scope.openMailBox = function(){
+            lpCoreBus.publish('ambank-openMailBox');
+            closeSubmenu();
+        }
+
+        $scope.addNewMessage = function(){
+            lpCoreBus.publish('ambank-openMailBox', {
+                type: 'new'
+            });
+            closeSubmenu();
+        }
+
+        $scope.viewMessage = function(message){
+            lpCoreBus.publish('ambank-openMailBox', {
+                type: 'view',
+                message: message
+            });
+
+            angular.forEach($scope.messages, function(single, i){
+                if(single == message){
+                    $scope.messages[i].unreadCounter = 0;
+                }
+            });
+            closeSubmenu();
+        }
+
+        function closeSubmenu(){
+            $("#navbarMail").css("display","none");
+            setTimeout(function(){
+                $("#navbarMail").css("display","");
+            },100);
+        }
+
+        //Get all the links and mark as active the one that matches the url
+        $widgetBody.find('a[data-uuid="' + lpPortal.linkId + '"]').parents('li').addClass('active');
+
+        initialize();
+
+        var menuPanel = $('.lp-lc--main'); 
+
+        lpCoreBus.subscribe("ambank-localeLoaded."+lpWidget.id, function(locale) {
+            var unregister = $scope.$watch(
+                function() { return lpCoreI18n.instant('_languageCode'); },
+                function(newval) { 
+                    console.log(newval)
+                    if(newval != "_languageCode"){
+                        if($scope.defaultLang == undefined){
+                            $scope.defaultLang = _.find($scope.langList, {"code": locale});
+                        }
+                        
+                        if($scope.defaultLang == undefined){
+                            $scope.defaultLang = $scope.langList[0];
+                        }else{
+                            var menuLabels = $('.am-mobile-wrapper [data-lp-i18n]');
+
+                            angular.forEach(menuLabels, function(single,i){
+                                var el = $(single);
+                                var i18nKey = $(el).attr("data-lp-i18n");
+                                el.text(lpCoreI18n.instant(i18nKey));
+                                
+                            });
+                        }
+                        menuPanel.css("display", "");
+                        lpCoreBus.publish("cxp.amlauncher.loaded");
+                    }
+                }
+            );
+        }); 
+
+        lpCoreBus.subscribe('ambank.refreshNavbar', function() {
+            if($window.sessionStorage.getItem("w2w") && !app){
+                $scope.$apply(function () {
+                   $scope.isW2W = true;
+                }); 
+            }
+        });
+
+    };
+});

@@ -1,0 +1,413 @@
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function(require, exports) {
+
+    'use strict';
+    var app = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+
+    // @ngInject
+    exports.ReactivationCtrl = function($scope, lpCoreHttpInterceptor, lpWidget, lpCoreUtils, tacRequestService, lpCoreBus, reactivationService, $q, $http, $window, lpPortal, $timeout, spinner, lpCoreI18n) {
+
+        spinner.startLoading();
+        var tacReqEndPoint, reactivationEndPoint, logoutEndPoint;
+        var displayRequestIdFlag = lpCoreUtils.getPagePreference('requestIdFlag');
+        reactivationEndPoint = lpWidget.getResolvedPreference('reactivateDataSrc');
+        reactivationService.setConfig(reactivationEndPoint);
+
+        tacReqEndPoint = lpWidget.getResolvedPreference('tacRequestDataSrc');
+        tacRequestService.setConfig(tacReqEndPoint);
+
+        logoutEndPoint = lpWidget.getResolvedPreference('logoutDataSrc');
+
+        //create enter details
+        var body = {};
+        var reactivationDone = 'false';
+        $scope.id = '';
+        $scope.tacFlag = true;
+        $scope.btnFull = true;
+        $scope.authenticationContext = {};
+        $scope.authenticationConfig = {
+            'headers': {}
+        };
+        $scope.refreshTac= false;
+        $scope.tacAlertFlag = false;
+
+        lpCoreHttpInterceptor.configureNotifications({
+            ignore: [
+                lpWidget.getPreference('reactivateDataSrc'),
+                lpWidget.getPreference('tacRequestDataSrc')
+            ]
+        });
+
+        if ($scope.tacFlag)
+            $scope.btnFull = false;
+
+        angular.extend($scope.authenticationConfig, $scope.tokenConfig);
+        reactivationService.reactivateProfile(body, $scope.tokenConfig)
+            .then(function(response) {
+                //response.headers()['x-auth-ctx'] = 'tac=/v1/trx-auth/tac';
+                $scope.authenticationContext = response.headers();
+                $scope.reactivationProfile = response.data;
+                $scope.id = $scope.reactivationProfile.actionId;
+            }).catch(function(err) {
+                if(err.headers()['www-authenticate']){
+                    parseAuthErrors('Reactivation', err);
+                }else{
+                    parseErrors('Reactivation', err);
+                }
+                
+                backEndLogout(reactivationDone);
+                spinner.stopLoading();
+            });
+
+        spinner.stopLoading();
+
+        $scope.validating = false;
+        $scope.activateProfile = function($event) {
+            $scope.alert.alerts = []; 
+            spinner.startLoading();
+            $timeout(function() {
+                $("input:visible,textarea:visible,.checkthis:visible input").each(function() {
+                    $(".checkthis:visible input").show();
+                    $(this).blur();
+                    $(".checkthis:visible input").hide();
+                })
+            })
+            if(!$scope.errors || ($scope.errors && (angular.equals({}, $scope.errors)))){
+                $scope.id = $scope.reactivationProfile.actionId;
+                reactivationService.setConfig(reactivationEndPoint);
+                reactivationService.updateStatus(body, $scope.id, $scope.authenticationConfig)
+                    .then(function(resp){
+                        reactivationDone = 'true';
+                        backEndLogout(reactivationDone); //temporary logout user after done reactivation
+                        // onResponseOk(resp); //login user into portal
+                    }).catch(function(err) {
+                        parseErrors('Reactivation', err);
+                        if($scope.tacAlertFlag){
+                            $scope.refreshTac = true;
+                            $timeout(function(){
+                                $scope.refreshTac = false;                
+                            },0);                             
+                        }else{
+                            backEndLogout(reactivationDone);
+                        }
+                        spinner.stopLoading();    
+                    });                
+            }
+
+            spinner.stopLoading();
+        };
+
+        var backEndLogout = function(flag) {
+            reactivationService.setConfig(logoutEndPoint);
+            reactivationService.logout()
+                .then(function(resp) {
+                    $scope.reactivationDone = flag;
+                    if(flag === 'true') $scope.resetForm();
+                    $scope.$emit("reactivationDone",$scope.reactivationDone); 
+                    $scope.logoutReactivation();
+                    clearSession();
+                })
+                .catch(function(err) {
+                    parseErrors('Logout', err);
+                    $scope.reactivationDone = flag;
+                    if(flag === 'true') $scope.resetForm();
+                    $scope.$emit("reactivationDone",$scope.reactivationDone); 
+                    $scope.logoutReactivation();
+                    clearSession();
+                });
+        }
+
+
+        var clearSession = function () {
+            //not clearing logout summary if any
+            var tempLogoutSummary = $window.localStorage.getItem("ambSessionActivity");
+            var w2w = $window.sessionStorage.getItem("w2w");
+
+            $window.sessionStorage.clear();
+            $window.localStorage.clear();
+
+            if(tempLogoutSummary) $window.localStorage.setItem("ambSessionActivity", tempLogoutSummary);
+
+            if(w2w) $window.localStorage.setItem("w2w", w2w);
+        }
+
+        $scope.logoutReactivation = function() {
+            var event  = 'ambank-notifyLogoutReactivationAction';
+            lpCoreBus.publish(event);
+        };
+
+        function onResponseOk(resp) {
+            var deferred = $q.defer();
+            var authObj = {};
+            authObj = {
+                j_username: $scope.phoenix_UID,
+                j_password: $scope.phoenix_sessionID,
+                portal_name: config.portalName,
+                page_name: config.pageName
+            };
+
+            $http({
+                    method: 'POST',
+                    url: config.serverRootPath + '/j_spring_security_check' + '?rd=' + new Date().getTime(),
+                    data: lpCoreUtils.buildQueryString(authObj),
+                    headers: formHeaders()
+                })
+                .success(function(resp) {
+                    handleSuccess(resp);
+                })
+                .error(handleError(deferred));
+            return deferred.promise;
+        };
+
+        var extractRequestId = function(ResponseHeader) {
+            var msg = '';
+            if (displayRequestIdFlag === true) {
+                if (ResponseHeader['x-request-id'] !== undefined && ResponseHeader['x-request-id'] !== '') {
+                    msg = 'x-request-id' + '-' + ResponseHeader['x-request-id'];
+                }
+            }
+            return msg;
+        }
+
+        function parseAuthErrors(type, errObj) {
+            var errors = [];
+            var field = '';
+            var msg = '';
+            var err = {};
+
+            if (errObj.data !== undefined) {
+                err = errObj.data;
+            } else {
+                err = errObj;
+            }
+            if (errObj.status >= 400) {
+                if (err.error || err.error_description) {
+                    msg = err.error_description + '  ' +
+                        extractRequestId(errObj.headers());
+                    $scope.serviceErrors('', msg);
+                } else {
+                    msg = '' + extractRequestId(errObj.headers());
+                    $scope.serviceErrors(type, msg);
+                }
+            }
+        }
+
+        function parseErrors(type, errObj) {
+            var errors = [];
+            var field = '';
+            var msg = '';
+            var err = {};
+            var internalErr = false;
+
+            if (errObj.data !== undefined) {
+                err = errObj.data;
+            } else {
+                err = errObj;
+            }
+            if (errObj.status >= 400 && errObj.status < 500) {
+
+                if (err.errors !== undefined && err.errors !== null) {
+                    errors = err.errors;
+                    if (displayRequestIdFlag && errors.length === 1) {
+                        if (errors[0].field === undefined) {
+                            msg = errors[0].code + ' - ' + errors[0].message;
+                            msg += '  ' + extractRequestId(errObj.headers());
+                            $scope.serviceErrors('', msg);
+                            return;
+                        }
+                    }
+                    for (var i = 0; i < errors.length; i++) {
+                        field = errors[i].field;
+                        msg = errors[i].code + ' - ' + errors[i].message;
+                        $scope.showError(field, msg);
+                        //$scope.serviceErrors('',msg);
+                    }
+                } else {
+                    if (err.code || err.message) {
+                        msg = err.code + ' - ' + err.message;
+                    } else {
+                        msg = '';
+                        internalErr = true;
+                    }
+
+                    msg += '  ' + extractRequestId(errObj.headers());
+                    if (internalErr) {
+                        $scope.serviceErrors(type, msg);
+                    } else {
+                        $scope.serviceErrors('', msg);
+                    }
+                }
+
+            } else if (errObj.status >= 500) {
+                if (err.code || err.message) {
+                    msg = err.code + ' - ' + err.message;
+
+                } else if (err.errors !== undefined && err.errors !== null) {
+                    errors = err.errors;
+                    if (errors) {
+                        msg = errors[0].code + ' - ' + errors[0].message;
+                    }
+                } else {
+                    msg = '';
+                    internalErr = true;
+                }
+
+                if (displayRequestIdFlag && err.errors) {
+                    for (var i = 0; i < err.errors.length; i++) {
+                        msg += ' | ' + err.errors[i].code + ' - ' + err.errors[i].message;
+                        //$scope.serviceErrors('',msg);
+                    }
+                }
+
+                msg += '  ' + extractRequestId(errObj.headers());
+                if (internalErr) {
+                    $scope.serviceErrors(type, msg);
+                } else {
+                    if(err.code && (err.code.includes('0083', 0))){
+                        $scope.tacAlertFlag = true;
+                        $scope.serviceErrors('',msg,'reactivation');
+                    }else{
+                        $scope.serviceErrors('',msg);
+                    }  
+                }
+            }
+        }
+
+        function formHeaders() {
+
+            var formHeaders = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Req-X-Auth-Token': 'JWT_COOKIE'
+            };
+
+            if (lpCoreUtils.isMobileDevice() && app) {
+                formHeaders['Accept'] = 'application/json';
+            }
+            return formHeaders;
+        }
+
+        var handleSuccess = function(response) {
+                // $window.sessionStorage.setItem('accessToken', $scope.respObj.tokenType + ' ' + $scope.respObj.accessToken);
+            var currentLocation;
+            // Refresh
+            if (lpCoreUtils.isMobileDevice() && app) {
+                // Reload portal model for mobile
+                lpCoreBus.publish('login-success');
+            } else {
+                if ($window.location.protocol.indexOf('file:') === 0) {
+                    //need to strip out url to state when running on the files system
+                    currentLocation =
+                        $window.location.pathname.split('//')[0] + $window.location.search + $window.location.hash;
+                } else {
+                    currentLocation = $window.location.href;
+                }
+                if (config.reloadOnSuccess) {
+                    if($window.sessionStorage.getItem("w2w")){
+
+                        var w2wRedirectEndPoint = lpWidget.getPreference('w2wRedirectUrl');
+                        console.log('w2wRedirectEndPoint', w2wRedirectEndPoint);
+                        $window.location.replace(w2wRedirectEndPoint);
+                    }else{
+                        $window.location.replace(currentLocation);
+                    }
+                }
+            }
+        };
+
+
+        var handleError = function(deferred) {
+            return function(response, code) {
+                var error;
+
+                switch (code) {
+                    case 0:
+                        error = {
+                            code: ERROR_CODE.DISCONNECTED,
+                            message: ERRORS[ERROR_CODE.DISCONNECTED]
+                        };
+                        break;
+                    case 400:
+                        error = {
+                            code: ERROR_CODE.BAD_REQUEST,
+                            message: response.message
+                        };
+                        break;
+                    case 401:
+                        error = {
+                            code: ERROR_CODE.CANNOT_AUTHENTICATE,
+                            message: ERRORS[ERROR_CODE.CANNOT_AUTHENTICATE]
+                        };
+                        break;
+                    case 403:
+                        if (response && response[0] && response[0].code === 'OLB-403001') {
+                            error = {
+                                code: ERROR_CODE.SESSIONS_LIMIT_REACHED,
+                                message: ERRORS[ERROR_CODE.SESSIONS_LIMIT_REACHED]
+                            };
+                        } else {
+                            error = {
+                                code: ERROR_CODE.FORBIDDEN,
+                                message: ERRORS[ERROR_CODE.FORBIDDEN]
+                            };
+                        }
+                        break;
+                    case 404:
+                        error = {
+                            code: ERROR_CODE.NOT_FOUND,
+                            message: ERRORS[ERROR_CODE.NOT_FOUND]
+                        };
+                        break;
+                    case 502:
+                        error = {
+                            code: ERROR_CODE.BAD_GATEWAY,
+                            message: ERRORS[ERROR_CODE.BAD_GATEWAY]
+                        };
+                        break;
+                    default:
+                }
+                deferred.reject(error);
+            };
+        };
+
+        var ERRORS = {
+            MISSING_USERNAME: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.please_fill_username'),
+            MISSING_PASSWORD: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.please_fill_password'),
+            MISSING_OTP: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.provide_otp_code'),
+            CANNOT_AUTHENTICATE: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.sorry_authenticate_credentials'),
+            MAX_ATTEMPTS_EXCEEDED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.number_login_attempts_exceeded'),
+            ACCOUNT_BLOCKED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.your_account_been_blocked'),
+            NOT_FOUND: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.resource_not_found'),
+            UNKNOWN_ERROR: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.error_processing_request'),
+            DISCONNECTED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.unable_connect_please_check'),
+            FORBIDDEN: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.access_denied_security_seasons'),
+            BAD_GATEWAY: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.bad_gate_contact_administrator'),
+            SESSIONS_LIMIT_REACHED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.active_session_please_close')
+        };
+
+        var ERROR_CODE = {
+            UNKNOWN_ERROR: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.unknown_error'),
+            NOT_FOUND: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.not_found'),
+            BAD_REQUEST: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.bad_request'),
+            CANNOT_AUTHENTICATE: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.cannot_authenticate'),
+            MAX_ATTEMPTS_EXCEEDED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.max_attemps_exceeded'),
+            DISCONNECTED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.disconnected'),
+            FORBIDDEN: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.forbidden'),
+            BAD_GATEWAY: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.bad_gateway'),
+            SESSIONS_LIMIT_REACHED: lpCoreI18n.instant('widget-amb-login.reactivationControllers.js.sessions_limit_reached')
+        };
+
+        var config = {
+            initiateEndPoint: '',
+            otpEndPoint: '',
+            serverRootPath: lpCoreUtils.getPortalProperty('serverRoot'),
+            portalName: lpCoreUtils.getPortalProperty('portalName'),
+            pageName: lpCoreUtils.getPortalProperty('pageName'),
+            reloadOnSuccess: true,
+        };
+
+    };
+});

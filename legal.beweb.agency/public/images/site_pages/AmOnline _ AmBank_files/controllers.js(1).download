@@ -1,0 +1,94 @@
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function (require, exports) {
+       
+    'use strict';
+       
+    var owlCarousel = require("owl-carousel");
+
+    /**
+     * Main controller
+     * @ngInject
+     * @constructor
+     */
+    function MainCtrl(lpWidget, lpCoreUtils, lpPortal, $scope, $sce, $timeout, lpCoreBus) {
+        $scope.hideAll = false;
+        $scope.promos = [];
+        var contentPath = lpCoreUtils.getPortalProperty('serverRoot') + lpWidget.getResolvedPreference('contentPath');
+        $scope.promoContent = lpWidget.getResolvedPreference('promoContent');
+        var contextPage = lpWidget.getResolvedPreference('contextPage');
+        var carouselSpeed = parseInt(lpWidget.getResolvedPreference('carouselSpeed'));
+
+        for (var cfgCnt = 1; cfgCnt <= 5 ; cfgCnt++ ) {
+       
+            var promoImg = lpWidget.getResolvedPreference('promoImg'+cfgCnt);
+            var promoUrl = lpWidget.getResolvedPreference('promoUrl'+cfgCnt);
+            var promoPosition = lpWidget.getResolvedPreference('promoPosition'+cfgCnt);
+
+            if(promoUrl == undefined || promoUrl == "" || promoUrl == null)
+                promoUrl = "#";
+
+            if(promoPosition == undefined || promoPosition == "" || promoPosition == null)
+                promoPosition = "";
+       
+            if (promoImg !== undefined && promoImg !== '' && promoImg !== null) {
+                $scope.promos.push({
+                    url: promoUrl,
+                    position:promoPosition,
+                    image: $sce.trustAsResourceUrl(contentPath + (promoImg == undefined || promoImg == null? "": promoImg) )
+                });
+            }
+        }
+
+        $scope.carouselId = lpWidget.id+(new Date()).getTime();
+        if($scope.promos.length > 1){
+            $timeout(function(){
+                $('#'+$scope.carouselId, lpWidget.body).owlCarousel({
+                    center: false,
+                    items:1,
+                    loop:true,
+                    rewind:true,
+                    dotsEach:true,
+                    dots:true,
+                    mouseDrag: false,
+                    autoplay: true,
+                    autoplayTimeout: (carouselSpeed == undefined || carouselSpeed == null || carouselSpeed == 0? 5000: carouselSpeed*1000)
+                });
+            }, 0);
+        }else{
+            $timeout(function(){
+                $('#'+$scope.carouselId, lpWidget.body).owlCarousel({
+                    center: false,
+                    items:1,
+                    loop:true,
+                    rewind:true,
+                    dotsEach:true,
+                    dots:false,
+                    mouseDrag: false,
+                    autoplay: false
+                });
+            }, 0);
+        }
+
+
+        if(contextPage == "logout"){
+            //workaround to fix layout container styling
+            $(lpWidget.body).parent().parent().parent().parent().parent().parent().addClass("logout-summary");
+        }
+
+        gadgets.pubsub.publish('cxp.item.loaded', {id: lpWidget.id});
+        lpCoreBus.subscribe('ambank-hideLogoutDetails', function() {
+            if(contextPage == "logout"){
+                $scope.hideAll = true;
+                $scope.$apply();
+            }
+        });
+    }
+
+    /**
+     * Export Controllers
+     */
+    exports.MainCtrl = MainCtrl;
+});

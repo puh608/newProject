@@ -1,0 +1,38 @@
+// This file was automatically generated from page-layout-web.soy.
+// Please don't edit this file by hand.
+
+if (typeof templates_PageLayoutContainer == 'undefined') { var templates_PageLayoutContainer = {}; }
+
+
+templates_PageLayoutContainer.PageLayoutContainer = function(opt_data, opt_ignored) {
+  var output = '<div class="bp-container bp-ui-dragRoot lp-page-layout-container container" data-pid="' + soy.$$escapeHtml(opt_data.item.name) + '"><header class="lp-page-header clearfix"><div class="bp-area lp-header-left --area">';
+  var childList6 = opt_data.item.children;
+  var childListLen6 = childList6.length;
+  for (var childIndex6 = 0; childIndex6 < childListLen6; childIndex6++) {
+    var childData6 = childList6[childIndex6];
+    output += (parseInt(childData6.preferences.area.value,10) == 0) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div><div class="bp-area lp-header-right --area">';
+  var childList13 = opt_data.item.children;
+  var childListLen13 = childList13.length;
+  for (var childIndex13 = 0; childIndex13 < childListLen13; childIndex13++) {
+    var childData13 = childList13[childIndex13];
+    output += (parseInt(childData13.preferences.area.value,10) == 1) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div></header><div class="lp-page-main clearfix"><div class="bp-area --area">';
+  var childList20 = opt_data.item.children;
+  var childListLen20 = childList20.length;
+  for (var childIndex20 = 0; childIndex20 < childListLen20; childIndex20++) {
+    var childData20 = childList20[childIndex20];
+    output += (parseInt(childData20.preferences.area.value,10) == 2) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div></div><footer class="lp-page-footer"><div class="bp-area --area">';
+  var childList27 = opt_data.item.children;
+  var childListLen27 = childList27.length;
+  for (var childIndex27 = 0; childIndex27 < childListLen27; childIndex27++) {
+    var childData27 = childList27[childIndex27];
+    output += (parseInt(childData27.preferences.area.value,10) == 3) ? soy.$$filterNoAutoescape("") : '';
+  }
+  output += '</div></footer></div>';
+  return output;
+};

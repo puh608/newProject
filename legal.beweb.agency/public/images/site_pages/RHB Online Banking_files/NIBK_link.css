@@ -1,0 +1,110 @@
+a.clsLinkContentBold:link{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+/* KL Pang */
+.clsLinkContentDisabled{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color:Gray;
+	text-decoration: none;
+}
+/* KL Pang */
+a.clsLinkContentBold:hover{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #FF0000;
+	text-decoration: underline;
+}
+a.clsLinkContentBold:visited{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+a.clsLinkHeaderBold:link{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+a.clsLinkHeaderBold:hover{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: #FF0000;
+	text-decoration: underline;
+}
+a.clsLinkHeaderBold:visited{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+
+a.clsLinkContentBoldT:link{
+
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+a.clsLinkContent:link{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+a.clsLinkContent:hover{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	color: #FF0000;
+	text-decoration: underline;
+}
+a.clsLinkContent:visited{
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	color: #005AAC;
+	text-decoration: none;
+}
+
+/* Tool Tips */
+a.clsTooltips
+{
+    position: relative;
+    display: block;
+}
+a.clsTooltips span
+{
+	visibility:hidden; 
+	position:absolute;
+	top:-20px;
+	left:-20px;
+	padding: 2px 3px;
+	background-color:#8C8984;
+	border:2px;
+	font-size: 8pt;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: none;
+	color: white;
+}
+a.clsTooltips:hover
+{
+	display: inline;
+}
+a.clsTooltips:hover span
+{
+	visibility:visible;
+	z-index:999;
+}

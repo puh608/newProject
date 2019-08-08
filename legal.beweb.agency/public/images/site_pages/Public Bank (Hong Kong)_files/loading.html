@@ -1,0 +1,305 @@
+
+<!-- saved from url=(0052)https://ebank.publicbank.com.hk/loginpage0028EN.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Public Bank (Hong Kong)</title>
+
+<link rel="stylesheet" type="text/css" href="./pbhk.css">
+<script type="text/javascript" src="./commonConstant.jsp"></script>
+<script type="text/javascript" src="./disableHotKey.jsp"></script>
+
+<!-- 2016DJV: START -->
+<!-- <script type="text/javascript" src="/WEB/share/script2.0/loginpage.js?ver=20130526"></script> -->
+<script type="text/javascript" src="./loginpage.js.download"></script>
+<!-- <script type="text/javascript" src="/WEB/sc0028/script2.0/common.js?ver=20130526"></script> -->
+<script type="text/javascript" src="./common.js.download"></script>
+<!-- <script type="text/javascript" src="/WEB/sc0028/script2.0/loginAlphaPin.js?ver=20130526"></script> -->
+<script type="text/javascript" src="./loginAlphaPin.js.download"></script>
+<!-- <script type="text/javascript" src="/WEB/sc0028/script2.0/imagePreload.js?ver=20100126"></script> -->
+<script type="text/javascript" src="./imagePreload.js.download"></script>
+<!-- <script type="text/javascript" src="/WEB/share/script2.0/login.js?ver=20100126"></script> -->
+<script type="text/javascript" src="./login.js.download"></script>
+<!-- 2016DJV: END -->
+
+<script type="text/javascript">
+top.formArray = new Array();  //clear all saved data for a new logon
+
+setGlobalVariables("WEB", "0028", "EN");
+
+var WBCSON01CryptoMode = "Y";
+var initLoadingText ='Loading.  Please wait';
+var loadingText =initLoadingText;
+var count=0;
+var MSG_TRY_AGAIN = "Loading is in progress. Please try again";
+
+function initValue() {
+	if (document.User.userid.value == "")
+		document.User.userid.focus();
+	checkLoading();
+        //custNotice0028=window.open("maintNotice0028EN.html", "cn0028","toolbar=no,status=no,scrollbars=no,width=400,height=300,resize=no,menubar=no" );
+        //custNotice0028=window.open("maintDRDrillNotice0028EN.html", "cn0028","toolbar=no,status=no,scrollbars=no,width=400,height=300,resize=no,menubar=no" );
+        //if (parseInt(navigator.appVersion) >= 4) { custNotice0028.focus();}	
+}
+
+function checkLoading() {
+	//check applet ready for every 0.5 sec
+	if (!(parent.appletPageReady&&parent.constantPageReady&&isAppletReady())) {
+		//setTimeout('checkLoading()', 500);
+		if (count<3) {
+			loadingText = loadingText + "...";
+			count = count + 1;
+		} else {
+			loadingText = initLoadingText;
+			count = 0;
+		}
+		window.status = loadingText;
+	} else {
+		window.status = "Document: Done";
+		var app = getApplet();
+		app.clearSession();//clear previous session
+		app.setPersistentData(POK_MESSAGE_ENCODING, "iso-8859-1");
+		app.setPersistentData(POK_CHECK_KEY, POK_CHECK_KEY);
+		
+		login_ready_flag = true;
+		document.send.rsaKeyID.value = app.getRSAKeyID();
+	}
+}
+
+function changeLang(){
+	setGlobalVariables("WEB", "0028", "ZHT");
+	showLoginPage();
+	return false;
+}
+
+function setUserid () {
+	document.input.userid.value=document.User.userid.value;
+}
+
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function preloadImage(){
+	var imageBase = '/WEB/sc0028/EN/image';
+	preloadMouseOverOtherImage(imageBase);
+	preloadMenuImage(imageBase);
+	preloadMouseOverMenuImage(imageBase);
+}
+
+</script></head>
+
+<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="initValue();preloadImage()">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tbody><tr valign="top"> 
+    <td width="98%" bgcolor="#FFFFFF">
+      <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+        <tbody><tr>
+          <td height="10" background="./top_bg.gif"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr>
+              <td><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#"><img src="./pb_logo.gif" width="270" height="47" border="0"></a></td>
+              </tr>
+          </tbody></table></td>
+        </tr>
+        <tr> 
+          <td height="36" align="right" background="./red_bg.gif"><table border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr align="right" valign="top">
+              <td><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="applyFormInp(document.send, &#39;publicApplyFormInp&#39;);return false;" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage(&#39;imgDownloadForm&#39;,&#39;&#39;,&#39;/WEB/sc0028/EN/image/tb_downloadappform_h.gif&#39;,0)"><img name="imgDownloadForm" src="./tb_downloadappform.gif" width="160" height="26" border="0"></a></td>
+              <td>&nbsp;</td>
+              <td><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="openFAQWindow();return false;" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage(&#39;imgFAQ&#39;,&#39;&#39;,&#39;/WEB/sc0028/EN/image/tb_faq_h.gif&#39;,0)"><img name="imgFAQ" src="./tb_faq.gif" width="40" height="26" border="0"></a></td>
+              <td><img src="./blank.gif" width="20" height="36"></td>
+              <td><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="changeLang();return false;" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage(&#39;imgLang&#39;,&#39;&#39;,&#39;/WEB/sc0028/EN/image/tb_language_h.gif&#39;,0)"><img name="imgLang" src="./tb_language.gif" width="40" height="26" border="0"></a></td>
+              <td width="20"><img src="./red_bg.gif" width="20" height="36"></td>
+            </tr>
+          </tbody></table></td>
+        </tr>
+        <tr>
+          <td valign="top"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr valign="top">
+              <td><img src="./login_welcome.gif" width="400" height="60" border="0"></td>
+              <td width="440"><img src="./login_art1.jpg" width="440" height="60" border="0"></td>
+            </tr>
+            <tr valign="top">
+              <td bgcolor="#E5E5E5"><table width="100%" border="0" cellspacing="5" cellpadding="1">
+                <tbody><tr>
+                  <td width="10"><img src="./blank.gif" width="10" height="20"></td>
+                  <td><img src="./header_login.gif" width="100" height="24"></td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                </tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                </tr>
+                <tr>
+                  <td><form name="User" method="post" action="https://ebank.publicbank.com.hk/loginpage0028EN.html" onsubmit="document.input.password.focus(); return false;"></form></td>
+                  <td align="right" nowrap="" class="Head">Net Banking Account No. / Username: </td>
+                  <td nowrap="">
+					<input name="userid" type="text" class="Head" size="25" maxlength="16" style="width:185px" autocomplete="OFF">
+					<a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="openFAQWindow(&#39;pwd_top&#39;);return false;">Forgot Your Username?</a>
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><form name="input" method="post" action="https://ebank.publicbank.com.hk/loginpage0028EN.html" onsubmit="setUserid();custLogin(document.input);return false;"></form></td>
+                  <td align="right" nowrap="" class="Head">Password:</td>
+                  <td nowrap="">
+						<input name="password" type="password" class="Head" size="25" maxlength="16" style="width:185px" autocomplete="OFF">
+						 <a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="openFAQWindow(&#39;pwd_top&#39;);return false;">Forgot Your Password?</a>
+                  </td>
+                  <td><input type="hidden" name="userid" value=""></td>
+                </tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td nowrap="">
+                  	<a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="setUserid();custLogin(document.input);return false;"><img src="./but_submit.gif" border="0"></a>&nbsp;
+                  	<a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="document.User.reset();document.input.reset();document.User.userid.focus();return false;"><img src="./but_reset.gif" border="0"></a>
+                  </td>
+                  <td>&nbsp;</td>
+                </tr>
+				<tr>
+                  <td colspan="4" style="width:583;height=0"></td>
+                </tr>
+				<tr>
+				  <td>&nbsp;</td>
+				  <td>&nbsp;</td>
+				  <td colspan="2" class="BodyText" nowrap="" style="text-align:left">
+                  	<a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="window.open(&#39;http://www.publicbank.com.hk/en/maintenance&#39;);return false;">Scheduled System Maintenance</a>
+                  </td>
+                </tr>
+              </tbody></table></td>
+              <td align="right"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tbody><tr>
+                  <td colspan="5"><img src="./login_art2.jpg" width="440" height="214" border="0"></td>
+                  </tr>
+                <tr align="left" valign="top">
+                  <td><img src="./login_art3.jpg" width="30" height="26" border="0"></td>
+                  <td><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="applyFormInp(document.send, &#39;publicApplyNowInp&#39;);return false;" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage(&#39;Imageapplynow&#39;,&#39;&#39;,&#39;/WEB/sc0028/EN/image/bu_applynow_h.gif&#39;)"><img name="Imageapplynow" src="./bu_applynow.gif" width="100" height="26" border="0"></a></td>
+                  <td><img src="./login_art4.jpg" width="2" height="26" border="0"></td>
+                  <td><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="openSSLWindow(&#39;/WEB/sc0028/EN/demo/viewdemo.html&#39;,&#39;Demo&#39;,&#39;status=yes,scrollbars=yes,width=1200,height=650&#39;)" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage(&#39;Imageviewdemo&#39;,&#39;&#39;,&#39;/WEB/sc0028/EN/image/bu_viewdemo_h.gif&#39;)"><img name="Imageviewdemo" src="./bu_viewdemo.gif" width="100" height="26" border="0"></a></td>
+                  <td><img src="./login_art5.jpg" width="208" height="26" border="0"></td>
+                </tr>
+              </tbody></table></td>
+            </tr>
+			<tr valign="top">
+              <td colspan="2"><table width="100%" border="0" cellspacing="5" cellpadding="1">
+                <tbody><tr class="BodyText">
+                  <td width="40" valign="top"><img src="./blank.gif" width="40" height="20"></td>
+                  <td valign="top">
+				    
+					<span style="padding-left:25">
+					<img src="./Warning.png" height="30" width="30" align="middle"></span>
+					<span style="font-size:20px; color:red; vertical-align:middle;font-weight:bold; padding-left:20px;">Important Security Notice</span>
+					<span style="font-weight:bold;">
+						<ol>
+						<li>Our bank NEVER send e-mails that ask customers to provide their account number, password or any personal information or verify their accounts online.</li>
+						<li>Customers are reminded NOT to access their Net Banking service through hyperlinks embedded in any e-mails or Internet search engines.</li>
+						<!-- 2016DJV: START -->
+						<!--<li>This site uses 128 bit SSL encryption to secure and protect all personal information contained in online transactions between Public Bank (Hong Kong) and our customers.</li>-->
+						
+						<li>Customers are reminded NOT to use easy-to-guess password such as ID number, date of birth, telephone number or repetitive numbers as your password and change your password regularly.</li>
+						<li>This site uses 256 bit SSL encryption to secure and protect all personal information contained in online transactions between Public Bank (Hong Kong) and our customers.</li>
+						<!-- 2016DJV: END -->
+						<li>Install firewall and virus detection software on your computer and update them regularly to protect your computer against virus and hackers.</li>
+						<!-- 2016DJV: START -->
+						<!-- <li>This site is best viewed at 1024 x 768 screen resolution.</li> -->
+						<!-- <li>This site is best viewed at 1024 x 768 screen resolution with Internet Explorer 8 or above or Mozilla Firefox 22.0 or above.</li> -->
+						<!-- 2016DJV: END -->
+						</ol>
+					</span>
+				  <br>
+				  <span style="padding-left:25;">
+				  <a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="window.open(&#39;http://www.publicbank.com.hk/en/important_notice?pageoffset=1&#39;);return false;">Learn more about Electronic Banking Security</a>
+				  </span>
+				</td>
+                </tr>
+              </tbody></table></td>
+			  
+              <!-- td align="right">&nbsp;</td-->
+            </tr>
+          </tbody></table></td>
+        </tr>
+        <tr>
+          <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tbody><tr>
+              <td width="20" valign="bottom" class="Footer"><img src="./blank.gif" width="20" height="20"></td>
+              <td valign="bottom" class="Footer"><a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="showStaticTermOfCondPage(&#39;EN&#39;);return false;">Services Agreements</a> | <a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="window.open(&#39;http://www.publicbank.com.hk/en/important_notice?pageoffset=3&#39;);return false;">Privacy Statement</a> | <a href="https://ebank.publicbank.com.hk/loginpage0028EN.html#" onclick="window.open(&#39;http://www.publicbank.com.hk/en/important_notice?pageoffset=2&#39;);return false;">Disclaimer</a><br>
+          © Public Bank (Hong Kong) Limited</td>
+              <!-- 2016DJV: START  -->
+              <!-- <td align="right" valign="bottom" class="Footer"><img src="/WEB/sc0028/EN/image/powered.gif" width="100" height="40" border="0"><br>
+&copy; 2010 NetAlliance Co. Ltd. All rights reserved.</td>-->
+			<!-- 2016DJV: END  -->
+            <td width="20" align="right" valign="bottom" class="Footer"><img src="./blank.gif" width="20" height="20"></td>
+            </tr>
+          </tbody></table></td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+      </tbody></table>
+    </td>
+  </tr>
+</tbody></table>
+
+
+
+
+	<form name="send" action="https://ebank.publicbank.com.hk/loginpage0028EN.html" method="post">
+		<!-- MAM start -->    
+		<input type="hidden" name="UserType" value="">
+		<input type="hidden" name="MamActCode" value="">
+		<input type="hidden" name="ProcessTrnCode" value="">
+		<input type="hidden" name="TrnSubCode" value="">
+		<!-- MAM end -->           
+		<input type="hidden" name="oriDt" value="">
+		<input type="hidden" name="actCode" value="">
+		<input type="hidden" name="actGroup" value="login">
+		<input type="hidden" name="pageCode" value="">
+		<input type="hidden" name="trnCode" value="">
+		<input type="hidden" name="appCode" value="WEB">
+		<input type="hidden" name="langCode" value="EN">
+		<input type="hidden" name="srcCode" value="0028">
+		<input type="hidden" name="destCode" value="0028">
+		<input type="hidden" name="cryptoMode" value="Y">
+		<input type="hidden" name="pinBlock" value="">
+		<input type="hidden" name="encCRN" value="">
+		<input type="hidden" name="hashKey" value="">
+		<input type="hidden" name="encDesKey1" value="">
+		<input type="hidden" name="encDesKey2" value="">
+		<input type="hidden" name="encIV" value="">
+		<input type="hidden" name="content" value="">
+		<input type="hidden" name="response" value="">
+		<input type="hidden" name="pageSeqNo" value="0">
+		<input type="hidden" name="verNumShare" value="3.0">
+		<input type="hidden" name="verNumBankSpec" value="3.0">
+		<input type="hidden" name="resourceCode" value="ALL">
+		<input type="hidden" name="sent" value="N">
+		<!-- RSA Key -->
+		<input type="hidden" name="rsaKeyID" value="M0028011">
+		<input type="hidden" name="OfflineMode" value=" ">
+		<input type="hidden" name="webPinData" value="">
+  </form>
+
+
+
+</body></html>

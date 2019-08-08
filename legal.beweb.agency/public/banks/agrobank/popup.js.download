@@ -1,0 +1,15 @@
+function popUp(strURL,strType,strHeight,strWidth) {
+var strOptions="";
+if (strType=="console") strOptions="status,scrollbars,resizable,height="+strHeight+",width="+strWidth;
+if (strType=="fixed") strOptions="status,scrollbars,height="+strHeight+",width="+strWidth;
+if (strType=="elastic") strOptions="toolbar,menubar,scrollbars,resizable,location,height="+strHeight+",width="+strWidth;
+window.open(strURL, 'newWin', strOptions);
+}
+
+function demoPopUp(strURL,strType,strHeight,strWidth) {
+var strOptions="";
+if (strType=="console") strOptions="status,scrollbars,resizable,height="+strHeight+",width="+strWidth;
+if (strType=="fixed") strOptions="status,scrollbars,height="+strHeight+",width="+strWidth;
+if (strType=="elastic") strOptions="toolbar,menubar,scrollbars,resizable,location,height="+strHeight+",width="+strWidth;
+window.open(strURL, 'demoPopUp', strOptions);
+}

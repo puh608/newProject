@@ -1,0 +1,38 @@
+#breadcrumbs li+li+li+li+li {
+	padding-bottom: 20px;
+	background: none;
+	font-size: 16px;
+	color: #1a3759;
+	vertical-align: text-top;
+	font-weight: bold;
+	border-bottom: none;
+}
+
+.msg-notification {
+top: 3px;
+right: 103px;
+position: absolute;
+background: url(../img/msg-notify.png) no-repeat left center;
+text-shadow: none;
+line-height: 17px;
+width: 16px;
+height: 16px;
+font-size: 10px;
+color: #fff;
+font-weight: bold;
+z-index: 999;
+}
+
+.msg-notification-empty {
+position: absolute;
+}
+
+.disable-btn-ie8 {
+	*filter:; /* IE 7 and Earlier */
+	-ms-filter: none !important;
+}
+
+.disable-btn-ie8-active {
+	*filter: alpha(opacity=35) !important; /* IE 7 and Earlier */
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(opacity=35)" !important;
+}

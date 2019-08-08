@@ -1,0 +1,818 @@
+var click = 1;
+var control_index = 0;
+var control_id = '';
+var today = new Date();
+var day   = today.getDate();
+var month = today.getMonth();
+var year  = y2k(today.getYear());
+var szValueTableShow = "Page Undefined. Please contact your system administrator.";
+var szValueStatus = "<td></td>";
+
+var bV = parseInt(navigator.appVersion);
+var agt = navigator.userAgent.toLowerCase();
+var ie = (agt.indexOf("msie") != -1);
+var ie4  = (ie && (bV == 4) && (agt.indexOf("msie 5.0") == -1) );
+var IE55 = (ie && !(ie4));
+NS4 = (document.layers) ? true : false;
+ver4 = (NS4 || IE55) ? true : false;
+NS6	= ((document.getElementById) && (bV >= 5)) ? true:false;
+var strDownloadPath;
+
+function encrypt(s){
+    var es="", ct="", nc;
+    for(c=0;c<=255;c++) ct+=String.fromCharCode(c);
+
+    for(i=0;i<s.length;i++){
+        nc = ct.indexOf(s.charAt(i)).toString(16);
+
+    if(nc.length!=2) nc="0"+nc;
+    es+=nc;
+	}
+	
+    return es;
+}
+
+
+function decrypt(e){
+	var ds="";
+
+    for(i=0;i<e.length;i+=2){
+    ds+=String.fromCharCode(parseInt(e.substring(i,i+2), 16));
+	}
+	return ds;
+}
+
+
+
+
+
+function y2k(number)    { return (number < 1000) ? number + 1900 : number; }
+
+function padout(number) { return (number < 10) ? '0' + number : number; }
+
+function restart() {
+	for (var i=0;i < document.Default.elements.length;i++)
+	{
+		if (document.Default.elements[i].id == control_id)
+		{
+			control_index = i;
+		}
+	}
+	document.Default.elements[control_index].value = '' + padout(day) + '-' + padout(month - 0 + 1) + '-' + year;
+	mywindow.close();
+}
+
+function newWindow(ctl_id)
+{
+	var WindowHeight = 200;
+	var WindowWidth = 240;
+	var WindowTop = ((screen.availHeight - WindowHeight) / 2);
+	var WindowLeft = ((screen.availWidth - WindowWidth) / 2);
+	control_id = ctl_id;
+	var szFeatures = 'resizable=no,width=' + WindowWidth + ',height=' + WindowHeight + ',top=' + WindowTop + ',left=' + WindowLeft;
+	mywindow=open('calendar.aspx', 'myname', szFeatures);
+	mywindow.location.href = 'calendar.aspx';
+	if (mywindow.opener == null) mywindow.opener = self;
+}
+
+function IsNotConfirm(strConfirmMsg)
+{
+	if(confirm(strConfirmMsg))
+	{
+		if(isClickedTwice())
+			return true;
+		else
+			return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function displayOverlay() {
+    $.LoadingOverlay("show", {
+        image: "image/rolling.gif"
+    });
+}
+
+function isClickedTwice()
+{
+	if ( !isSubmitted )
+	{
+		isSubmitted = true;
+		return false;
+	}
+	else
+	{
+		alert('Your application is being processed');
+		return true;
+	}
+}
+
+function isClickedTwiceNoAlert()
+{
+	if ( !isSubmitted )
+	{
+		isSubmitted = true;
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function isClicked()
+{
+	if ( !isSubmitted )
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function resetDoubleClick()
+{
+	isSubmitted = false;
+}
+
+function resetPopFlag()
+{
+	if(isPopped)
+	{
+		isPopped = false;
+		resetDoubleClick();
+	}
+}
+
+function OpenPrintSaveWindowRemoveBalance(strTableName, strStatus, strAcctSumTblName)
+{	
+	if(isClickedTwiceNoAlert())	
+		return;
+		
+	OpenPrintSaveWindowExRemoveBalance(strTableName, strStatus, "ebPrintSave.aspx", strAcctSumTblName);
+	isPopped = true;
+	setTimeout('resetPopFlag()', 5000);
+	return false;
+}
+
+function OpenPrintSaveWindowExRemoveBalance(strTableName, strStatus, strPrintSaveURL, strAccountSumTblName)
+{
+    var summaryTable = "";
+    var HeaderFooterHeight = 100;   
+	document.getElementById(strTableName).width = document.getElementById(strTableName).offsetWidth;
+	
+	szValueTableShow = document.getElementById(strTableName).innerHTML;
+	if(strAccountSumTblName!= undefined)
+	{
+	    var infoToHide = strAccountSumTblName.split(";");
+	    for (var i=0;i<infoToHide.length;i++)
+        { 
+            if(infoToHide[i] != undefined && document.getElementById(infoToHide[i]))
+            {
+                summaryTable = document.getElementById(infoToHide[i]).innerHTML;	
+	            szValueTableShow = szValueTableShow.replace(summaryTable, ""); 
+            }               
+        }	   
+	}
+	
+	if(strStatus != undefined && document.getElementById(strStatus))
+		szValueStatus = document.getElementById(strStatus).innerHTML; 
+
+	var WindowWidth = document.getElementById(strTableName).offsetWidth + 50;
+	var WindowHeight = document.getElementById(strTableName).offsetHeight + 130 + HeaderFooterHeight;
+	var WindowTop = 0;
+	var WindowLeft = 0;
+	var IsTallerThanScreen = true;
+	var IsWiderThanScreen = true;
+
+	if((screen.availHeight - WindowHeight) > 0)
+	{
+		WindowTop = ((screen.availHeight - WindowHeight) / 2);
+		IsTallerThanScreen = false;
+	}
+	else
+	{
+		WindowHeight = screen.availHeight - 30;
+		IsTallerThanScreen = true;
+	}
+
+	if((screen.availWidth - WindowWidth) > 0)
+	{
+		WindowLeft = ((screen.availWidth - WindowWidth) / 2);
+		IsWiderThanScreen = false;
+	}
+	else
+	{
+		WindowWidth = screen.availWidth - 30;
+		IsWiderThanScreen = true;
+	}
+
+	var szFeatures = "";
+		szFeatures = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+
+	var childwin = window.open(strPrintSaveURL, "_blank", szFeatures);
+	childwin.focus();
+}
+
+function OpenPrintSaveWindow(strTableName, strStatus)
+{
+	if(isClickedTwiceNoAlert())	
+		return;
+		
+	OpenPrintSaveWindowEx(strTableName, strStatus, "ebPrintSave.aspx");
+	isPopped = true;
+	setTimeout('resetPopFlag()', 5000);
+}
+
+function OpenPrintSaveWindowMCA(strTableName, strStatus, strSpanCount)
+{
+	if(isClickedTwiceNoAlert())	
+		return;
+		
+	OpenPrintSaveWindowExMCA(strTableName, strStatus, strSpanCount, "ebPrintSave.aspx");
+	isPopped = true;
+	setTimeout('resetPopFlag()', 5000);
+}
+
+function OpenPrintSaveWindowEx(strTableName, strStatus, strPrintSaveURL)
+{
+    var HeaderFooterHeight = 100;
+	document.getElementById(strTableName).width = document.getElementById(strTableName).offsetWidth;
+	szValueTableShow = document.getElementById(strTableName).innerHTML;
+	
+	if(strStatus != undefined && document.getElementById(strStatus)) 
+		szValueStatus = document.getElementById(strStatus).innerHTML;
+
+	var WindowWidth = document.getElementById(strTableName).offsetWidth + 50;
+	var WindowHeight = document.getElementById(strTableName).offsetHeight + 130 + HeaderFooterHeight;
+	var WindowTop = 0;
+	var WindowLeft = 0;
+	var IsTallerThanScreen = true;
+	var IsWiderThanScreen = true;
+
+	if((screen.availHeight - WindowHeight) > 0)
+	{
+		WindowTop = ((screen.availHeight - WindowHeight) / 2);
+		IsTallerThanScreen = false;
+	}
+	else
+	{
+		WindowHeight = screen.availHeight - 30;
+		IsTallerThanScreen = true;
+	}
+
+	if((screen.availWidth - WindowWidth) > 0)
+	{
+		WindowLeft = ((screen.availWidth - WindowWidth) / 2);
+		IsWiderThanScreen = false;
+	}
+	else
+	{
+		WindowWidth = screen.availWidth - 30;
+		IsWiderThanScreen = true;
+	}
+
+	var szFeatures = "";
+		szFeatures = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+
+	var childwin = window.open(strPrintSaveURL, "_blank", szFeatures);
+	childwin.focus();
+}
+
+function OpenPrintSaveWindowExMCA(strTableName, strStatus, strSpanCount, strPrintSaveURL)
+{
+    var HeaderFooterHeight = 100;
+
+	document.getElementById(strTableName).width = document.getElementById(strTableName).offsetWidth;
+	szValueTableShow = document.getElementById(strTableName).innerHTML;
+	
+	if(strStatus != undefined && document.getElementById(strStatus))
+		szValueStatus = document.getElementById(strStatus).innerHTML;
+
+    if(strSpanCount != undefined && document.getElementById(strSpanCount))
+        szSpanCount = document.getElementById(strSpanCount).value;
+
+	var WindowWidth = document.getElementById(strTableName).offsetWidth + 50;
+	var WindowHeight = document.getElementById(strTableName).offsetHeight + 130 + HeaderFooterHeight;
+	var WindowTop = 0;
+	var WindowLeft = 0;
+	var IsTallerThanScreen = true;
+	var IsWiderThanScreen = true;
+
+	if((screen.availHeight - WindowHeight) > 0)
+	{
+		WindowTop = ((screen.availHeight - WindowHeight) / 2);
+		IsTallerThanScreen = false;
+	}
+	else
+	{
+		WindowHeight = screen.availHeight - 30;
+		IsTallerThanScreen = true;
+	}
+
+	if((screen.availWidth - WindowWidth) > 0)
+	{
+		WindowLeft = ((screen.availWidth - WindowWidth) / 2);
+		IsWiderThanScreen = false;
+	}
+	else
+	{
+		WindowWidth = screen.availWidth - 30;
+		IsWiderThanScreen = true;
+	}
+
+	var szFeatures = "";
+		szFeatures = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+
+	var childwin = window.open(strPrintSaveURL, "_blank", szFeatures);
+	childwin.focus();
+}
+
+function OpenPrintSaveWindow2(strTableName, strStatus, strPath)
+{
+	document.getElementById(strTableName).width = document.getElementById(strTableName).offsetWidth;
+	szValueTableShow = document.getElementById(strTableName).innerHTML;
+	
+	szValueTableShow = encrypt(szValueTableShow);
+	
+	if(strStatus != undefined)
+		szValueStatus = document.getElementById(strStatus).innerHTML;
+
+	var WindowWidth = document.getElementById(strTableName).offsetWidth + 50;
+	var WindowHeight = document.getElementById(strTableName).offsetHeight + 130;
+	var WindowTop = 0;
+	var WindowLeft = 0;
+	var IsTallerThanScreen = true;
+	var IsWiderThanScreen = true;
+
+	if((screen.availHeight - WindowHeight) > 0)
+	{
+		WindowTop = ((screen.availHeight - WindowHeight) / 2);
+		IsTallerThanScreen = false;
+	}
+	else
+	{
+		WindowHeight = screen.availHeight - 30;
+		IsTallerThanScreen = true;
+	}
+
+	if((screen.availWidth - WindowWidth) > 0)
+	{
+		WindowLeft = ((screen.availWidth - WindowWidth) / 2);
+		IsWiderThanScreen = false;
+	}
+	else
+	{
+		WindowWidth = screen.availWidth - 30;
+		IsWiderThanScreen = true;
+	}
+
+	var szFeatures = "";
+	if(IsWiderThanScreen || IsTallerThanScreen)
+		szFeatures = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+	else
+		szFeatures = "location=no,menubar=no,scrollbars=no,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+
+	var childwin = window.open(strPath, "_blank", szFeatures);
+	childwin.focus();
+}
+
+function OpenPrintSaveWindowWithImage(strTableName, strStatus, strPath)
+{
+	document.getElementById(strTableName).width = document.getElementById(strTableName).offsetWidth;
+	szValueTableShow = document.getElementById(strTableName).innerHTML;
+	var re = new RegExp("../image", "g");
+	szValueTableShow = szValueTableShow.replace(re,"image");
+	
+	
+	szValueTableShow = encrypt(szValueTableShow);
+	
+	if(strStatus != undefined)
+	{
+		szValueStatus = document.getElementById(strStatus).innerHTML;
+	}
+
+	var WindowWidth = document.getElementById(strTableName).offsetWidth + 50;
+	var WindowHeight = document.getElementById(strTableName).offsetHeight + 130;
+	var WindowTop = 0;
+	var WindowLeft = 0;
+	var IsTallerThanScreen = true;
+	var IsWiderThanScreen = true;
+
+	if((screen.availHeight - WindowHeight) > 0)
+	{
+		WindowTop = ((screen.availHeight - WindowHeight) / 2);
+		IsTallerThanScreen = false;
+	}
+	else
+	{
+		WindowHeight = screen.availHeight - 30;
+		IsTallerThanScreen = true;
+	}
+
+	if((screen.availWidth - WindowWidth) > 0)
+	{
+		WindowLeft = ((screen.availWidth - WindowWidth) / 2);
+		IsWiderThanScreen = false;
+	}
+	else
+	{
+		WindowWidth = screen.availWidth - 30;
+		IsWiderThanScreen = true;
+	}
+
+	var szFeatures = "";
+	if(IsWiderThanScreen || IsTallerThanScreen)
+		szFeatures = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+	else
+		szFeatures = "location=no,menubar=no,scrollbars=no,resizable=no,status=no,toolbar=no,width=" + WindowWidth + ",height=" + WindowHeight + ",top=" + WindowTop + ",left=" + WindowLeft;
+
+	var childwin = window.open(strPath, "_blank", szFeatures);
+	childwin.focus();
+}
+
+function onSaveClick()
+{ 			
+	document.forms[0].method = 'POST';	
+ 	if (!(IE55) && document.all) 
+ 	{
+ 		if( parent.workspace )                                  
+ 			parent.workspace.document.execCommand('SaveAs',null,'');
+ 		else                                                        
+ 			document.execCommand( 'SaveAs',null,'');               
+ 	} 
+ 	else if (IE55  && document.all) 
+ 	{ 
+ 		document.forms[0].savefile.value = 'true';			
+ 		document.forms[0].submit();	
+ 	} 
+ 	else if (NS4) 
+ 	{ 
+ 		document.forms[0].savefile.value = 'true';			
+ 		document.forms[0].submit();	
+ 	} 
+ 	else if (NS6) 
+ 	{ 
+ 		document.forms[0].savefile.value = 'true';			
+ 		document.forms[0].submit();	
+ 	}
+}
+		
+function onPrintClick()
+{
+ 	if( parent.workspace )                                  
+ 		parent.frames.workspace.print();	
+	else 
+ 		print();
+}
+
+function formatCurrency(num) 
+{
+	if(num == "")
+		return "";
+	num = num.toString().replace(/\$|\,/g,'');
+	
+	if(isNaN(num)) return "";
+
+	var intDotIndex = num.indexOf(".");
+	if(intDotIndex != -1)
+		num = num.substring(0, intDotIndex + 3);
+
+	cents = Math.floor(( (Math.abs(num)) * 100 + 0.5 )%100);
+	if(Number(num) >= 0)
+		num = Math.floor( ( Math.floor(num*100+0.5) )/100 ).toString();
+	else
+		num = (-1 * Math.floor( ( Math.floor(Math.abs(num)*100+0.5) )/100 )).toString();
+
+	if(cents < 10) cents = "0" + cents; 
+
+	return ('' + num + '.' + cents); 
+}
+
+function Trim(v_strTxt)
+{
+	var lngLoop, lngPos_Front, lngPos_Back;
+	var blnChking_Front, blnChking_Back;
+	  
+	v_strTxt = v_strTxt.toString();
+	  
+	lngPos_Front    = -1;
+	lngPos_Back     = -1;
+	  
+	blnChking_Front = true;
+	for (lngLoop = 0; lngLoop < v_strTxt.length; lngLoop++)
+	{
+	  blnChking_Front = (v_strTxt.charAt(lngLoop) == ' ');
+	  if (!blnChking_Front)
+	  {
+	    lngPos_Front  = lngLoop;
+	    lngLoop       = v_strTxt.length;
+	  }
+	}
+	if (lngPos_Front < 0) return '';
+	  
+	blnChking_Back = true;
+	for (lngLoop = (v_strTxt.length - 1); lngLoop >= 0; lngLoop--)
+	{
+	  blnChking_Back  = (v_strTxt.charAt(lngLoop) == ' ');
+	  if (!blnChking_Back)
+	  {
+	    lngPos_Back = lngLoop;
+	    lngLoop     = -1;
+	  }
+	}
+	  
+	if (lngPos_Back < 0)
+	  return '';
+	else
+	  return v_strTxt.substr(lngPos_Front, lngPos_Back - lngPos_Front + 1);
+}
+
+function createRequestObject()
+{
+	FORM_DATA = new Object();
+	
+	separator = ',';
+	
+	query = '' + this.location;
+	
+	query = query.substring((query.indexOf('?')) + 1);
+	
+	if (query.length < 1) { return false; }
+	
+	keypairs = new Object();
+	numKP = 1;
+	
+	while (query.indexOf('&') > -1) {
+	keypairs[numKP] = query.substring(0,query.indexOf('&'));
+	query = query.substring((query.indexOf('&')) + 1);
+	numKP++;
+	}
+	
+	keypairs[numKP] = query;
+	
+	for (i in keypairs) {
+	keyName = keypairs[i].substring(0,keypairs[i].indexOf('='));
+	keyValue = keypairs[i].substring((keypairs[i].indexOf('=')) + 1);
+
+	while (keyValue.indexOf('+') > -1) {
+	keyValue = keyValue.substring(0,keyValue.indexOf('+')) + ' ' + keyValue.substring(keyValue.indexOf('+') + 1);
+
+	}
+	
+	keyValue = unescape(keyValue);
+	
+	if (FORM_DATA[keyName]) {
+	FORM_DATA[keyName] = FORM_DATA[keyName] + separator + keyValue;
+	} else {
+	FORM_DATA[keyName] = keyValue;
+	}
+	}
+	
+	return FORM_DATA;
+}
+
+function openDownload(strWindowName, strLocation)
+{
+	var intWidth = 300;
+	var intHeight = 50;
+	var strFeature = "location=no,menubar=no,scrollbars=yes,resizable=yes,status=no,toolbar=no,width=" + intWidth + ",height=" + intHeight + ",top=" + (screen.availHeight-intHeight)/2 + ",left=" + (screen.availWidth-intWidth)/2;
+	strDownloadPath = strLocation;
+	objDLWindow = window.open("download.html", strWindowName, strFeature);
+	
+    setTimeout("ResetSubmitAfterDownload()", 1000);
+}
+
+function ResetSubmitAfterDownload()
+{
+    if(isSubmitted)
+    {
+        if(objDLWindow.closed)
+            isSubmitted = false;
+        else
+            setTimeout("ResetSubmitAfterDownload()", 1000);
+    }
+}
+
+function handleEnter (field, event) 
+{
+	var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+	
+	if (keyCode == 13) 
+	{		
+		return false;
+	} 
+	else
+		return true;
+}
+
+function OpenInfoWindow(strFileName)
+{
+	var intWinWidth = window.screen.availWidth;
+	var intWinHeight  = window.screen.availHeight; 
+	var intTop = (intWinHeight-400)/2;
+	var intLeft = (intWinWidth-340)/2;
+	var iii = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=340,height=400,top="+ intTop +" ,left=" + intLeft;
+	var helpWindow = window.open(strFileName,'RHB', iii);
+	helpWindow.focus();
+}
+
+function OpenNewWindow(strFileName, intCustomHeight, intCustomWidth)
+{
+    var intWinWidth = window.screen.availWidth;
+	var intWinHeight  = window.screen.availHeight; 
+	var intTop = (intWinHeight-intCustomHeight)/2;
+	var intLeft = (intWinWidth-intCustomWidth)/2;
+	
+	var iii = "location=yes,toolbar=yes,menubar=yes,directories=yes,status=yes,resizable=yes,scrollbars=yes,width=" + intCustomWidth + ",height=" + intCustomHeight + ",top=" + intTop + " ,left=" + intLeft;
+	window.open(strFileName,'RHB', iii);
+}
+
+function OpenCustomInfoWindow(strFileName, intCustomHeight, intCustomWidth)
+{
+	var intWinWidth = window.screen.availWidth;
+	var intWinHeight  = window.screen.availHeight; 
+	var intTop = (intWinHeight-intCustomHeight)/2;
+	var intLeft = (intWinWidth-intCustomWidth)/2;
+	
+	var iii = "location=no,menubar=no,scrollbars=yes,resizable=no,status=no,toolbar=no,width=" + intCustomWidth + ",height=" + intCustomHeight + ",top="+ intTop +" ,left=" + intLeft;
+	var helpWindow = window.open(strFileName,'RHB', iii);
+	helpWindow.focus();
+}
+
+function checkEnter(e)
+{
+    var characterCode;
+
+    if(e && e.which)
+    { 
+	    e = e
+	    characterCode = e.which
+    }
+    else
+    {							
+	    e = event						
+	    characterCode = e.keyCode
+    }
+
+    if(characterCode == 13)
+    {
+        if(ebGetElementByEndWithId("_cmdSubmit") != null)
+	        ebGetElementByEndWithId("_cmdSubmit").focus();
+	    if(ebGetElementByEndWithId("_cmd_Submit") != null)
+	        ebGetElementByEndWithId("_cmd_Submit").focus();
+        if(ebGetElementByEndWithId("_btnSubmit") != null)
+	        ebGetElementByEndWithId("_btnSubmit").focus();
+	    if(ebGetElementByEndWithId("_btn_Submit") != null)
+	        ebGetElementByEndWithId("_btn_Submit").focus();
+        if(ebGetElementByEndWithId("_cmdOK") != null)
+	        ebGetElementByEndWithId("_cmdOK").focus();
+	    if(ebGetElementByEndWithId("_cmd_OK") != null)
+	        ebGetElementByEndWithId("_cmd_OK").focus();
+        if(ebGetElementByEndWithId("_btnOK") != null)
+	        ebGetElementByEndWithId("_btnOK").focus();
+	    if(ebGetElementByEndWithId("_btn_OK") != null)
+	        ebGetElementByEndWithId("_btn_OK").focus();
+	    if(ebGetElementByEndWithId("_cmd_Preview") != null)
+	        ebGetElementByEndWithId("_cmd_Preview").focus();
+	    if(ebGetElementByEndWithId("_cmdPreview") != null)
+	        ebGetElementByEndWithId("_cmdPreview").focus();
+        if(ebGetElementByEndWithId("_btnPreview") != null)
+            ebGetElementByEndWithId("_btnPreview").focus();
+        if(ebGetElementByEndWithId("_btn_Preview") != null)
+            ebGetElementByEndWithId("_btn_Preview").focus();
+        if(ebGetElementByEndWithId("_btnTransfer") != null)
+            ebGetElementByEndWithId("_btnTransfer").focus();
+        if(ebGetElementByEndWithId("_cmd_Pay") != null)
+            ebGetElementByEndWithId("_cmd_Pay").focus();
+        if(ebGetElementByEndWithId("_btnUpdate") != null)
+            ebGetElementByEndWithId("_btnUpdate").focus();
+        if(ebGetElementByEndWithId("_btnNext") != null)
+            ebGetElementByEndWithId("_btnNext").focus();
+        if(ebGetElementByEndWithId("_cmdNext") != null)
+            ebGetElementByEndWithId("_cmdNext").focus();
+        if(ebGetElementByEndWithId("_cmd_Next") != null)
+            ebGetElementByEndWithId("_cmd_Next").focus();
+        if(ebGetElementByEndWithId("_btnUpdateEmail") != null)
+            ebGetElementByEndWithId("_btnUpdateEmail").focus();
+        if(ebGetElementByEndWithId("_btnGetStatus") != null)
+            ebGetElementByEndWithId("_btnGetStatus").focus();
+        if(ebGetElementByEndWithId("_cmdUpdate") != null)
+            ebGetElementByEndWithId("_cmdUpdate").focus();
+    }
+    else
+    {
+	    return false;
+    }
+}
+
+
+function resizeText(multiplier) 
+{
+    if (document.body.style.fontSize == "") {
+    document.body.style.fontSize = "1.0em";
+    }
+    if (multiplier == "0")
+    document.body.style.fontSize = "0.8em";
+    if (multiplier == "1")
+    document.body.style.fontSize = "1.0em";
+    if (multiplier == "2")
+    document.body.style.fontSize = "1.2em";
+
+}
+
+var IFrameObj;
+function callToServer() {
+  if (!document.createElement) {return true};
+  var IFrameDoc;
+  var URL = 'RefreshSession.aspx';
+  if (!IFrameObj && document.createElement) {
+   try {
+      var tempIFrame=document.createElement('iframe');
+      tempIFrame.setAttribute('id','RSIFrame');
+      tempIFrame.style.border='0px';
+      tempIFrame.style.width='0px';
+      tempIFrame.style.height='0px';
+      IFrameObj = document.body.appendChild(tempIFrame);
+      
+      if (document.frames) {
+        IFrameObj = document.frames['RSIFrame'];
+      }
+    } catch(exception) {
+      iframeHTML='\<iframe id="RSIFrame" style="';
+      iframeHTML+='border:0px;';
+      iframeHTML+='width:0px;';
+      iframeHTML+='height:0px;';
+      iframeHTML+='"><\/iframe>';
+      document.body.innerHTML+=iframeHTML;
+      IFrameObj = new Object();
+      IFrameObj.document = new Object();
+      IFrameObj.document.location = new Object();
+      IFrameObj.document.location.iframe = document.getElementById('RSIFrame');
+      IFrameObj.document.location.replace = function(location) {
+        this.iframe.src = location;
+      }
+    }
+  }
+  
+  if (navigator.userAgent.indexOf('Gecko') !=-1 && !IFrameObj.contentDocument) {
+    setTimeout('callToServer()',10);
+    return false;
+  }
+  
+  if (IFrameObj.contentDocument) {
+    IFrameDoc = IFrameObj.contentDocument; 
+  } else if (IFrameObj.contentWindow) {
+    IFrameDoc = IFrameObj.contentWindow.document;
+  } else if (IFrameObj.document) {
+    IFrameDoc = IFrameObj.document;
+  } else {
+    return true;
+  }
+  
+  IFrameDoc.location.replace(URL);
+  return false;
+}
+
+function OpenWindowWithPost(strGameURL, strConcatString)
+{
+	var param = { 'txtRSA' : strConcatString};						
+	var windowoption ="location=yes,resizable=yes,scrollbars=yes,width=960,height=640";
+	
+	var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", strGameURL);
+    form.setAttribute("target", "_blank");
+ 
+	for (var i in param) {
+		if (param.hasOwnProperty(i)) {
+			var input = document.createElement('input');
+				input.type = 'hidden';
+                input.name = i;
+                input.value = param[i];
+                form.appendChild(input);
+		}
+	}
+ 
+    document.body.appendChild(form); 
+    form.submit(); 
+    document.body.removeChild(form);
+}
+
+function OpenWindowPaymentOption()
+{
+    var strLink = "http://www.rhbgroup.com/general-info/faq/billpay/own-account-loans.html";
+	var features = "toolbar=no,status=no,menubar=no,location=no,scrollbars=yes,resizable=no,height=450,width=700";
+    var win = window.open(strLink, "_blank", features);
+	win.focus();
+}
+
+function ebGetElementByEndWithId(elementId)
+{
+    return $("[id$='" + elementId + "']")[0];
+}

@@ -1,0 +1,17 @@
+(function(){
+	// get the English resources for FormValidator
+	MooTools.lang.setLanguage('en-US');
+	var bundle = MooTools.lang.get('FormValidator');
+	
+	// extend the original with BSN specific validators
+	MooTools.lang.set('en-US', 'FormValidator',
+		$extend(bundle, {
+			maxValue: 'The maximum amount allowed for this field is {maxValue}.',
+			minValue: 'The minimum amount allowed for this field is {minValue}.',
+			notMatch: 'This field cannot be the same as {matchName}.',
+			mask: 'This field has invalid value.',
+			allEmpty: 'Either one of the {icValue} fields must not be empty.'
+		})
+	);
+
+})();

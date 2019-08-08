@@ -1,0 +1,16 @@
+.image-container{
+	padding:20px; 
+	width: 100%; 
+}
+
+.image-container img{
+	width: 100%;
+}
+
+@media screen and (min-width: 768px){
+	.image-container{
+		padding:20px; 
+		width: 80%; 
+		margin: auto;
+	}
+}

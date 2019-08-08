@@ -1,0 +1,213 @@
+html, body{
+	font-family: Arial, Helvetica, sans-serif;
+	height:100%;
+	font-size: 11px;
+	margin: 0px;
+	background-color: #FFFFFF;
+	color: #000000;
+}
+
+a, a:link, a:visited {
+	font-family: Arial, Helvetica, sans-serif;	
+	font-size: 11px;
+	color: #55677F;
+}
+
+a:hover {
+	font-family: Arial, Helvetica, sans-serif;	
+	font-size: 11px;
+	color: #CE2022;
+}
+
+input, select {
+	font-family: Arial, Helvetica, sans-serif;	
+	font-size: 11px;
+}
+
+.Welcome {
+	font-size: 11px;
+}
+
+.Head {
+	font-size: 12px;
+	font-weight: bold;
+	color: #5C5C5C;
+}
+
+.Instruction {
+	font-size: 11px;
+	color: #FFFFFF;
+	padding: 5px;
+	height: 18px;
+}
+
+.Notice {
+	font-size: 11px;
+	font-weight: bold;
+	color: #CE2022;
+	height:30px;
+}
+
+.PopupHeader {
+        font-size: 20px;
+        font-weight: bold;
+        color: #CE2022;
+        height:10px;
+}
+
+
+.ButtonRow {
+	background-color: #E5E5E5;
+	font-size: 11px;
+	height:30px;
+}
+
+.LabelColumn {
+	width:170px;
+	height:30px;
+	font-size: 11px;
+}
+
+.InputColumn, .outputColumn {
+	width:430px;
+	height:30px;
+	font-size: 11px;
+}
+
+.BodyText {
+	font-size: 11px;
+}
+
+.Sub-Head {
+	font-size: 12px;
+	color: #CE2022;
+	background-color:#FF9999;
+}
+
+.Sub-Head a:link {
+	font-size: 12px;
+	color: #FFFFFF;
+}
+
+.Footer {
+	font-size: 10px;
+}
+
+.TableTitle {
+	background-color: #CE2022;
+	color: #FFFFFF;
+	font-size: 11px;
+	height: 18px;
+}
+
+.EmptyRow {
+	height: 18px;
+}
+
+.SectionLink {
+	font-size: 12px;
+	background-color:#FF9999;
+}
+
+.SectionLink a, .SectionLink a:link, .SectionLink a:visited, .SectionLink a:hover{
+	font-size: 12px;
+	color: #FFFFFF;
+}
+
+.OddRow {
+	background-color:#F5F5F5;
+}
+
+.EvenRow {
+	background-color:#FFFFFF;
+}
+
+.msgArea {
+	text-align:left;
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	font-weight:normal;
+}
+
+.ErrorTitle {
+	color:#FF0000;
+	background-color:#FFFFFF;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:14px;
+	font-weight:bold;
+}
+
+.fixchar {
+	font-size:11px;
+	font-family: MingLiU, Courier;
+}
+
+.errorMsg {
+	color:#FF0000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:bold;
+}
+
+
+.BSbtn
+{background-color: transparent; width: 80; height: 22; 
+ position: relative; border-style: none; border-color: transparent;
+ font-size: 11px}
+  
+.valbtn
+{background-color: #FFFFFF; color: black; width: 20; height: 20; 
+ position: relative; border-style: none}
+
+.hiddenvalbtn
+{background-color: #DDDDDD; color: black; width: 20; height: 20; 
+ position: relative; border-style: none}
+ 
+.keybtn
+{background-color: transparent; width: 22; height: 22; 
+ position: relative; border-style: none; border-color: transparent}
+ 
+#floatWindow {
+	margin: 0px;
+	padding: 0px; 
+	top: 0px; 
+	left: 0px; 
+	border: 1px solid #C52726; 
+	background-color: #FFFFFF; 
+	position: absolute;
+	z-index: 100;
+	display:none;
+}
+
+#body_overlay {
+	position: absolute;
+	left:0px;
+	top:0px;
+	z-index: 90;
+	background-color:#FFFFFF;
+	display:none;
+	-moz-opacity: 0.5;
+	opacity: .0;
+	filter: alpha( opacity = 50 );
+}
+
+a.linkButton{text-decoration:none;}
+a.linkButton div.desc { 
+	text-decoration:none;
+	background-color:#F5F5F5; 
+	display:none; 
+	position:absolute; 
+	z-index:100; 
+	width:150px; 
+	font-family: Arial;
+	font-size: 12px;
+	color: #333333;
+	letter-spacing:0px;
+	border: 1px solid #C52726;
+	padding: 5px;
+}
+
+a.linkButton:hover div.desc { 
+	display:block; 
+}

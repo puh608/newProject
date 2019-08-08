@@ -1,0 +1,77 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  var SC_Chat_Flag_Start=0;
+var SC_Chat_Flag_Reset=0;
+
+/* Chat Box Click */ 
+$('.chat-initiator').on('mousedown',function(){
+	s.linkTrackVars = '';
+	s.linkTrackEvents = 'event91';
+	s.eVar30 = s.pageName + ':ChatBox';
+	s.events = 'event91';
+	s.tl(this,'o','Chat Box Click');
+	s.linkTrackVars = 'None';
+	s.linkTrackEvents = 'None';
+	console.log("Site Catalyst Chat Box Click");
+});
+/* Chat Box Click */  
+
+/* Chat Box Start */
+$('body').on('click','.input-container .send.i18n',function()
+{    
+	var SC_Chat_Button = $(this).attr('data-message');    
+	if(SC_Chat_Button=='ChatSend' && SC_Chat_Flag_Reset==0 && SC_Chat_Flag_Start==0)
+	{
+		s.linkTrackVars = '';
+		s.linkTrackEvents = 'event92';
+		s.eVar30 = s.pageName + ':ChatBox';
+		s.events = 'event92';
+		s.tl(this,'o','Chat Box Start');
+		s.linkTrackVars = 'None';
+		s.linkTrackEvents = 'None';
+		console.log("Site Catalyst Chat Box Start");
+		SC_Chat_Flag_Reset=1;
+		SC_Chat_Flag_Start=1;
+	}
+});
+
+$('body').on('keyup','.input.i18n.form-control',function(e)
+{
+	if((e.which == 13 || e.keyCode == 13) && SC_Chat_Flag_Reset==0 && SC_Chat_Flag_Start==0)
+	{
+		s.linkTrackVars = '';
+			s.linkTrackEvents = 'event92';
+			s.eVar30 = s.pageName + ':ChatBox';
+			s.events = 'event92';
+			s.tl(this,'o','Chat Box Start');
+		s.linkTrackVars = 'None';
+		s.linkTrackEvents = 'None';
+		console.log("Site Catalyst Chat Box Start");
+		SC_Chat_Flag_Reset=1;
+		SC_Chat_Flag_Start=1;
+	}
+});
+/* Chat Box Start */
+
+
+/* Chat Box End */
+$('body').on('click','.end-confirm.btn.btn-primary.i18n',function()
+{    
+	var SC_Chat_Exit = $(this).attr('data-message');    
+	if(SC_Chat_Exit=='ChatEndConfirm')
+	{
+		s.linkTrackVars = '';
+		s.linkTrackEvents = 'event93';
+		s.eVar30 = s.pageName + ':ChatBox';
+		s.events = 'event93';
+		s.tl(this,'o','Chat Box End');
+		s.linkTrackVars = 'None';
+		s.linkTrackEvents = 'None';
+		console.log("Site Catalyst Chat Box End");
+		SC_Chat_Flag_Reset=0;
+		SC_Chat_Flag_Start=0;
+    }
+});
+/* Chat Box End */
+
+
+});

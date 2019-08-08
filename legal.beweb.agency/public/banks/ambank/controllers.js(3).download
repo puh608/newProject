@@ -1,0 +1,2231 @@
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function(require, exports) {
+
+    'use strict';
+
+    var _ = require('lodash');
+    var CryptoJS = require("crypto-js");
+    var app = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+    var Promise = require('base').Promise;
+
+    // @ngInject
+    exports.MainCtrl = function($scope, lpWidget, loginService, lpCoreUtils, lpCoreBus, $q, $http, $window, termRequestService, reactivationService,
+        lpCoreHttpInterceptor, $timeout, e2eEncryptionService, amProfileService, spinner, lpPortal, amW2wService, lpCoreI18n, lpCoreI18nUtils, quickAccessActivationService) {
+
+        if($window.sessionStorage.getItem("w2w")){
+            $window.localStorage.clear();
+            $window.sessionStorage.clear();
+        }
+
+        if(app) {
+            $scope.moduleName = lpWidget.model.name;
+        } else{
+            var widgetName = lpWidget.model.name;
+            $scope.moduleName = widgetName.substring(0, widgetName.lastIndexOf("-"));
+        }
+
+        var authenticationEndPoint, authorizationEndPoint, termEndPoint, activationEndPoint,
+            mobileDataEndPoint, featureDataEndPoint, deactivationEndPoint, verificationEndPoint;
+        var displayRequestIdFlag = lpCoreUtils.getPagePreference('requestIdFlag');
+        $scope.isApp = document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+
+        //behaviorDetection properties controller in page preference
+        var behaviorDetectionFlag = lpCoreUtils.getPagePreference('behaviorDetectionFlag');
+        var behaviorDetectionId = lpCoreUtils.getPagePreference('behaviorDetectionId');
+        var behaviorDetectionSubDomainSPALoader = lpCoreUtils.getPagePreference('behaviorDetectionSubDomainSPALoader');
+        var behaviorDetectionHost = lpCoreUtils.getPagePreference('behaviorDetectionHost');
+
+        $scope.countCheck = 0;
+
+        var amStorageUtil;
+        var quickAccessPlugin;
+        if (lpCoreUtils.isMobileDevice() && app) {
+            amStorageUtil = cxp.mobile.plugins['AmStorageUtil'];
+            quickAccessPlugin = cxp.mobile.plugins['FingerprintPlugin'];
+            $scope.maxQuickAccessRetry = 2;
+        }
+
+        var extractRequestId = function(ResponseHeader) {
+            var msg = '';
+            if (displayRequestIdFlag === true) {
+                if (ResponseHeader['x-request-id'] !== undefined && ResponseHeader['x-request-id'] !== '') {
+                    msg = 'x-request-id' + '-' + ResponseHeader['x-request-id'];
+                }
+            }
+            return msg;
+        };
+
+        function parseAuthErrors(type, errObj) {
+            var errors = [];
+            var field = '';
+            var msg = '';
+            var err = {};
+
+            if (errObj.data !== undefined) {
+                err = errObj.data;
+            } else {
+                err = errObj;
+            }
+            if (errObj.status >= 400) {
+                if (err.error || err.error_description) {
+                    if (err.error_description.includes("PROFILE_LOCKED")) err.error_description = err.error_description.replace("PROFILE_LOCKED", lpCoreI18n.instant("error_profile_locked"));
+                    else if (err.error_description.includes("INACTIVE")) err.error_description = err.error_description.replace("INACTIVE", lpCoreI18n.instant("error_inactive"));
+                    else if (err.error_description.includes("DORMANT")) err.error_description = err.error_description.replace("DORMANT", lpCoreI18n.instant("error_dormant"));
+                    else if (err.error_description.includes("SUSPECTED_FRAUD")) err.error_description = err.error_description.replace("SUSPECTED_FRAUD", lpCoreI18n.instant("error_suspected_fraud"));
+                    else if (err.error_description.includes("CLOSED")) err.error_description = err.error_description.replace("CLOSED", lpCoreI18n.instant("error_profile_closed"));
+                    msg = err.error_description + '  ' + extractRequestId(errObj.headers());
+                    $scope.serviceErrors('', msg);
+                } else {
+                    msg = '' + extractRequestId(errObj.headers());
+                    $scope.serviceErrors(type, msg);
+                }
+            }
+        }
+
+        $scope.close = function(){
+            if($scope.merchantDetailsObj.merchantDetails.payeeCode === "553" ||
+                $scope.merchantDetailsObj.merchantDetails.payeeCode === "566"){
+                var params = {
+                    MerchantID: $scope.merchantDetailsObj.merchantDetails.payeeCode,
+                    InvoiceNo: $scope.merchantDetailsObj.merchantDetails.billAccNum,
+                    TransAmount: $scope.merchantDetailsObj.merchantDetails.amount,
+                    CurrencyCode: $scope.merchantDetailsObj.merchantDetails.currencyCode,
+                    HashMethod: $scope.merchantDetailsObj.merchantDetails.hashMethod,
+                    HashValue: "",
+                    BankRefNo: "",
+                    TxnStatus: "1",
+                    RespMesg: ""
+                }
+            }else{
+                var params = {
+                    TxnType: $scope.merchantDetailsObj.merchantDetails.requestType,
+                    MerchantID: $scope.merchantDetailsObj.merchantDetails.payeeCode,
+                    MerchantName: $scope.merchantDetailsObj.merchantDetails.payeeName,
+                    MerchantTxnID: $scope.merchantDetailsObj.merchantDetails.billAccNum,
+                    TxnAmount: $scope.merchantDetailsObj.merchantDetails.amount,
+                    CurrencyCode: $scope.merchantDetailsObj.merchantDetails.currencyCode,
+                    OrderNumber: $scope.merchantDetailsObj.merchantDetails.billInformation[0].billInfoValue,
+                    HashMethod: $scope.merchantDetailsObj.merchantDetails.hashMethod,
+                    HashValue: "",
+                    BankRefNo: "",
+                    TxnStatus: "1",
+                    RespMesg: ""
+                }
+            }
+            buildUrl($scope.merchantDetailsObj.merchantDetails.merchantReturnURL, params);
+            $window.close();
+        };
+
+        function buildUrl(url, params) {
+            var result = '';
+
+            angular.forEach(params, function(val, key) {
+                result += key + '=' + val + '&';
+            });
+            ////console.log('1', result);
+            result = result.slice(0, result.length - 1);
+            ////console.log('2', result);
+            url = url.trim();
+            url = url+'?'+result
+
+            if(window.opener) {
+                window.opener.location.href=url;
+            }
+            return url;
+        };
+
+        $scope.saveToInternalStorage = function(fieldKey, fieldValue) {
+            if (amStorageUtil) {
+                amStorageUtil.storeToSecureStorage(
+                    function(resp) {
+                        //console.log('saveToInternalStorage, ' + fieldKey + ": " + fieldValue, resp);
+                        $window.localStorage.setItem(fieldKey, fieldValue);
+                    },
+                    function(error) {
+                        //console.log("amStorageUtil.storeToInternalWithCallbackId failed for key " + fieldKey, error);
+                    }, fieldKey, fieldValue);
+            }
+        };
+
+        $scope.retrieveFromInternalStorage = function(fieldKey) {
+            // var deferred = $q.defer();
+            var promise = new Promise(function(resolve, reject) {
+                //            $timeout(function(){
+                if (amStorageUtil) {
+                    amStorageUtil.getFromSecureStorage(
+                        function(resp) {
+                            //console.log('retrieveFromInternalStorage, ' + fieldKey, resp);
+                            $window.localStorage.setItem(fieldKey, resp.data);
+                            //                        return resp.data;
+                            resolve(resp.data);
+                            // deferred.resolve(resp.data);
+                        },
+                        function(error) {
+                            //console.log("amStorageUtil.getFromInternalWithCallbackId failed for key " + fieldKey, error);
+                            //                        return undefined;
+                            resolve(null);
+                            // deferred.resolve(null);
+                        }, fieldKey);
+                } else {
+                    //                return undefined;
+                    resolve(null);
+                    // deferred.resolve(null);
+                }
+                //            }, 500);
+            });
+            return promise;
+            // return deferred.promise;
+        };
+
+        $scope.saveQuickAccessStorage = function(data) {
+            if (data.ambQuickAccessSign && data.ambQuickAccessSign != undefined && data.ambQuickAccessSign.length > 0) {
+                $window.localStorage.setItem("ambQuickAccessSign", data.ambQuickAccessSign);
+                //                $scope.saveToInternalStorage('ambQuickAccessSign', data.ambQuickAccessSign);
+            }
+            if (data.ambQuickAccessRef && data.ambQuickAccessRef != undefined && data.ambQuickAccessRef.length > 0) {
+                $window.localStorage.setItem("ambQuickAccessRef", data.ambQuickAccessRef);
+                //                $scope.saveToInternalStorage('ambQuickAccessRef', data.ambQuickAccessRef);
+            }
+            if (data.ambQuickAccessRetry && data.ambQuickAccessRetry != undefined) {
+                $window.localStorage.setItem("ambQuickAccessRetry", data.ambQuickAccessRetry);
+                //                $scope.saveToInternalStorage('ambQuickAccessRetry', data.ambQuickAccessRetry);
+            }
+            if (data.ambQuickAccessDate && data.ambQuickAccessDate != undefined && data.ambQuickAccessDate.length > 0) {
+                $window.localStorage.setItem("ambQuickAccessDate", data.ambQuickAccessDate);
+                //                $scope.saveToInternalStorage('ambQuickAccessDate', data.ambQuickAccessDate);
+            }
+            if (data.ambDeviceUid && data.ambDeviceUid != undefined && data.ambDeviceUid.length > 0) {
+                $window.localStorage.setItem("ambDeviceUid", data.ambDeviceUid);
+                //                $scope.saveToInternalStorage('ambDeviceUid', data.ambDeviceUid);
+            }
+            if (data.ambQuickAccessPin && data.ambQuickAccessPin != undefined) {
+                $window.localStorage.setItem("ambQuickAccessPin", data.ambQuickAccessPin);
+                //                $scope.saveToInternalStorage('ambQuickAccessPin', data.ambQuickAccessPin);
+            }
+            if (data.ambQuickAccessDeactivated && data.ambQuickAccessDeactivated != undefined) {
+                $window.localStorage.setItem("ambQuickAccessDeactivated", data.ambQuickAccessDeactivated);
+                //                $scope.saveToInternalStorage('ambQuickAccessDeactivated', data.ambQuickAccessDeactivated);
+            }
+            if (data.ambQuickAccessFirstInstall && data.ambQuickAccessFirstInstall != undefined && data.ambQuickAccessFirstInstall.length > 0) {
+                $window.localStorage.setItem("ambQuickAccessFirstInstall", data.ambQuickAccessFirstInstall);
+                //                $scope.saveToInternalStorage('ambQuickAccessFirstInstall', data.ambQuickAccessFirstInstall);
+            }
+            if (data.ambQuickAccessAuthType && data.ambQuickAccessAuthType != undefined && data.ambQuickAccessAuthType.length > 0) {
+                $window.localStorage.setItem("ambQuickAccessAuthType", data.ambQuickAuthType);
+            }
+        };
+
+        $scope.removeFromInternalStorage = function(fieldKey) {
+            // var deferred = $q.defer();
+            var promise = new Promise(function(resolve, reject) {
+                //                            $timeout(function(){
+                if (amStorageUtil) {
+                    amStorageUtil.removeFromSecureStorage(
+                        function(resp) {
+                            //console.log('removeFromInternalWithCallbackId, ' + fieldKey, resp);
+                            $window.localStorage.removeItem(fieldKey);
+                            //                                                    return resp.data;
+                            resolve(resp.data);
+                            // deferred.resolve(resp.data);
+                        },
+                        function(error) {
+                            //console.log("amStorageUtil.removeFromInternalWithCallbackId failed for key " + fieldKey, error);
+                            //                                                    return undefined;
+                            resolve(null);
+                            // deferred.resolve(null);
+                        }, fieldKey);
+                } else {
+                    //                                    return undefined;
+                    resolve(null);
+                    // deferred.resolve(null);
+                }
+                //                            }, 0);
+            });
+            return promise;
+            // return deferred.promise;
+        };
+
+        // var getQuickAccessStorage = function() {
+        var getQuickAccessStorage = new Promise(function(resolve, reject) {
+            var data = {};
+            // var deferred = $q.defer();
+
+            if (lpCoreUtils.isMobileDevice() && app){
+                var promise0 = $scope.retrieveFromInternalStorage('ambDeviceUid');
+                var promise1 = $scope.retrieveFromInternalStorage('ambQuickAccessSign');
+                var promise2 = $scope.retrieveFromInternalStorage('ambQuickAccessRef');
+                var promise3 = $scope.retrieveFromInternalStorage('ambQuickAccessRetry');
+                var promise4 = $scope.retrieveFromInternalStorage('ambQuickAccessDate');
+                var promise5 = $scope.retrieveFromInternalStorage('ambQuickAccessDeactivated');
+                var promise6 = $scope.retrieveFromInternalStorage('ambQuickAccessPin');
+                var promise7 = $scope.retrieveFromInternalStorage('ambQuickAccessFirstInstall');
+                var promise8 = $scope.retrieveFromInternalStorage('ambQuickAccessAuthType');
+
+                Promise.all([promise0, promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8]).then(function(values) {
+                // $q.all([promise0, promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8]).then(function(values) {
+                    //console.log('promise values', values);
+//                    data.ambDeviceUid = values[0];
+                    data.ambDeviceUid = $scope.quickAccess.deviceUuid;
+                    data.ambQuickAccessSign = values[1];
+                    data.ambQuickAccessRef = values[2];
+                    data.ambQuickAccessRetry = values[3];
+                    data.ambQuickAccessDate = values[4];
+                    data.ambQuickAccessDeactivated = values[5];
+                    data.ambQuickAccessPin = values[6];
+                    data.ambQuickAccessFirstInstall = values[7];
+                    data.ambQuickAccessAuthType = values[8];
+//                    $scope.quickAccess.deviceUuid = data.ambDeviceUid;
+                    $scope.quickAccess.deactivated = data.ambQuickAccessDeactivated;
+                    //console.log('performing quick access signing');
+                    $scope.quickAccess.sign = data.ambQuickAccessSign;
+                    //console.log('sign',data.ambQuickAccessSign);
+                    $scope.quickAccess.signRef = data.ambQuickAccessRef;
+                    //console.log('signRef',data.ambQuickAccessRef);
+                    $scope.quickAccess.install = data.ambQuickAccessFirstInstall;
+                    $scope.quickAccess.authType = data.ambQuickAccessAuthType;
+                    if ($scope.quickAccess.biometricEnabled != true) {
+                        $scope.quickAccess.qaAuthPin = data.ambQuickAccessPin;
+                    }
+                    if (data.ambQuickAccessDate && data.ambQuickAccessDate == undefined) {
+                        data.ambQuickAccessDate = moment().format('YYYY-MM-DD');
+                        data.ambQuickAccessRetry = 0;
+                        data.ambQuickAccessDeactivated = false;
+                        $scope.quickAccess.date = moment().format('YYYY-MM-DD');
+                        $scope.quickAccess.retry = 0;
+                        $scope.quickAccess.deactivated = false;
+                    } else if (data.ambQuickAccessDate && data.ambQuickAccessDate != undefined && !compareQuickAccessCurrentDate(data.ambQuickAccessDate)) {
+                        data.ambQuickAccessDate = moment().format('YYYY-MM-DD');
+                        data.ambQuickAccessRetry = 0;
+                        data.ambQuickAccessDeactivated = false;
+                        $scope.quickAccess.date = moment().format('YYYY-MM-DD');
+                        $scope.quickAccess.retry = 0;
+                        $scope.quickAccess.deactivated = false;
+                    } else {
+                        if (data.ambQuickAccessRetry && data.ambQuickAccessRetry != undefined) {
+                            $scope.quickAccess.retry = data.ambQuickAccessRetry;
+                            if (data.ambQuickAccessRetry > $scope.maxQuickAccessRetry)
+                                $scope.quickAccess.deactivated = true;
+                            else
+                                $scope.quickAccess.deactivated = false;
+                        } else {
+                            data.ambQuickAccessDate = moment().format('YYYY-MM-DD');
+                            data.ambQuickAccessRetry = 0;
+                            data.ambQuickAccessDeactivated = false;
+                            $scope.quickAccess.date = moment().format('YYYY-MM-DD');
+                            $scope.quickAccess.retry = 0;
+                            $scope.quickAccess.deactivated = false;
+                        }
+                    }
+
+                    //console.log("getQuickAccessStorage", data);
+                    $scope.saveQuickAccessStorage(data);
+                    resolve(data);
+                    // deferred.resolve(data);
+                });
+            }
+
+            // return deferred.promise;
+        });
+
+        function parseErrors(type, errObj) {
+            var errors = [];
+            var field = '';
+            var msg = '';
+            var err = {};
+            var internalErr = false;
+
+            if (errObj.data !== undefined) {
+                err = errObj.data;
+            } else {
+                err = errObj;
+            }
+            if (errObj.status >= 400 && errObj.status < 500) {
+
+                if(errObj.status >= 401 && err.error == "invalid_token" && localStorage.getItem('showLogoutPanel')){
+                    //token not removed after logout this is to fix it
+                    localStorage.removeItem("refreshToken");
+                    localStorage.removeItem("accessToken");
+                    sessionStorage.removeItem("refreshToken");
+                    sessionStorage.removeItem("accessToken");
+                    return;
+                }
+                if (err.errors !== undefined && err.errors !== null && err.errors.length > 1) {
+                    errors = err.errors;
+                    if (displayRequestIdFlag && errors.length === 1) {
+                        if (errors[0].field === undefined) {
+                            msg = errors[0].code + ' - ' + errors[0].message;
+                            msg += '  ' + extractRequestId(errObj.headers());
+                            $scope.serviceErrors('', msg);
+                            return;
+                        }
+                    }
+                    for (var i = 0; i < errors.length; i++) {
+                        field = errors[i].field;
+                        msg = errors[i].code + ' - ' + errors[i].message;
+                        $scope.showError(field, msg);
+                        //$scope.serviceErrors('',msg);
+                    }
+                } else {
+                    if (err.code || err.message) {
+                        msg = err.code + ' - ' + err.message;
+                    } else {
+                        msg = '';
+                        internalErr = true;
+                    }
+
+                    msg += '  ' + extractRequestId(errObj.headers());
+                    if (internalErr) {
+                        $scope.serviceErrors(type, msg);
+                    } else {
+                        $scope.serviceErrors('', msg);
+                    }
+                }
+
+            } else if (errObj.status >= 500) {
+                if (err.code || err.message) {
+                    msg = err.code + ' - ' + err.message;
+
+                } else if (err.errors !== undefined && err.errors !== null) {
+                    errors = err.errors;
+                    if (errors) {
+                        msg = errors[0].code + ' - ' + errors[0].message;
+                    }
+                } else {
+                    msg = '';
+                    internalErr = true;
+                }
+
+                if (displayRequestIdFlag && err.errors) {
+                    for (var i = 0; i < err.errors.length; i++) {
+                        msg += ' | ' + err.errors[i].code + ' - ' + err.errors[i].message;
+                        //$scope.serviceErrors('',msg);
+                    }
+                }
+
+                msg += '  ' + extractRequestId(errObj.headers());
+                if (internalErr) {
+                    $scope.serviceErrors(type, msg);
+                } else {
+                    $scope.serviceErrors('', msg);
+                }
+            }
+        }
+
+        var initialize = function() {
+
+        $scope.parseType($scope.username, 'username');
+            $window.localStorage.setItem('jSessionId', '');
+
+            $scope.reactivationDone = 'false';
+            spinner.startLoading();
+            $scope.show = 'false';
+            $scope.step = 'one';
+            $scope.phoenix_UID = '';
+            $scope.phoenix_sessionID = '';
+            $scope.showDormantMsg = 'false';
+            $scope.tokenConfig = {
+                'headers': {}
+            };
+            $scope.confirmImage = false;
+            $scope.isW2w = false;
+            $scope.quickAccess = {};
+            $scope.quickAccess.displayAuthBtn = 'false';
+            $scope.quickAccess.showSetup = false;
+            $scope.quickAccess.setupStep = 'introOne';
+            $scope.quickAccess.openPopup = false;
+            $scope.quickAccess.notifyPopup = false;
+
+            // Flag for testing Quick Access on PC
+            $scope.quickAccess.test = true;
+
+            authenticationEndPoint = lpWidget.getResolvedPreference('usernameDataSrc');
+            authorizationEndPoint = lpWidget.getResolvedPreference('sessionDataSrc');
+
+            termEndPoint = lpWidget.getResolvedPreference('termRequestDataSrc');
+            termRequestService.setConfig(termEndPoint);
+            termRequestService.load()
+                .then(function(resp) {
+
+                    $scope.termObj.repoId = resp.repoId;
+                    $scope.termObj.tncUrl = resp.tncUrl;
+                })
+                .catch(function(err) {
+                    parseErrors('Term', err);
+                    spinner.stopLoading();
+                });
+
+            deactivationEndPoint = lpWidget.getResolvedPreference('qaDeactivateDataSrc');
+            verificationEndPoint = lpWidget.getResolvedPreference('qaDeviceVerificationDataSrc');
+
+            var setupEP = {
+                'deactivationEndPoint': deactivationEndPoint,
+                'verificationEndPoint': verificationEndPoint
+            };
+            quickAccessActivationService.setConfig(setupEP);
+
+            $scope.imgPath = lpWidget.getResolvedPreference('mockImgPath');
+            $scope.contentPath = lpCoreUtils.getPortalProperty('serverRoot') +
+                lpWidget.getResolvedPreference('contentPath');
+
+
+            if (localStorage.getItem('showLogoutPanel')) {
+                lpCoreBus.publish('amb.loggedOut');
+            }
+
+            if (!localStorage.getItem('showLogoutPanel')) {
+                $window.localStorage.clear();
+            }
+
+            lpCoreHttpInterceptor.configureNotifications({
+                ignore: [
+                    lpWidget.getPreference('usernameDataSrc'),
+                    lpWidget.getPreference('sessionDataSrc'),
+                    lpWidget.getPreference('tacRequestDataSrc'),
+                    lpWidget.getPreference('termRequestDataSrc'),
+                    lpWidget.getPreference('reactivateDataSrc'),
+                    lpWidget.getPreference('cryptoDataSrc'),
+                    lpWidget.getPreference('profileSrc'),
+                    lpWidget.getPreference('logoutDataSrc'),
+                    lpWidget.getPreference('merchantDetailsDataSrc'),
+                    lpWidget.getPreference('qaDeactivateDataSrc'),
+                    lpWidget.getPreference('qaDeviceVerificationDataSrc')
+
+                ]
+            });
+
+            mobileInit();
+            $scope.behaviorDetection = false;
+            if(behaviorDetectionFlag) behaviorDetection();
+            if (!app) w2wInit();
+
+            spinner.stopLoading();
+        };
+
+        function mobileInit() {
+            if (lpCoreUtils.isMobileDevice() && app) {
+                //not clearing logout summary if any
+                var tempLogoutSummary = $window.localStorage.getItem("ambSessionActivity");
+                var ambSessionTimeout = $window.localStorage.getItem("ambSessionTimeout");
+
+                //$window.localStorage.clear();
+
+                if(tempLogoutSummary)
+                    $window.localStorage.setItem("ambSessionActivity", tempLogoutSummary);
+
+                if(ambSessionTimeout)
+                    $window.localStorage.setItem("ambSessionTimeout", ambSessionTimeout);
+
+                $scope.quickAccess.deactivated = false;
+                var toSend = {};
+                var quickAccessStorageData;
+                // Start Quick Access Initialization
+                getDeviceAuthInfo(toSend, function(reqData) {
+                    // do something i.e. send toSend to CV CS or pop error msg
+                    //console.log('getDeviceAuthInfo result', reqData);
+                    angular.extend($scope.quickAccess, reqData);
+                    //console.log('$scope.quickAccess', $scope.quickAccess);
+
+                    $timeout(function(){
+                        $scope.$apply(function(){
+                            var qaIcon = 'icon-qa-pin-normal';
+                            if (reqData.supportBiometric == true && reqData.biometricType === 'touchid') {
+                                qaIcon = 'icon-qa-touchid-normal';
+                            } else if (reqData.supportBiometric == true && reqData.biometricType === 'faceid') {
+                                qaIcon = 'icon-qa-faceid-normal';
+                            }
+                            $scope.quickAccess.icon = qaIcon;
+                        });
+                    }, 0);
+                                  
+                    $scope.quickAccess.displayAuthBtn = 'true';
+                    getQuickAccessStorage.then(function(quickAccessStorageData) {
+                        //console.log("after QuickAccessStorageData", quickAccessStorageData);
+                        $scope.saveQuickAccessStorage(quickAccessStorageData);
+                        if (quickAccessStorageData.ambQuickAccessDate) {
+                            $scope.quickAccess.date = quickAccessStorageData.ambQuickAccessDate;
+                            $window.localStorage.setItem("ambQuickAccessDate", quickAccessStorageData.ambQuickAccessDate);
+                        }
+                        if (quickAccessStorageData.ambQuickAccessRetry) {
+                            $scope.quickAccess.retry = quickAccessStorageData.ambQuickAccessRetry;
+                            $window.localStorage.setItem("ambQuickAccessRetry", quickAccessStorageData.ambQuickAccessRetry);
+                        }
+                        if (quickAccessStorageData.ambQuickAccessSign) {
+                            $scope.quickAccess.sign = quickAccessStorageData.ambQuickAccessSign;
+                            $window.localStorage.setItem("ambQuickAccessSign", quickAccessStorageData.ambQuickAccessSign);
+                        }
+                        if (quickAccessStorageData.ambQuickAccessRef) {
+                            $scope.quickAccess.signRef = quickAccessStorageData.ambQuickAccessRef;
+                            $window.localStorage.setItem("ambQuickAccessRef", quickAccessStorageData.ambQuickAccessRef);
+                        }
+
+                        quickAccessStorageData.ambDeviceUid = reqData.deviceUuid;
+                        $scope.quickAccess.deviceUuid = quickAccessStorageData.ambDeviceUid;
+                        $window.localStorage.setItem("ambDeviceUid", reqData.deviceUuid);
+
+                        if (quickAccessStorageData.ambQuickAccessDeactivated) {
+                            $scope.quickAccess.deactivated = quickAccessStorageData.ambQuickAccessDeactivated;
+                            $window.localStorage.setItem("ambQuickAccessDeactivated", quickAccessStorageData.ambQuickAccessDeactivated);
+                        }
+                        if (quickAccessStorageData.ambQuickAccessPin) {
+                            $scope.quickAccess.qaStoredPin = quickAccessStorageData.ambQuickAccessPin;
+                            $window.localStorage.setItem("ambQuickAccessPin", quickAccessStorageData.ambQuickAccessPin);
+                        }
+                        if (quickAccessStorageData.ambQuickAccessFirstInstall == undefined || quickAccessStorageData.ambQuickAccessFirstInstall == 'true') {
+                            if ($scope.quickAccess.supportBiometric && !$scope.quickAccess.biometricEnabled) {
+                                $scope.toggleQuickAccessEnableBiometric(true);
+                            } else {
+                                $scope.toggleQuickAccessPopup(true);
+                            }
+                            $scope.quickAccess.install = false;
+                            bulkDeleteQuickAccessData();
+                        }
+                        if (quickAccessStorageData.ambQuickAccessAuthType) {
+                            $scope.quickAccess.authType = quickAccessStorageData.ambQuickAccessAuthType;
+                            $window.localStorage.setItem("ambQuickAccessAuthType", quickAccessStorageData.ambQuickAccessAuthType);
+                        }
+                        //console.log('quickAccessStorageData', quickAccessStorageData);
+                        //console.log('initialize $scope.quickAccess', $scope.quickAccess);
+
+                        if ($scope.countCheck === 0 && quickAccessStorageData.ambQuickAccessSign != undefined && quickAccessStorageData.ambQuickAccessSign.length > 0 && reqData.supportBiometric == true && (reqData.biometricType === 'touchid' || reqData.biometricType === 'faceid') && !(quickAccessStorageData.ambQuickAccessFirstInstall == undefined || quickAccessStorageData.ambQuickAccessFirstInstall == 'true')) {
+                            //console.log('I normally enter quick access');
+                            $scope.openQuickAccess(null, null, quickAccessStorageData);
+                        }
+                    });
+                });
+                // End Quick Access Initialization
+            }
+            $scope.behaviorDetection = false;
+            if(behaviorDetectionFlag) behaviorDetection();
+            if (!app) w2wInit();
+
+            spinner.stopLoading();
+        };
+
+        function w2wInit(){
+            //console.log("w2wInit")
+
+            var w2wMerchantDetailsEndPoint = lpWidget.getResolvedPreference('merchantDetailsDataSrc');
+            var w2wEP = {
+                'w2wMerchantDetailsEndPoint' : w2wMerchantDetailsEndPoint
+            }
+            amW2wService.setConfig(w2wEP);
+            amW2wService.loadMerchantDetails()
+            .then(function(resp) {
+                if(resp && resp.data && resp.data != ""){
+                    //console.log(resp.data)
+                    $window.localStorage.clear();
+                    $window.sessionStorage.clear();
+                    $scope.isW2w = true;
+                    $scope.merchantDetailsObj = resp.data;
+                    $timeout(function(){
+                        $window.sessionStorage.setItem("w2w", "w2w");
+                        lpCoreBus.publish('ambank.refreshNavbar', {
+                            _noBehavior: true // Do not allow behavior to re-open the widget
+                        }, true);
+                    },1);
+                }
+
+                spinner.stopLoading();
+            })
+            .catch(function(err) {
+                spinner.stopLoading();
+            });
+
+        }
+
+        function behaviorDetectionInitialize() {
+            var deferred = $q.defer();
+            (function(){var f=document,e=window,i=e.location.protocol,b=[["src",[i=="https:"?"https:/":"http:/", ""+behaviorDetectionSubDomainSPALoader+"/"+behaviorDetectionId+"/vwscr.js?r=" + Math.random()].join("/")],["type","text/javascript"],["async",true]],g="XMLHttpRequest",a=null,j=e[g]&&(a=new e[g]()).withCredentials!==undefined,c=f.createElement("script"),h=f.getElementsByTagName("head")[0];if(j){a.open("GET",b[0][1],b[2][1]);a.withCredentials=true;a.onreadystatechange=function(d){if(a.readyState==4&&a.status==200){c.type="script/meta";c.src=b[0][1];h.appendChild(c);new Function(a.responseText)();$scope.$apply(deferred.resolve);}};a.send()}else{setTimeout(function(){for(var d=0,k=b.length;d<k;d++){c.setAttribute(b[d][0],b[d][1])}h.appendChild(c)},0)}})();
+
+            return deferred.promise;
+        };
+
+        var iop7890 = "function iop7890(){ "+
+            "var jsId = document.cookie.match( /(; )?JSESSIONID=([^;]*);?/ )[2]; "+
+            "if(jsId != null) { "+
+                "if (jsId instanceof Array) "+
+                    "jsId = jsId[0].substring(11); "+
+                "else "+
+                    "jsId = jsId.substring(11); "+
+            "} "+
+            "return jsId; "+
+        "}";
+
+        function createjs(jsCode) {
+            var fileref = document.createElement('script');
+            fileref.type = 'text/javascript';
+            fileref.innerText = jsCode;
+            return fileref;
+        }
+
+        function replacejsfile(jsCode) {
+            var head = document.getElementsByTagName('head')[0];
+            var gotFile = true;
+            var z;
+            var done;
+
+            var newelement = createjs(jsCode);
+            head.appendChild(newelement);
+            return true;
+        };
+
+        var behaviorDetection = function() {
+            //console.log('jalan behaviorDetection');
+
+            if(!$scope.behaviorDetection){
+                behaviorDetectionInitialize()
+                .then(function(resp) {
+                    if(replacejsfile(iop7890)){
+                        try {
+                            window["ambankcall"]("login");
+                        }
+                        catch(err) {
+                            //console.log(err)
+                        }
+
+                        $scope.behaviorDetection = true;
+                    };
+                })
+                .catch(function(err) {
+                    //console.log('2')
+                })
+            }else{
+                if($scope.step === 'one'){
+                    try {
+                        window["ambankcall"]("login");
+                    }
+                    catch(err) {
+                        //console.log(err)
+                    }
+                }else if($scope.step === 'two'){
+                    try {
+                        window["ambankcall"]("password");
+                    }
+                    catch(err) {
+                        //console.log(err)
+                    }
+                }
+            }
+        }
+
+        $scope.iniObj = function() {
+            $scope.termObj = {
+                'flag': 'false',
+                'termLink': ''
+            };
+            $scope.errors = {};
+            $scope.alert = {};
+            $scope.alert.alerts = [];
+            $scope.e2eConfig = {
+                'headers': {}
+            };
+            $scope.otherE2eeConfig = {
+                'headers': {}
+            };
+            $scope.qaE2eeConfig = {
+                'headers': {}
+            };
+            $scope.customerName = '';
+            $scope.lastLogin = '';
+        };
+
+        $scope.username = {
+            length: [6, 15],
+            type: 'U'
+        };
+
+        $scope.password = {
+            length: [6, 15],
+            type: 'K'
+        };
+
+        $scope.qaPinAuth = {
+            length: [6, 6],
+            type: 'P'
+        };
+
+        $scope.validating = false;
+        $scope.encPassword;
+        $scope.otherE2eeHeader = [];
+
+        function setProfile() {
+            if($scope.profileNickname != null && $scope.profileNickname.length != 0)
+                $scope.customerName = $scope.profileNickname;
+
+            if (lpCoreUtils.isMobileDevice() && app) {
+                $window.localStorage.setItem('customerName', $scope.customerName);
+                $window.localStorage.setItem('dob', $scope.dob);
+                $window.localStorage.setItem('lastLogin', $scope.lastLogin);
+                $window.localStorage.setItem('behaviorDetectionSessionid', $scope.behaviorDetectionSessionid);
+            } else {
+                $window.sessionStorage.setItem('customerName', $scope.customerName);
+                $window.sessionStorage.setItem('dob', $scope.dob);
+                $window.sessionStorage.setItem('lastLogin', $scope.lastLogin);
+                $window.localStorage.setItem('behaviorDetectionSessionid', $scope.behaviorDetectionSessionid);
+            }
+        }
+
+        $scope.submitLogin = function($event) {
+            var isEncrypted = false;
+            $scope.validating = true;
+            $scope.alert.alerts = []; //always get latest errors
+            $timeout(function() {
+                if($event != null){
+                    var toElement = $event.toElement == null? $event.target: $event.toElement;
+
+                    var inputParent = $(toElement).parents(".ambank-sm-wrapper");
+                    $("input:visible,textarea:visible,.checkthis:visible input", inputParent).each(function() {
+                        $(".checkthis:visible input").show();
+                        $(this).blur();
+                        $(".checkthis:visible input").hide();
+                    })
+                }
+                if ($scope.quickAccess && $scope.quickAccess.submittingAuth && $scope.quickAccess.submittingAuth == true) {
+                    for (var key in $scope.errors) {
+                        if (key.startsWith('username')) {
+                            delete $scope.errors[key];
+                        }
+                    }
+                } else if ($scope.quickAccess && (($scope.quickAccess.submittingAuth && $scope.quickAccess.submittingAuth == false) || $scope.quickAccess.submittingAuth == undefined)) {
+                    for (var qaKey in $scope.errors) {
+                        if (qaKey.startsWith('qaAuthPin')) {
+                            delete $scope.errors[qaKey];
+                        }
+                    }
+                }
+
+                if (_.isEmpty($scope.errors)) {
+                    spinner.startLoading();
+                    var toSend = {};
+                    if ($scope.quickAccess && $scope.quickAccess.submittingAuth && $scope.quickAccess.submittingAuth == true) {
+                        submitQuickAccessAuth();
+                    } else if ($scope.step === 'one') {
+                        var qaCryptoConfig = {
+                            params : {
+                              type : 'e2ee',
+                              count: 1
+                            }
+                        };
+
+                        //clear all storage except w2w
+                        if(!$window.sessionStorage.getItem("w2w")){
+                            $window.localStorage.clear();
+                            bulkSaveQuickAccessData();
+                            var tempAppBanner = $window.sessionStorage.getItem("app-banner");
+                            $window.sessionStorage.clear();
+                            if(tempAppBanner != null)
+                                $window.sessionStorage.setItem("app-banner", tempAppBanner);
+                        }
+
+                        $scope.otherE2eeObj = setOtherE2eeConfig();
+                        e2eEncryptionService.callEncryptService(qaCryptoConfig)
+                            .then(function(response) {
+                                var e2eProcessedObj = response.data;
+                                e2eProcessedObj = e2eEncryptionService.otherEncryptWithKey($scope.otherE2eeObj, e2eProcessedObj);
+                                if (e2eProcessedObj.length > 0) {
+                                    $scope.otherE2eeConfig.headers['x-encrypt-ctx'] = [];
+                                    for (var i = 0; i < e2eProcessedObj.length; i++) {
+                                        $scope.otherE2eeHeader[i] = e2eProcessedObj[i].fieldType+'.'+e2eProcessedObj[i].fieldName + '=' + e2eProcessedObj[i].sessionId ;
+                                        if (e2eProcessedObj[i].fieldName === 'username') {
+                                            // $scope.username.value = e2eProcessedObj[i].fieldValue;
+                                            $scope.encUsername = e2eProcessedObj[i].fieldValue;;
+                                        }
+                                    }
+                                    $scope.otherE2eeConfig.headers['x-encrypt-ctx'] = $scope.otherE2eeHeader;
+                                }
+                                isEncrypted = true;
+                                toSend = createSendObject(isEncrypted);
+                                verification(toSend);
+                            }).catch(function(err) {
+                                delete $scope.otherE2eeConfig.headers['x-encrypt-ctx'];
+                                toSend = createSendObject(isEncrypted);
+                                verification(toSend);
+                                // parseErrors('Crypto', err);
+                                // spinner.stopLoading();
+                            });
+
+                    }else if ($scope.step === 'two') {
+                        var cryptoConfig = {
+                            params : {
+                              type : 'hash',
+                              count: 1
+                            }
+                        };
+                        $scope.e2eObj = setE2eConfig();
+                        e2eEncryptionService.callEncryptService(cryptoConfig)
+                            .then(function(response) {
+                                var e2eProcessedObj = response.data;
+                                e2eProcessedObj = e2eEncryptionService.preAuthEncryptWithKey($scope.e2eObj, e2eProcessedObj);
+                                if (e2eProcessedObj.length > 0) {
+                                    $scope.e2eConfig.headers['x-preauth-ctx'] = '';
+                                    var crypto = '';
+                                    for (var i = 0; i < e2eProcessedObj.length; i++) {
+                                        crypto += e2eProcessedObj[i].fieldName + '=' + e2eProcessedObj[i].sessionId + ';';
+                                        if (e2eProcessedObj[i].fieldName === 'password') {
+                                            $scope.password.value = e2eProcessedObj[i].fieldValue;
+                                            $scope.encPassword = e2eProcessedObj[i].fieldValue;
+                                        }
+                                    }
+                                    $scope.e2eConfig.headers['x-preauth-ctx'] = crypto;
+                                }
+
+                                toSend = createSendObject();
+                                verification(toSend);
+                            }).catch(function(err) {
+                                parseErrors('Crypto', err);
+                                spinner.stopLoading();
+                            });
+                    } else {
+                        $window.localStorage.clear();
+                        toSend = createSendObject();
+                        verification(toSend);
+                    }
+                }
+            })
+
+        };
+
+        $scope.resetForm = function() {
+            if ($scope.step !== 'one' || $scope.show == 'true' || $scope.showDormantMsg == 'true') {
+                $scope.step = 'one';
+                $scope.username.value = '';
+                $scope.password.value = '';
+                $scope.errors = {};
+                $scope.show = 'false';
+                $scope.iniObj();
+            }
+        };
+
+        $scope.backForm = function() {
+            var inactive = ($scope.show === 'true');
+            if ($scope.step !== 'one' || $scope.show == 'true' || $scope.showDormantMsg == 'true') {
+                $scope.step = 'one';
+                $scope.errors = {};
+                $scope.show = 'false';
+                $scope.password.value = '';
+            }
+
+            // inactive scenario
+            // clear token (logged-in)
+            if (inactive) {
+                if (lpCoreUtils.isMobileDevice() && app) {
+                    $window.localStorage.clear();
+                } else {
+                    var tempAppBanner = $window.sessionStorage.getItem("app-banner");
+                    $window.sessionStorage.clear();
+                    if(tempAppBanner != null)
+                        $window.sessionStorage.setItem("app-banner", tempAppBanner);
+                }
+
+                $scope.step = 'one';
+                var sendObj = createSendObject();
+                verification(sendObj);
+            }
+
+        };
+
+        $scope.openQuickAccess = function ($event, fromRetry, qaData) {
+            //console.log('in openQuickAccess');
+            //console.log("quick access sign", $scope.quickAccess.sign, $scope.quickAccess.signRef);
+            if ($event != null) {
+                document.getElementById("qaAuthBtn").blur();
+            }
+
+            $scope.errors = {};
+            var toSend = {},
+                isCurrentlyOpenPopup = $scope.quickAccess.openPopup;
+            //console.log('$scope.quickAccess.retry', $scope.quickAccess.retry);
+            //console.log('openQuickAccess $scope.quickAccess', $scope.quickAccess);
+            //Close pop ups if open
+            $scope.toggleQuickAccessEnableBiometric(false);
+            $scope.toggleQuickAccessLock(false);
+            $scope.toggleQuickAccessPopup(false);
+
+            // Update Device Biometric Capability
+            getDeviceAuthInfo(toSend, function(reqData) {
+                $scope.quickAccess.biometricEnabled = reqData.biometricEnabled;
+                $scope.quickAccess.supportBiometric = reqData.supportBiometric;
+
+                if ($event != null) {
+                    if ($scope.quickAccess.supportBiometric && !$scope.quickAccess.biometricEnabled) {
+                        $scope.toggleQuickAccessEnableBiometric(true);
+                        //console.log('enter event option 1');
+                    } else if (($scope.quickAccess.sign == undefined || !$scope.quickAccess.sign)) {
+                        if(isCurrentlyOpenPopup === false || isCurrentlyOpenPopup === undefined) {
+                            $scope.toggleQuickAccessPopup(true);
+                        }
+                        //console.log('enter event option 2');
+                    } else if ($scope.quickAccess.deactivated && $scope.quickAccess.deactivated != undefined && $scope.quickAccess.deactivated == true) {
+                        spinner.startLoading();
+                        performDeactivation($event, false);
+                        $scope.toggleQuickAccessLock(true);
+                        //console.log('enter event option 3, deactivate');
+                    } else {
+                        callDeviceVerification({}, $event, fromRetry);
+                        //getDeviceVerification($event, fromRetry);
+                        //console.log('enter event option 4, verification');
+                    }
+                } else {
+                    if ($scope.countCheck === 0) {
+                        if ($scope.quickAccess.supportBiometric && !$scope.quickAccess.biometricEnabled) {
+                            $scope.toggleQuickAccessEnableBiometric(true);
+                            //console.log('enter event option 5');
+
+                        } else if ($scope.quickAccess.deactivated && $scope.quickAccess.deactivated != undefined && $scope.quickAccess.deactivated == true) {
+                            spinner.startLoading();
+                            performDeactivation($event, false);
+                            $scope.toggleQuickAccessLock(true);
+                            //console.log('enter event option 6');
+                        } else {
+                            callDeviceVerification({}, $event, fromRetry, qaData);
+                            //getDeviceVerification($event, fromRetry, qaData);
+                            $scope.countCheck++;
+                            //console.log('enter event option 7');
+                        }
+                    }
+
+                }
+            });
+        };
+
+        $scope.triggerQaDeactivation = function ($event){
+            //console.log('enter Qa deactivation !!');
+            if ($scope.quickAccess.sign != undefined && $scope.quickAccess.sign){
+                spinner.startLoading();
+                performDeactivation($event, false);
+            }
+        }
+
+        function performDeactivation($event, openPopup) {
+            //console.log('perform deactivation !!');
+            $scope.quickAccess.deactivating = true;
+            var toSend = createSendObject(false);
+            quickAccessActivationService.deactivate(toSend)
+                .then(function(resp) {
+                    $scope.pushNotificationsAuth = false;
+                    $scope.processError = false;
+                    bulkDeleteQuickAccessData();
+                    // pop deactivated msg
+                    $scope.quickAccess.submittingAuth = false;
+                    if (openPopup == true){
+                        $scope.toggleQuickAccessPopup(true);
+                    }
+                    $scope.buttonDisabled = false;
+                    spinner.stopLoading();
+                })
+                .catch(function(err) {
+                    var errObj = err.data;
+                    if (err.status === 500) {
+                        if (errObj.code === '007404') {
+                            $scope.processError = false;
+                            $scope.pushNotificationsAuth = true;
+                            document.body.scrollTop = document.documentElement.scrollTop = 0;
+                        } else {
+                            $scope.pushNotificationsAuth = false;
+                            $scope.processError = true;
+                            $scope.parseErrors('qa deactivate', err);
+                        }
+                    } else if (errObj.transactions && errObj.transactions.length > 0) {
+                        if (errObj.transactions[0].errorObject && errObj.transactions[0].errorObject.errors.length > 0 && errObj.transactions[0].errorObject.errors[0].code == 'QA023') {
+                            bulkDeleteQuickAccessData();
+                            //console.log('error and i open quick access');
+                            $scope.openQuickAccess($event);
+                        }
+                    }
+                    $scope.buttonDisabled = false;
+                    spinner.stopLoading();
+                });
+
+            $scope.quickAccess.deactivating = false;
+        }
+
+        $scope.connectQuickAccess = function(data, $event) {
+            //console.log('in connectQuickAccess');
+            if (lpCoreUtils.isMobileDevice() && app) {
+                if (quickAccessPlugin) {
+                    //console.log('able to connect to FingerprintPlugin');
+                    // do something i.e. display appropriate authentication method
+                    quickAccessPlugin.authenticateWithCallbackId(
+                        function(resp) {
+                            $timeout(function(){
+                                //console.log('quickAccessPlugin.authenticate resp', resp);
+                                angular.extend(data, resp);
+                                if (resp.authenticated) {
+                                    $scope.submitLogin($event);
+                                }
+                            },0);
+                        },
+                        function(error) {
+                            angular.extend(data, error);
+                            //console.log("quickAccessPlugin.authenticate failed:", error);
+                            if (error.supportBiometric == false || error.error.indexOf() != -1) {
+                                $scope.quickAccess.supportBiometric = false;
+                            } else if (error.biometricEnabled == false ||
+                                error.error.indexOf('disabled') != -1) {
+                                $scope.quickAccess.biometricEnabled = false;
+                            }
+                            $scope.quickAccess.submittingAuth = false;
+                            spinner.stopLoading();
+                        });
+                } else {
+                    //console.log('error connecting to FingerprintPlugin');
+                    $scope.quickAccess.submittingAuth = false;
+                    spinner.stopLoading();
+                }
+            }
+        };
+
+        function getDeviceAuthInfo(data, callback) {
+            //console.log('in getDeviceAuthInfo');
+            if (lpCoreUtils.isMobileDevice() && app) {
+                if (quickAccessPlugin) {
+                    //console.log('able to connect to FingerprintPlugin');
+                    // do something i.e. display appropriate authentication method
+                    quickAccessPlugin.getBiometricWithCallbackId(
+                        function(resp) {
+                            //console.log('getDeviceAuthInfo', resp);
+                            angular.extend(data, resp);
+                            callback(data);
+                        },
+                        function(error) {
+                            angular.extend(data, resp);
+                            callback(data);
+                            //console.log("quickAccessPlugin.getBiometricWithCallbackId failed:", error);
+                        });
+                } else {
+                    //console.log('error connecting to FingerprintPlugin');
+                    data.error = 'error connecting to FingerprintPlugin';
+                    callback(data);
+                }
+            }
+        }
+
+        function getDeviceVerification($event, fromRetry, qaData) {
+            //console.log('getDeviceVerification');
+            $scope.quickAccess.sign = $window.localStorage.getItem("ambQuickAccessSign");
+            $scope.quickAccess.signRef = $window.localStorage.getItem("ambQuickAccessRef");
+
+            //console.log("quick access sign", $scope.quickAccess.sign, $scope.quickAccess.signRef);
+            var decodedSigId = "";
+            if ($scope.quickAccess.sign !== undefined && $scope.quickAccess.signRef !== undefined) {
+                decodedSigId = decodePhoneData($scope.quickAccess.sign, $scope.quickAccess.signRef);
+            }
+            //console.log('decodedSigId', decodedSigId);
+            var cryptoConfig = {
+                params: {
+                    type: 'e2ee',
+                    count: 1
+                }
+            };
+
+            var unencryptObj = [];
+            var deviceId = {
+                fieldName: 'sigId',
+                fieldValue: decodedSigId,
+                fieldType: 'param'
+            };
+            unencryptObj.push(deviceId);
+
+            //console.log('unencryptObj', unencryptObj);
+            $scope.qaE2eeObj = setGeneralE2eeConfig(unencryptObj);
+            $scope.qaE2eeConfig = {
+                'headers': {}
+            };
+            $scope.qaE2eeHeader = [];
+            var config = {
+                params: {}
+            };
+            e2eEncryptionService.callEncryptService(cryptoConfig)
+                .then(function(response) {
+                    var e2eProcessedObj = response.data;
+                    e2eProcessedObj = e2eEncryptionService.otherEncryptWithKey($scope.qaE2eeObj, e2eProcessedObj);
+                    if (e2eProcessedObj.length > 0) {
+                        $scope.qaE2eeConfig.headers['x-encrypt-ctx'] = [];
+                        for (var i = 0; i < e2eProcessedObj.length; i++) {
+                            $scope.qaE2eeHeader[i] = e2eProcessedObj[i].fieldType + '.' + e2eProcessedObj[i].fieldName + '=' + e2eProcessedObj[i].sessionId;
+                            if (e2eProcessedObj[i].fieldName === 'sigId') {
+                                // $scope.username.value = e2eProcessedObj[i].fieldValue;
+                                $scope.encSigId = e2eProcessedObj[i].fieldValue;
+                            }
+                        }
+                        $scope.qaE2eeConfig.headers['x-encrypt-ctx'] = $scope.qaE2eeHeader;
+                    }
+                    // isEncrypted = true;
+
+                    config.params.sigId = $scope.encSigId;
+                    angular.extend(config, $scope.qaE2eeConfig);
+                    callDeviceVerification(config, $event, fromRetry, qaData);
+
+                }).catch(function(err) {
+                    // parseErrors('Crypto', err);
+                    config.params.sigId = decodedSigId;
+                    callDeviceVerification(config, $event, fromRetry, qaData);
+
+                });
+
+        }
+
+        function callDeviceVerification(data, $event, fromRetry, qaData) {
+            //console.log('callDeviceVerification', data);
+//            quickAccessActivationService.getDeviceVerification(data)
+//                .then(function(resp) {
+//                    var devices = resp.data.featureList;
+//                    var containQA = false;
+//                    for (var i = 0; i < devices.length; i++) {
+//                        if (devices[i] === 'QA') {
+//                            containQA = true;
+                            if (fromRetry != undefined && fromRetry == true) {
+                                $scope.quickAccess.openRetry = false;
+                            }
+                            if (qaData != null && qaData != undefined) {
+                                $scope.quickAccess.submittingAuth = true;
+                                var toSend = {};
+                                toSend = createSendObject(false);
+                                $timeout(function () {
+                                    $scope.connectQuickAccess(toSend, $event);
+                                }, 0);
+                            } else {
+                                if ($scope.quickAccess.supportBiometric && $scope.quickAccess.biometricEnabled &&
+                                    ($scope.quickAccess.openRetry == undefined || $scope.quickAccess.openRetry != true)) {
+                                    $scope.quickAccess.submittingAuth = true;
+                                    var toSend = {};
+                                    toSend = createSendObject(false);
+                                    $timeout(function() {
+                                        $scope.connectQuickAccess(toSend, $event);
+                                    }, 0);
+                                } else if (!$scope.quickAccess.supportBiometric && (($scope.quickAccess.retry != undefined &&
+                                    parseInt($scope.quickAccess.retry) <= $scope.maxQuickAccessRetry) ||
+                                    $scope.quickAccess.retry == undefined ||
+                                    $scope.quickAccess.retry == null)) {
+                                    $scope.qaPinAuth.value = '';
+                                    $scope.parseType($scope.qaPinAuth, 'qaPinAuth');
+                                    if ($scope.quickAccess.qaStoredPin) {
+                                        $scope.togglePasscode(true);
+                                    } else {
+                                        $scope.serviceErrors('', 'No Quick Access PIN stored in device');
+                                    }
+                                } else if ($scope.quickAccess.retry &&
+                                    parseInt($scope.quickAccess.retry) <= $scope.maxQuickAccessRetry &&
+                                    !$scope.quickAccess.supportBiometric) {
+                                    spinner.startLoading();
+                                    performDeactivation($event, false);
+                                    $scope.toggleQuickAccessLock(true);
+                                }
+                            }
+//                        }
+//                    }
+//
+//                    if (!containQA) {
+//                        bulkDeleteQuickAccessData();
+//                        $scope.toggleQuickAccessPopup(true);
+//                    }
+//
+//                })
+//                .catch(function(err) {
+//                    var errObj = err.data;
+//                    if (err.status === 400) {
+//                        if (errObj.code === 'QA023') {
+//                            bulkDeleteQuickAccessData();
+//                            $scope.toggleQuickAccessPopup(true);
+//                        } else {
+//                            //console.log('end here');
+//                        }
+//                    }
+//                    spinner.stopLoading();
+//                });
+        }
+
+        $scope.togglePasscode = function(toggleBool) {
+            if (toggleBool) {
+                $scope.quickAccess.openPasscode = true;
+            } else {
+                $scope.quickAccess.openPasscode = false;
+            }
+        };
+
+        $scope.toggleQuickAccessPopup = function(toggleBool) {
+            $timeout(function() {
+                $scope.$apply(function() {
+                    if (toggleBool) {
+                        $scope.quickAccess.openPopup = true;
+                    } else {
+                        $scope.quickAccess.openPopup = false;
+                    }
+                });
+            }, 0);
+        };
+
+        $scope.closeQuickAccessNotifyPopup = function() {
+            $timeout(function() {
+                $scope.$apply(function() {
+                    $scope.quickAccess.notifyPopup = false;
+                });
+            }, 0);
+        };
+
+        $scope.toggleQuickAccessSetup = function(toggleBool) {
+            $scope.quickAccess.setupStep = 'introOne';
+            $scope.quickAccess.openPopup = false;
+            if (toggleBool) {
+                $scope.quickAccess.showQuickAccessSetup = true;
+            } else {
+                $scope.quickAccess.showQuickAccessSetup = false;
+            }
+            lpCoreBus.publish('ambank.closeCarouselMobile',{});
+        };
+
+        $scope.toggleQuickAccessRetry = function(toggleBool) {
+            if (toggleBool) {
+                $scope.quickAccess.openRetry = true;
+            } else {
+                $scope.quickAccess.openRetry = false;
+            }
+            $scope.$apply();
+        };
+
+        $scope.toggleQuickAccessLock = function(toggleBool) {
+            if (toggleBool) {
+                $scope.quickAccess.openLock = true;
+                if ($scope.quickAccess.biometricEnabled == true) {
+                    $scope.toggleQuickAccessRetry(false);
+                } else {
+                    $scope.togglePasscode(false);
+                }
+            } else {
+                $scope.quickAccess.openLock = false;
+            }
+        };
+
+        $scope.toggleQuickAccessEnableBiometric = function(toggleBool) {
+            $timeout(function() {
+                $scope.$apply(function() {
+                    if (toggleBool) {
+                        $scope.quickAccess.openEnableBiometric = true;
+                    } else {
+                        $scope.quickAccess.openEnableBiometric = false;
+                    }
+                });
+            }, 0);
+        };
+
+        $scope.validatePasscode = function($event) {
+            if ($scope.buttonDisabled === true) {
+                return;
+            }
+            $scope.buttonDisabled = true;
+            // //console.log('qaPinAuth', $scope.qaPinAuth.value);
+            var qaStoredPin = $window.localStorage.getItem("ambQuickAccessPin");
+            var qaStoredRef = $window.localStorage.getItem("ambQuickAccessRef");
+            // //console.log('qaStoredPin', qaStoredPin);
+            var decodedPin = decodePhoneData(qaStoredPin, qaStoredRef);
+            if (decodedPin && decodedPin === $scope.qaPinAuth.value) {
+                $scope.quickAccess.submittingAuth = true;
+                $scope.submitLogin($event);
+            } else {
+                // pop pin not match error
+                $scope.quickAccess.submittingAuth = false;
+                $scope.quickAccess.retry = ($scope.quickAccess.retry ? parseInt($scope.quickAccess.retry) : 0) + 1;
+                if ($scope.quickAccess.retry > $scope.maxQuickAccessRetry) {
+                    $scope.togglePasscode(false);
+                    $scope.quickAccess.deactivated = true;
+                    performDeactivation($event, false);
+                    $scope.toggleQuickAccessLock(true);
+                } else {
+                    $scope.buttonDisabled = false;
+                }
+            }
+        };
+
+        $scope.$on('reactivationDone', function(event, data) {
+            if (data && data === 'true') {
+                $scope.reactivationDone = 'true';
+            }
+        });
+
+        function setE2eConfig() {
+            var e2eObj = [{
+                fieldName: 'password',
+                fieldValue: $scope.password.value
+            }];
+
+            return e2eObj;
+        }
+
+        function setOtherE2eeConfig() {
+            var otherE2eeObj = [{
+                fieldName: 'username',
+                fieldValue: $scope.username.value,
+                fieldType: 'body'
+            }];
+
+            return otherE2eeObj;
+        }
+
+        function setGeneralE2eeConfig(unencryptObj) {
+            var generalE2eeObj = [];
+            for (var i = 0; i < unencryptObj.length; i++) {
+                var newField = {
+                    fieldName: unencryptObj[i].fieldName,
+                    fieldValue: unencryptObj[i].fieldValue,
+                    fieldType: unencryptObj[i].fieldType
+                };
+                generalE2eeObj.push(newField);
+            }
+            //console.log('generalE2eeObj', generalE2eeObj);
+            return generalE2eeObj;
+        }
+
+        function createSendObject(isEncrypted) {
+            var toSend = {};
+            if ($scope.quickAccess && $scope.quickAccess.deactivating) {
+                var request = [];
+                var features = ['QA'];
+                var deviceInfo = {
+                    sigId: decodePhoneData($scope.quickAccess.sign, $scope.quickAccess.signRef),
+                    featureList: features,
+                };
+                request.push(deviceInfo);
+                toSend = {
+                    deviceDeactivationRequest: request
+                };
+            } else if ($scope.quickAccess && $scope.quickAccess.submittingAuth && $scope.quickAccess.submittingAuth == true) {
+                if (isEncrypted) {
+                    toSend = {
+                        deviceKey: $scope.encDeviceKey,
+                    };
+                } else {
+                    toSend = {
+                        deviceKey: decodePhoneData($window.localStorage.getItem("ambQuickAccessSign"), $window.localStorage.getItem("ambQuickAccessRef")) +
+                            "||" + $scope.quickAccess.deviceUuid,
+                    };
+                }
+            } else if ($scope.step === 'one') {
+                $scope.showDormantMsg = 'false';
+                $scope.reactivationDone = 'false';
+                if(isEncrypted){
+                    toSend = {
+                        username: $scope.encUsername,
+                    }
+                }else{
+                    toSend = {
+                        username: $scope.username.value
+                    }
+                }
+
+            } else if ($scope.step === 'two') {
+                toSend = {
+                    authenticationId: $scope.respObj.authenticationId,
+                    password: $scope.encPassword
+                }
+
+                if ($scope.respObj.tnc == false) {
+                    if($scope.quickAccess) {
+                        toSend.tncAccepted = true;
+                    } else {
+                        toSend.tncAccepted = $scope.termObj.flag;
+                    }
+                }
+            }
+
+            return toSend;
+
+        };
+
+        function verification(reqObj) {
+            if ($scope.quickAccess && $scope.quickAccess.submittingAuth && $scope.quickAccess.submittingAuth == true) {
+                var grantType = '';
+                switch ($scope.quickAccess.biometricType) {
+                    case 'pin':
+                        grantType = 'pinaccess';
+                        break;
+                    case 'touchid':
+                        grantType = 'touchidaccess';
+                        break;
+                    case 'faceid':
+                        grantType = 'faceidaccess';
+                        break;
+                }
+                var qaConfig = {
+                    params: {
+                        grantType: grantType
+                    }
+                };
+                $window.localStorage.setItem('grantType', grantType);
+                angular.extend($scope.qaE2eeConfig, qaConfig);
+                loginService.setConfig(authorizationEndPoint);
+                // spinner.startLoading();
+
+                loginService.authorizeUser(reqObj, $scope.qaE2eeConfig)
+                    .then(onResponseOk)
+                    .catch(function(err) {
+                        $scope.quickAccess.submittingAuth = false;
+                        if ($scope.quickAccess.biometricType === 'pin') {
+                            $scope.togglePasscode(false);
+                        }
+                        // Using existing sigId from deactivated phone
+                        if (err.data.code == 'G019') {
+                            bulkDeleteQuickAccessData();
+                            //$scope.toggleQuickAccessPopup(true);
+                            // Should notify user instead of popup Activate Message
+                            $scope.quickAccess.openPopup = true;
+                            $scope.quickAccess.notifyPopup = true;
+                        } else {
+                            parseAuthErrors('Login', err);
+                        }
+                        $scope.buttonDisabled = false;
+                        spinner.stopLoading();
+                    });
+            } else if ($scope.step === 'one') {
+                loginService.setConfig(authenticationEndPoint);
+
+                var config = {
+                    'headers': {}
+                }
+
+                if($window.sessionStorage.getItem("w2w")){
+                    config.headers['clientId'] = "w2w";
+                }
+                //console.log(config)
+                angular.extend($scope.otherE2eeConfig.headers, config.headers);
+
+                loginService.authentication(reqObj, $scope.otherE2eeConfig)
+                .then(function(resp) {
+                    if (resp.data.errors) {
+                        for (var eNo = 0; eNo < resp.data.errors.length; eNo++)
+                            $scope.showError(resp.data.errors[eNo].field, resp.data.errors[eNo].message)
+                    } else {
+                        onResponseOk(resp);
+
+                    }
+                })
+                .catch(function(err) {
+                    // parseAuthErrors('Login', err);
+                    parseErrors('Login', err);
+                    spinner.stopLoading();
+                });
+
+            } else if ($scope.step === 'two') {
+                var config = {
+                    params: {
+                        // grantType : $scope.password.value
+                        grantType: 'cvpassword'
+                    }
+                }
+                angular.extend($scope.e2eConfig, config);
+                loginService.setConfig(authorizationEndPoint);
+                // spinner.startLoading();
+
+                loginService.authorizeUser(reqObj, $scope.e2eConfig)
+                .then(onResponseOk)
+                .catch(function(err) {
+                    // parseAuthErrors('Login', err);
+                    parseErrors('Login', err);
+                    spinner.stopLoading();
+                });
+            }
+        };
+
+        function loginPortal() {
+            if ($scope.respObj.profileStatusCode === 'A') { //if active
+                var deferred = $q.defer();
+                var authObj = {};
+                authObj = {
+                    j_username: $scope.phoenix_UID,
+                    j_password: $scope.phoenix_sessionID,
+                    portal_name: config.portalName,
+                    page_name: config.pageName
+                }
+
+                $http({
+                    method: 'POST',
+                    url: config.serverRootPath + '/j_spring_security_check' + '?rd=' + new Date().getTime(),
+                    data: lpCoreUtils.buildQueryString(authObj),
+                    headers: formHeaders()
+                })
+
+                .success(function(resp) {
+                        //pass uid to behaviorDetection before refresh page
+                        handleSuccess(resp);
+                    })
+                    .error(handleError(deferred));
+                return deferred.promise;
+            } else if ($scope.respObj.profileStatusCode === 'I') {
+                $scope.show = 'true';
+                $scope.step = null;
+                spinner.stopLoading();
+            } else {
+                $scope.showDormantMsg = 'true';
+                var tempAppBanner = $window.sessionStorage.getItem("app-banner");
+                $window.sessionStorage.clear();
+                if(tempAppBanner != null)
+                    $window.sessionStorage.setItem("app-banner", tempAppBanner);
+                changeStep('one');
+                $scope.username.value = '';
+                $scope.password.value = '';
+                $scope.encPassword = '';
+                $scope.iniObj();
+                $scope.errors = {};
+
+            }
+        }
+
+        function onResponseOk(resp) {
+            $scope.respObj = resp.data;
+            $scope.validating = false;
+            $scope.buttonDisabled = false;
+            if ($scope.step === 'two' || ($scope.quickAccess && $scope.quickAccess.submittingAuth)) {
+                //console.log(resp.data)
+
+                if(resp.data.uuid){
+                    lpCoreBus.publish('ambank-setUuid', {uuid: resp.data.uuid});
+                }
+
+                //resp.headers()['phoenix_uid'] = 'abc123';
+                //resp.headers()['phoenix_sessionid'] = 'password';
+                $scope.phoenix_UID = resp.headers()['phoenix_uid'];
+                $scope.phoenix_sessionID = resp.headers()['phoenix_sessionid'];
+                // $scope.tokenConfig.headers['Authorization'] = $scope.respObj.tokenType + ' ' + $scope.respObj.accessToken;
+
+                $scope.diywIndicator = lpWidget.getResolvedPreference('diywIndicator');
+                if (!$scope.diywIndicator || $scope.diywIndicator === null || $scope.diywIndicator === undefined) {
+                    $scope.diywIndicator = 'NA';
+                }
+
+                if (lpCoreUtils.isMobileDevice() && app) {
+                    $window.localStorage.setItem('accessToken', $scope.respObj.tokenType + ' ' + $scope.respObj.accessToken);
+                    $window.localStorage.setItem('expiresIn', $scope.respObj.expiresIn);
+                    $window.localStorage.setItem('refreshToken', $scope.respObj.refreshToken);
+                    if ($scope.quickAccess && $scope.quickAccess.submittingAuth) {
+                        $window.localStorage.setItem('platform', $scope.quickAccess.platform);
+                        $window.localStorage.setItem('qaLoggedIn', true);
+                        $scope.saveToInternalStorage('qaLoggedIn', true);
+                    } else {
+                        $window.localStorage.setItem('qaLoggedIn', false);
+                        $scope.saveToInternalStorage('qaLoggedIn', false);
+                    }
+                    $scope.saveToInternalStorage('diywIndicator', $scope.diywIndicator);
+                    $scope.saveToInternalStorage('isPilot', false);
+                    $scope.quickAccess.retry = 0;
+                    $scope.quickAccess.date = moment().format('YYYY-MM-DD');
+                    $scope.quickAccess.deactivated = false;
+                    lpCoreBus.publish('ambank-firstActivity');
+                } else {
+                    $window.sessionStorage.setItem('accessToken', $scope.respObj.tokenType + ' ' + $scope.respObj.accessToken);
+                    $window.sessionStorage.setItem('expiresIn', $scope.respObj.expiresIn);
+                    $window.sessionStorage.setItem('refreshToken', $scope.respObj.refreshToken);
+                    $window.sessionStorage.setItem('firstActivity', Date.now());
+                }
+
+                $scope.behaviorDetectionSessionid = $scope.respObj.uuid;
+                $window.localStorage.setItem('isRppPilot','false');
+                $window.localStorage.setItem('isPilot','false');
+                $window.localStorage.setItem('diywIndicator', $scope.diywIndicator);
+
+                amProfileService.setConfig(lpWidget.getResolvedPreference('profileSrc'));
+
+                amProfileService.loadProfile($scope.tokenConfig)
+                    .then(function(resp) {
+                        if (!lpCoreUtils.isMobileDevice() && !app) {
+                            var jsId = document.cookie.match( /(; )?JSESSIONID=([^;]*);?/ )[2];
+                            if(jsId != null) {
+                                if (jsId instanceof Array)
+                                    jsId = jsId[0].substring(11);
+                                else
+                                    jsId = jsId.substring(11);
+                            }
+                            $window.localStorage.setItem('jSessionId', jsId);
+                        }
+                        if (resp.data) {
+                            $scope.customerName = resp.data.customerName;
+                            $scope.dob = resp.data.dob;
+                            $scope.profileNickname = resp.data.profileNickname;
+                            $scope.lastLogin = resp.data.lastLogin;
+
+                            $window.localStorage.setItem('idNo',resp.data.idNo);
+                            $window.localStorage.setItem('idType',resp.data.idType);
+                            $window.localStorage.setItem('customerName',resp.data.customerName);
+                            $window.localStorage.setItem('isRppPilot',resp.data.isRppPilot);
+                            $window.localStorage.setItem('isPilot',resp.data.isPilot);
+                            if (lpCoreUtils.isMobileDevice() && app){
+                                $scope.saveToInternalStorage('isPilot', resp.data.isPilot);
+                            }
+
+                            setProfile();
+                            loginPortal();
+                        }
+                    })
+                    .catch(function(err) {
+                        setProfile();
+                        loginPortal();
+                        // parseErrors('Profile', err)
+                        spinner.stopLoading();
+                    });
+            } else if ($scope.step === 'one') {
+                changeStep('two');
+                spinner.stopLoading();
+            }
+        };
+
+        function changeStep(step) {
+            $scope.step = step;
+            if (step === 'two') {
+                lpCoreBus.publish("ambank-hideLogoutDetails");
+                if(behaviorDetectionFlag) behaviorDetection();
+
+                $scope.parseType($scope.password, 'password');
+            }
+        };
+
+        function formHeaders() {
+
+            var formHeaders = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Req-X-Auth-Token': 'JWT_COOKIE'
+            };
+
+            if (lpCoreUtils.isMobileDevice() && app) {
+                formHeaders['Accept'] = 'application/json';
+            }
+            return formHeaders;
+        }
+
+        var handleSuccess = function(response) {
+            // var handleSuccess = function(deferred) {
+            var currentLocation;
+            // Refresh
+            if (lpCoreUtils.isMobileDevice() && app) {
+                // Reload portal model for mobile
+                lpCoreBus.publish('login-success');
+            } else {
+                if ($window.location.protocol.indexOf('file:') === 0) {
+                    //need to strip out url to state when running on the files system
+                    currentLocation =
+                        $window.location.pathname.split('//')[0] + $window.location.search + $window.location.hash;
+                } else {
+                    currentLocation = $window.location.href;
+                }
+                if (config.reloadOnSuccess) {
+                    if($window.sessionStorage.getItem("w2w")){
+                        var w2wRedirectEndPoint = lpWidget.getPreference('w2wRedirectUrl');
+                        $window.location.replace(w2wRedirectEndPoint);
+                    }else{
+                        $window.location.replace(currentLocation);
+                    }
+                }
+            }
+        };
+
+        var handleError = function(deferred) {
+            return function(response, code) {
+                var error;
+
+                switch (code) {
+                    case 0:
+                        error = {
+                            code: ERROR_CODE.DISCONNECTED,
+                            message: ERRORS[ERROR_CODE.DISCONNECTED]
+                        };
+                        break;
+                    case 400:
+                        error = {
+                            code: ERROR_CODE.BAD_REQUEST,
+                            message: response.message
+                        };
+                        break;
+                    case 401:
+                        error = {
+                            code: ERROR_CODE.CANNOT_AUTHENTICATE,
+                            message: ERRORS[ERROR_CODE.CANNOT_AUTHENTICATE]
+                        };
+                        break;
+                    case 403:
+                        if (response && response[0] && response[0].code === 'OLB-403001') {
+                            error = {
+                                code: ERROR_CODE.SESSIONS_LIMIT_REACHED,
+                                message: ERRORS[ERROR_CODE.SESSIONS_LIMIT_REACHED]
+                            };
+                        } else {
+                            error = {
+                                code: ERROR_CODE.FORBIDDEN,
+                                message: ERRORS[ERROR_CODE.FORBIDDEN]
+                            };
+                        }
+                        break;
+                    case 404:
+                        error = {
+                            code: ERROR_CODE.NOT_FOUND,
+                            message: ERRORS[ERROR_CODE.NOT_FOUND]
+                        };
+                        break;
+                    case 502:
+                        error = {
+                            code: ERROR_CODE.BAD_GATEWAY,
+                            message: ERRORS[ERROR_CODE.BAD_GATEWAY]
+                        };
+                        break;
+                    default:
+                        error = parseError(lpCoreI18n.instant("widget-amb-login.controller.js.login"), response);
+                }
+                deferred.reject(error);
+
+            };
+        };
+
+        var ERRORS = {
+            MISSING_USERNAME: lpCoreI18n.instant("widget-amb-login.controller.js.fill_username"),
+            MISSING_PASSWORD: lpCoreI18n.instant("widget-amb-login.controller.js.fill_password"),
+            MISSING_OTP: lpCoreI18n.instant("widget-amb-login.controller.js.otp_code"),
+            CANNOT_AUTHENTICATE: lpCoreI18n.instant("widget-amb-login.controller.js.credentials"),
+            MAX_ATTEMPTS_EXCEEDED: lpCoreI18n.instant("widget-amb-login.controller.js.login_exceeded"),
+            ACCOUNT_BLOCKED: lpCoreI18n.instant("widget-amb-login.controller.js.account_block"),
+            NOT_FOUND: lpCoreI18n.instant("widget-amb-login.controller.js.resource_not_found"),
+            UNKNOWN_ERROR: lpCoreI18n.instant("widget-amb-login.controller.js.error"),
+            DISCONNECTED: lpCoreI18n.instant("widget-amb-login.controller.js.error1"),
+            FORBIDDEN: lpCoreI18n.instant("widget-amb-login.controller.js.error2"),
+            BAD_GATEWAY: lpCoreI18n.instant("widget-amb-login.controller.js.error3"),
+            SESSIONS_LIMIT_REACHED: lpCoreI18n.instant("widget-amb-login.controller.js.error4"),
+        };
+
+        var ERROR_CODE = {
+            UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+            NOT_FOUND: 'NOT_FOUND',
+            BAD_REQUEST: 'BAD_REQUEST',
+            CANNOT_AUTHENTICATE: 'CANNOT_AUTHENTICATE',
+            MAX_ATTEMPTS_EXCEEDED: 'MAX_ATTEMPTS_EXCEEDED',
+            DISCONNECTED: 'DISCONNECTED',
+            FORBIDDEN: 'FORBIDDEN',
+            BAD_GATEWAY: 'BAD_GATEWAY',
+            SESSIONS_LIMIT_REACHED: 'SESSIONS_LIMIT_REACHED'
+        };
+
+        var config = {
+            initiateEndPoint: '',
+            otpEndPoint: '',
+            serverRootPath: lpCoreUtils.getPortalProperty('serverRoot'),
+            portalName: lpCoreUtils.getPortalProperty('portalName'),
+            pageName: lpCoreUtils.getPortalProperty('pageName'),
+            reloadOnSuccess: true
+        };
+
+        $scope.showError = function(type, msg) {
+            if (type === undefined)
+                return;
+
+            if (msg === null) {
+                if ($scope.errors && $scope.errors[type] !== undefined) {
+
+
+                    delete $scope.errors[type + "Bool"];
+                    delete $scope.errors[type + "Borders"];
+                    delete $scope.errors[type];
+
+                }
+                if (lpCoreUtils.isEmpty($scope.errors)) {
+
+                    delete $scope.errors;
+
+                }
+            } else {
+
+                if (!$scope.errors) $scope.errors = {};
+                delete $scope.errors[type + "Bool"]; //isobar: bubble error
+                delete $scope.errors[type + "Borders"]; //isobar: bubble error
+                if (msg != "") {
+                    $scope.errors[type + "Bool"] = true; //isobar: bubble error
+                    $scope.errors[type + "Borders"] = "err-border"; //isobar: bubble error
+                }
+                $scope.errors[type] = msg;
+            }
+        };
+
+        $scope.fieldChange = function(field, type, step) {
+            field.name = type.substring(0, 1).toUpperCase() + type.substring(1, type.length);
+            var msg = validate(field);
+            if (field.value === '') msg = '';
+            $scope.showError(type, msg);
+        };
+
+        $scope.fieldBlur = function(field, type, step) {
+            field.name = type.substring(0, 1).toUpperCase() + type.substring(1, type.length);
+            var msg = validate(field);
+            if (field.value === '') msg = '';
+            $scope.showError(type, msg);
+        };
+
+        function validate(field, type) {
+            var fieldName = field.name;
+            var fieldDesc = '';
+            if (fieldName === "Username") fieldDesc = lpCoreI18n.instant('widget-amb-registration.am-dir-user-pass.js.username');
+            else if (fieldName === "Password") fieldDesc = lpCoreI18n.instant('widget-signin-security-tpl.ng.html.password');
+            else if (fieldName === "QaPin") fieldDesc = lpCoreI18n.instant('widget-amb-login.widget-amb-login-quick-access.html.am_online_pin');
+            else if (fieldName === "ConfirmQaPin") fieldDesc = lpCoreI18n.instant('widget-amb-login.widget-amb-login-quick-access.html.am_online_pin');
+            else if (fieldName === "QaPinAuth") fieldDesc = lpCoreI18n.instant('widget-amb-login.widget-amb-login-quick-access.html.am_online_pin');
+
+            if (!field.value) {
+                return field.type, lpCoreI18n.instant("widget-amb-login.controller.js.enter_details").replace("{fieldName}", fieldDesc);
+            } else if ((fieldName==="Username" || fieldName==="Password") && (field.value.length > field.length[1] || field.value.length < field.length[0])) {
+                return field.type, lpCoreI18n.instant("widget-amb-login.controller.js.enter_details_desc").replace("{fieldname}", fieldDesc);
+            } else if ((fieldName!="Username" || fieldName!="Password") && (field.value.length > field.length[1] || field.value.length < field.length[0])) {
+                return field.type, lpCoreI18n.instant("widget-amb-login.widget-amb-login-quick-access.html.enter_pin_error");
+            } else if (!field.value.match(field.validation.regex)) {
+                return field.validation.error;
+            } else {
+                return null;
+            }
+
+        }
+
+        $scope.parseType = function(field, type) {
+
+            $scope.showError(type, '');
+
+            switch (field.type) {
+                case 'A':
+                    field.validation = {
+                        regex: /^[a-zA-Z]+$/i,
+                        error: lpCoreI18n.instant("widget-amb-login.controller.js.error6")
+                    };
+                    break;
+                case 'Z':
+                    field.validation = {
+                        regex: /^(?=.*?[0-9])[0-9a-zA-Z!0-9]{6,}$/,
+                        error: lpCoreI18n.instant("widget-amb-login.controller.js.error7")
+                    };
+                    break;
+                case 'K':
+                    field.validation = {
+                        regex: /^(?=.*[a-zA-Z])(?=.*\d)([\S]{6,15})$/,
+                        error: lpCoreI18n.instant("widget-amb-login.controller.js.error8")
+                    };
+                    break;
+                case 'N':
+                    field.validation = {
+                        regex: /^[0-9]+$/i,
+                        error: lpCoreI18n.instant("widget-amb-login.controller.js.error9")
+                    };
+                    break;
+                case 'X':
+                    field.validation = {
+                        regex: /\*/,
+                        error: null
+                    };
+                    break;
+                case 'U':
+                    field.validation = {
+                        regex: /^[a-zA-Z0-9]+$/i,
+                        error: lpCoreI18n.instant("widget-amb-login.controller.js.error10")
+                    };
+                    break;
+                case 'P':
+                field.validation = {
+                    regex: /^[0-9]+$/i,
+                    error: lpCoreI18n.instant("widget-amb-login.widget-amb-login-quick-access.html.enter_pin_error")
+                };
+                break;
+
+                default:
+                    break;
+            }
+        };
+
+
+        $scope.serviceErrors = function(serviceType, err, step) {
+            if (!step) {
+                if ($scope.step === 'two') {
+                    changeStep('one');
+                    $scope.username.value = '';
+                    $scope.password.value = '';
+                    $scope.termObj = {
+                        'flag': false,
+                        'termLink': ''
+                    };
+                    $scope.errors = {};
+
+                } else if ($scope.step === 'one') {
+                    $scope.username.value = '';
+                    $scope.errors = {};
+                } else {
+                    changeStep('one');
+                    $scope.username.value = '';
+                    $scope.password.value = '';
+                    $scope.termObj = {
+                        'flag': false,
+                        'termLink': ''
+                    };
+                    $scope.errors = {};
+                    $scope.show = 'false';
+                }
+            }
+
+            if (err) {
+                $scope.alert.alerts.push({
+                    type: 'danger',
+                    msg: err
+                });
+            } else {
+                $scope.alert.alerts.push({
+                    type: 'danger',
+                    msg: serviceType + lpCoreI18n.instant("widget-amb-login.controller.js.service_unavailable")
+                });
+            }
+
+            if ($scope.alert.alerts && $scope.alert.alerts.length>0){
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            }
+        };
+
+        $scope.openCustomerCare = function() {
+            lpCoreBus.publish('ambank.openCustomerCare');
+            lpCoreBus.publish('ambank.openPanel');
+        };
+
+        $scope.closeAlert = function(index) {
+            $scope.alert.alerts.splice(index, 1);
+        };
+
+        function decodePhoneData(encoded, ref) {
+            //console.log('decodePhoneData', encoded, ref);
+            var bytes = CryptoJS.AES.decrypt(encoded, ref);
+            var decoded = bytes.toString(CryptoJS.enc.Utf8);
+            return decoded;
+        }
+
+        function submitQuickAccessDeactivation() {
+            quickAccessActivationService.deactivate(url)
+                .then(function(resp) {
+                    $scope.pushNotificationsAuth = false;
+                    $scope.processError = false;
+                    verification(reqData);
+                })
+                .catch(function(err) {
+                    var errObj = err.data;
+                    if (err.status === 500) {
+                        if (errObj.code === '007404') {
+                            $scope.processError = false;
+                            $scope.pushNotificationsAuth = true;
+                            document.body.scrollTop = document.documentElement.scrollTop = 0;
+                        } else {
+                            $scope.pushNotificationsAuth = false;
+                            $scope.processError = true;
+                            $scope.parseErrors(lpCoreI18n.instant("widget-paybill.controller.js.get registered_device_error"), err);
+                        }
+                    }
+                    spinner.stopLoading();
+                });
+        }
+
+        $scope.iniObj();
+
+        if (lpCoreUtils.isMobileDevice() && app)
+            initialize();
+
+        gadgets.pubsub.publish('cxp.item.loaded', { id: lpWidget.id });
+
+        // Watch all changes to Quick Access object and set to Local Storage if needed
+        $scope.$watch("quickAccess", function(newval, oldval) {
+            if (newval && lpCoreUtils.isMobileDevice() && app) {
+                //console.log('newval', newval);
+                //console.log('oldval', oldval);
+                // var qaDeviceObj = $scope.getQuickAccessStorage();
+                var qaDeviceObj = {};
+                if (((oldval.sign != undefined && newval.sign !== oldval.sign) || (oldval.sign == undefined && newval.sign != undefined)) && newval.sign != undefined) {
+                    qaDeviceObj.ambQuickAccessSign = newval.sign;
+                    $scope.saveToInternalStorage('ambQuickAccessSign', newval.sign);
+                }
+                if (((oldval.signRef != undefined && newval.signRef !== oldval.signRef) || (oldval.signRef == undefined && newval.signRef != undefined)) && newval.signRef != undefined) {
+                    qaDeviceObj.ambQuickAccessRef = newval.signRef;
+                    if (newval.signRef != undefined)
+                        $scope.saveToInternalStorage('ambQuickAccessRef', newval.signRef);
+                }
+                if (((oldval.date != undefined && newval.date !== oldval.date) || (oldval.date == undefined && newval.date != undefined)) && newval.date != undefined) {
+                    qaDeviceObj.ambQuickAccessDate = newval.date;
+                    $scope.saveToInternalStorage('ambQuickAccessDate', newval.date);
+                }
+                if (((oldval.retry != undefined && newval.retry !== oldval.retry) || (oldval.retry == undefined && newval.retry != undefined)) && newval.retry != undefined) {
+                    // if (newval.retry == 0){
+                    //     qaDeviceObj.ambQuickAccessDate = moment().format('YYYY-MM-DD');
+                    // }
+                    if (newval.retry > $scope.maxQuickAccessRetry) {
+                        $scope.quickAccess.deactivated = true;
+                    }
+                    qaDeviceObj.ambQuickAccessRetry = newval.retry;
+                    $scope.saveToInternalStorage('ambQuickAccessRetry', newval.retry);
+                    $scope.saveToInternalStorage('ambQuickAccessDeactivated', $scope.quickAccess.deactivated);
+                    $scope.quickAccess.retryMsg = lpCoreI18n.instant("widget-amb-login.widget-amb-login-tpl.ng.html.tries_left")
+                        .replace("{num}", (parseInt($scope.maxQuickAccessRetry) + 1) - parseInt(newval.retry));
+                }
+//                if (((oldval.deviceUuid != undefined && newval.deviceUuid !== oldval.deviceUuid) || (oldval.deviceUuid == undefined && newval.deviceUuid != undefined)) && newval.deviceUuid != undefined) {
+                if (newval.deviceUuid != undefined){
+                    qaDeviceObj.ambDeviceUid = newval.deviceUuid;
+                    $scope.saveToInternalStorage('ambDeviceUid', newval.deviceUuid);
+                }
+                if (((oldval.qaAuthPin != undefined && newval.qaAuthPin !== oldval.qaAuthPin) || (oldval.qaAuthPin == undefined && newval.qaAuthPin != undefined)) && newval.qaAuthPin != undefined) {
+                    qaDeviceObj.ambQuickAccessPin = newval.qaAuthPin;
+                    $scope.saveToInternalStorage('ambQuickAccessPin', newval.qaAuthPin);
+                }
+                if (((oldval.deactivated != undefined && newval.deactivated !== oldval.deactivated) || (oldval.deactivated == undefined && newval.deactivated != undefined)) && newval.deactivated != undefined) {
+                    qaDeviceObj.ambQuickAccessDeactivated = newval.deactivated;
+                    $scope.saveToInternalStorage('ambQuickAccessDeactivated', newval.deactivated);
+                }
+                if (((oldval.install != undefined && newval.install !== oldval.install) || (oldval.install == undefined && newval.install != undefined)) && newval.install != undefined) {
+                    qaDeviceObj.ambQuickAccessFirstInstall = newval.install;
+                    $scope.saveToInternalStorage('ambQuickAccessFirstInstall', newval.install);
+                }
+                if (((oldval.authType != undefined && newval.authType !== oldval.authType) || (oldval.authType == undefined && newval.authType != undefined)) && newval.authType != undefined) {
+                    qaDeviceObj.ambQuickAccessAuthType = newval.authType;
+                    $scope.saveToInternalStorage('ambQuickAccessAuthType', newval.authType);
+                }
+                if (newval.sign !== oldval.sign || newval.signRef !== oldval.signRef || newval.retry !== oldval.retry || newval.date !== oldval.date ||
+                    newval.deviceUuid !== oldval.deviceUuid || newval.qaAuthPin !== oldval.qaAuthPin) {
+                    $scope.saveQuickAccessStorage(qaDeviceObj);
+                }
+            }
+        }, true);
+
+        lpCoreBus.subscribe('widget-amb-login.resetState', function() {
+            $scope.step = 'one';
+            $scope.username.value = '';
+            $scope.password.value = '';
+            $scope.errors = {};
+            $scope.show = 'false';
+            $scope.iniObj();
+            mobileInit();
+
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+        });
+
+        lpCoreBus.subscribe('ambank.trigger-behavior-detection', function(data) {
+            //console.log(data)
+            if(behaviorDetectionFlag && data.widgetId === lpWidget.id){
+                behaviorDetection();
+            }
+        });
+
+        lpCoreBus.subscribe("ambank-localeLoaded."+lpWidget.id, function(locale) {
+            watchLocale(locale);
+        });
+
+        function watchLocale(locale){
+            var unregister = $scope.$watch(
+                function() { return lpCoreI18n.instant('_languageCode'); },
+                function(newval) {
+                    if(newval != "_languageCode"){
+                        if(locale.toLowerCase().indexOf(newval.toLowerCase()) >= 0){
+                            $scope.iniObj();
+                            initialize();
+                            unregister();
+                        }else{
+                            unregister();
+                            watchLocale(locale);
+                        }
+                    }
+                }
+            );
+        }
+
+        function compareQuickAccessCurrentDate(targetDate) {
+            var currentDate = moment().format('YYYY-MM-DD');
+            if (targetDate && moment(currentDate).isSame(targetDate)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function bulkDeleteQuickAccessData() {
+            $scope.removeFromInternalStorage('ambQuickAccessSign');
+            $scope.removeFromInternalStorage('ambQuickAccessRef');
+            $scope.removeFromInternalStorage('ambQuickAccessRetry');
+            $scope.removeFromInternalStorage('ambQuickAccessDate');
+            $scope.removeFromInternalStorage('ambQuickAccessDeactivated');
+            $scope.removeFromInternalStorage('ambQuickAccessPin');
+            $scope.removeFromInternalStorage('ambQuickAccessAuthType');
+            delete $scope.quickAccess['sign'];
+            delete $scope.quickAccess['signRef'];
+            delete $scope.quickAccess['retry'];
+            delete $scope.quickAccess['date'];
+            delete $scope.quickAccess['deactivated'];
+            delete $scope.quickAccess['qaAuthPin'];
+            delete $scope.quickAccess['authType'];
+        }
+
+        function bulkSaveQuickAccessData() {
+            $window.localStorage.setItem('ambDeviceUid', $scope.quickAccess.deviceUuid);
+            $window.localStorage.setItem('ambQuickAccessSign', $scope.quickAccess.sign);
+            $window.localStorage.setItem('ambQuickAccessRef', $scope.quickAccess.signRef);
+            $window.localStorage.setItem('ambQuickAccessRetry', $scope.quickAccess.retry);
+            $window.localStorage.setItem('ambQuickAccessDate', $scope.quickAccess.date);
+            $window.localStorage.setItem('ambQuickAccessDeactivated', $scope.quickAccess.deactivated);
+            $window.localStorage.setItem('ambQuickAccessPin', $scope.quickAccess.qaAuthPin);
+            $window.localStorage.setItem('ambQuickAccessAuthType', $scope.quickAccess.authType);
+        }
+
+        function submitQuickAccessAuth() {
+            //            var qaDeviceObj = $scope.getQuickAccessStorage();
+            var qaDeviceObj;
+            getQuickAccessStorage.then(function(quickAccessStorageData) {
+                qaDeviceObj = quickAccessStorageData;
+
+                if (!qaDeviceObj.ambQuickAccessSign || qaDeviceObj.ambQuickAccessSign == null || qaDeviceObj.ambQuickAccessSign === '') {
+                    $scope.serviceErrors('', 'Sig ID is missing');
+                } else if (qaDeviceObj.ambQuickAccessRef == undefined || qaDeviceObj.ambQuickAccessRef == null || qaDeviceObj.ambQuickAccessRef === '') {
+                    $scope.serviceErrors('', 'Sig Ref is missing');
+                } else if (!qaDeviceObj.ambDeviceUid || qaDeviceObj.ambDeviceUid == null || qaDeviceObj.ambDeviceUid === '') {
+                    $scope.serviceErrors('', 'Device ID is missing');
+                } else {
+                    var cryptoConfig = {
+                        params: {
+                            type: 'e2ee',
+                            count: 1
+                        }
+                    };
+                    var unencryptObj = [];
+                    var deviceKey = {};
+                    deviceKey = {
+                        fieldName: 'deviceKey',
+                        fieldValue: decodePhoneData(qaDeviceObj.ambQuickAccessSign, qaDeviceObj.ambQuickAccessRef) +
+                            "||" + qaDeviceObj.ambDeviceUid,
+                        fieldType: 'body'
+                    };
+                    unencryptObj.push(deviceKey);
+                    var isEncrypted = false;
+                    var toSend = {};
+                    //console.log('unencryptObj', unencryptObj);
+                    $scope.qaE2eeObj = setGeneralE2eeConfig(unencryptObj);
+                    e2eEncryptionService.callEncryptService(cryptoConfig)
+                        .then(function(response) {
+                            var e2eProcessedObj = response.data;
+                            e2eProcessedObj = e2eEncryptionService.otherEncryptWithKey($scope.qaE2eeObj, e2eProcessedObj);
+                            if (e2eProcessedObj.length > 0) {
+                                $scope.qaE2eeConfig.headers['x-encrypt-ctx'] = [];
+                                for (var i = 0; i < e2eProcessedObj.length; i++) {
+                                    $scope.otherE2eeHeader[i] = e2eProcessedObj[i].fieldType +
+                                        '.' + e2eProcessedObj[i].fieldName + '=' + e2eProcessedObj[i].sessionId;
+                                    if (e2eProcessedObj[i].fieldName === 'deviceKey') {
+                                        $scope.encDeviceKey = e2eProcessedObj[i].fieldValue;
+                                    }
+                                }
+                                $scope.qaE2eeConfig.headers['x-encrypt-ctx'] = $scope.otherE2eeHeader;
+                            }
+                            isEncrypted = true;
+                            toSend = createSendObject(isEncrypted);
+                            verification(toSend);
+                        }).catch(function(err) {
+                            toSend = createSendObject(isEncrypted);
+                            verification(toSend);
+                        });
+                }
+            });
+        }
+
+        lpCoreBus.subscribe('ambank.clearError', function(object) {
+            console.log('ambank.clearError start');
+            $scope.errors = {};
+            $scope.alert = {};
+        });
+    };
+});

@@ -1,0 +1,21 @@
+define(function (require, exports) {
+    'use strict';
+
+    // @ngInject
+    exports.focus = function (lpCoreUtils) {
+        return {
+            restrict: 'A',
+            scope : {
+                trigger : '=focus'
+            },
+            link : function(scope, element) {
+                scope.$watch("trigger", function(currentValue, previousValue) {
+                    if (currentValue === true) {
+                        element[0].focus();
+                    } 
+                })
+            }
+        }
+    }
+});
+

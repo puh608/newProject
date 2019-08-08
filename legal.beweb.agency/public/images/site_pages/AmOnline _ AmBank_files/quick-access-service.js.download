@@ -1,0 +1,48 @@
+define(function(require, exports, module) {
+
+    'use strict';
+
+    // @ngInject
+    exports.quickAccessActivationService = function($http, lpWidget) {
+        var deactivationEndPoint;
+        var verificationEndPoint;
+
+        return {
+            setConfig: function(endPoint) {
+                deactivationEndPoint = endPoint.deactivationEndPoint;
+                verificationEndPoint = endPoint.verificationEndPoint;
+            },
+            deactivate: function(reqObj, config) {
+                return $http.post(deactivationEndPoint, reqObj, config)
+                    //                return $http.get(deactivationEndPoint, reqObj, config)
+                    // console.log(config)
+                    // var  eeEndPoint = lpWidget.getResolvedPreference('usernameErrorDataSrc');
+                    // return  $http.get(eeEndPoint)
+                    // return $http.get(deactivationEndPoint, config)
+                    .then(function(resp) {
+                        // throw resp;
+                        if (resp.status >= 200 && resp.status < 300) {
+                            return resp;
+                        }
+                    })
+                    .catch(function(err) {
+                        // throw err.data;
+                        throw err;
+                    })
+            },
+            getDeviceVerification: function(params) {
+                return $http.get(verificationEndPoint, params)
+                    .then(function(resp) {
+                        if (resp.status >= 200 && resp.status < 300) {
+                            return resp;
+                        }
+                    })
+                    .catch(function(err) {
+                        throw err;
+                    })
+            },
+
+        }
+    }
+
+});

@@ -1,0 +1,46 @@
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function (require, exports) {
+
+    'use strict';
+    var _ = require('lodash');
+    var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+    // @ngInject
+    exports.MainCtrl = function($scope, lpWidget, lpCoreUtils, lpCoreBus, lpCoreI18n, lpCoreI18nUtils, $http) {
+        $scope.langList = [{
+            code: "en-MY",
+            label: "English"
+        },{
+            code: "bm-MY",
+            label: "Bahasa Malaysia"
+        },{
+            code: "zh-MY",
+            label: "中文"
+        }];
+
+        var languageSrc = lpWidget.getResolvedPreference('languageSrc');
+        $scope.defaultLang = $scope.langList[0];
+
+        $scope.changeLocale = function(locale){
+            lpCoreI18n.setLocale(locale.code);
+            lpCoreBus.publish(lpCoreI18nUtils.LOCALE_CHANGE_EVENT, locale.code);
+            $scope.defaultLang = locale;
+
+            $.ajax({
+                url: languageSrc+"?lang="+locale.code,
+                type: "GET",
+                cache: false,
+                success: function (data, textStatus) {
+                },
+                error: function (request, status, error) {
+                }
+            });
+        }
+
+        lpCoreBus.subscribe("ambank-localeLoaded."+lpWidget.id, function(locale) {
+            $scope.defaultLang = _.find($scope.langList, {"code": locale});
+        });        
+    };
+});

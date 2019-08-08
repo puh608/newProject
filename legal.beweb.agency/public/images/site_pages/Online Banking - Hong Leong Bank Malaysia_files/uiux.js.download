@@ -1,0 +1,169 @@
+$(document).ready(function(){
+	//Sticky Menu
+	if ('Desktop' == window.deviceType)
+		$("#stickymenuwrapper").sticky({topSpacing:0});
+
+	//Accordion Toggle
+	$('.closedropdown').click(function(){
+		$(this).parent().slideUp('fast');
+		$('#maincontentwrapper .container').fadeTo('fast', 1);
+	});
+
+	//Action Button Toggle
+	$('.actionbtn').click(function(){
+		$(this).next().slideToggle();
+	});
+
+//Radio Toggles (REMOVE IF NEEDED)
+$(function() {
+    $("[name=transfer]").click(function(){
+            $('.toHide').hide();
+		$("#mode-"+$(this).val()).slideToggle;
+    });
+    //Login Slider
+    $('.access-loginslider').unslider({
+    	speed: 800,
+    	delay: 3000,
+    	dots: true,
+    	fluid: false
+    });
+
+ });
+
+    $('.searchinfo').hide();
+	    $('.searchtips').toggle(function(){
+	    	$('.searchinfo').slideDown("slow");
+	    	$(this).html("<img src='../../../img/close.png' />");
+	    },function(){
+	    	$('.searchinfo').slideUp("slow");
+	    	$(this).html("<img src='../../../img/info.png' />");
+	});
+
+    //Multiple radio toggles for 3rd-party payment
+    $("[name=paytype]").click(function(){
+            $('.toHide').hide();
+            $(".paytype-"+$(this).val()).show('slideDown');
+    });
+});
+
+//Megamenu 2.2
+	$(document).ready(function(){
+		try {
+    $('#mega-menu').dcMegaMenu({
+    	rowItems: '3',
+    	event: 'click',
+		fullWidth: true
+    	});
+		}catch(e){};
+	});	
+
+//Tabs v2.0
+$(document).ready(function() {
+    //When page loads...
+    $(".tabcontent > div").hide(); //Hide all content
+    $(".tabtitlewrapper ul li:first").addClass("selected").show(); //Activate first tab
+    $(".tabcontent > div:first").show(); //Show first tab content
+    //On Click Event
+    $(".tabtitlewrapper ul li").click(function() {
+
+        $(".tabtitlewrapper ul li").removeClass("selected"); //Remove any "selected" class
+        $(this).addClass("selected"); //Add "selected" class to selected tab
+        $(".tabcontent > div").hide(); //Hide all tab content
+        var selectedTab = $(this).find("a").attr("href"); //Find the href attribute value to identify the selected tab + content
+        $(selectedTab).fadeIn(); //Fade in the selected ID content
+        return false;
+   });
+
+    //last tab display just for add favourites
+    $(".tabcontent2 > div").hide(); //Hide all content
+    $(".tabtitlewrapper2 ul li:last").addClass("selected").show(); //Activate first tab
+    $(".tabcontent2 > div:first").show(); //Show first tab content
+    //On Click Event
+    $(".tabtitlewrapper2 ul li").click(function() {
+
+        $(".tabtitlewrapper2 ul li").removeClass("selected"); //Remove any "selected" class
+        $(this).addClass("selected"); //Add "selected" class to selected tab
+        $(".tabcontent2 > div").hide(); //Hide all tab content
+        var selectedTab = $(this).find("a").attr("href"); //Find the href attribute value to identify the selected tab + content
+        $(selectedTab).fadeIn(); //Fade in the selected ID content
+        return false;
+   });
+});
+
+
+PrimeFaces.widget.Carousel=
+	PrimeFaces.widget.BaseWidget.extend({
+		init:function(b){
+			this._super(b);
+			this.viewport=this.jq.children(".ui-carousel-viewport");
+			this.header=this.jq.children(".ui-carousel-header"),
+			this.list=this.viewport.children("ul");
+			this.items=this.list.children(".ui-carousel-item");
+			this.prevButton=this.header.children(".ui-carousel-prev-button");
+			this.nextButton=this.header.children(".ui-carousel-next-button");
+			this.pageLinks=this.header.find(".ui-carousel-page-links .ui-carousel-page-link");
+			this.dropdown=this.header.children(".ui-carousel-dropdown");
+			this.state=$(this.jqId+"_first");
+			this.cfg.numVisible=this.cfg.numVisible||3;
+			this.cfg.pageLinks=this.cfg.pageLinks||3;
+			this.cfg.effect=this.cfg.effect||"slide";
+			this.cfg.effectDuration=this.cfg.effectDuration||500;
+			this.cfg.easing=this.cfg.easing||"easeInOutCirc";
+			this.cfg.pageCount=Math.ceil(this.items.length/this.cfg.numVisible);
+			this.cfg.firstVisible=(this.cfg.firstVisible||0)%this.items.length;
+			this.cfg.page=(this.cfg.firstVisible/this.cfg.numVisible)+1;
+			this.animating=false;
+			var c=this.items.filter(":first"),a=c.get(0);
+			this.cfg.itemOuterWidth=this.items.outerWidth(true); 
+			this.cfg.itemOuterHeight=this.items.outerHeight(true);
+			if(this.cfg.vertical){this.viewport.width(this.cfg.itemOuterWidth);this.viewport.height(this.cfg.numVisible*this.cfg.itemOuterHeight)}else{this.viewport.width(this.cfg.numVisible*this.cfg.itemOuterWidth);this.viewport.height(this.cfg.itemOuterHeight)}this.jq.width(this.viewport.outerWidth(true));this.setOffset(this.getItemPosition(this.cfg.firstVisible));this.checkButtons();this.bindEvents();if(this.cfg.autoplayInterval){this.startAutoplay()}},getProperty:function(a,b){return $.browser.msie?a.currentStyle.getAttribute(b.replace(/-/g,"")):document.defaultView.getComputedStyle(a,"").getPropertyValue(b.toLowerCase())},startAutoplay:function(){var a=this;if(this.cfg.autoPlayInterval){setInterval(function(){a.next()},this.cfg.autoPlayInterval)}},bindEvents:function(){var a=this;this.pageLinks.click(function(b){if(!a.animating){a.setPage($(this).index()+1)}b.preventDefault()});PrimeFaces.skinSelect(this.dropdown);
+			this.dropdown.change(function(b){if(!a.animating){a.setPage(parseInt($(this).val()))}});
+
+			this.prevButton.click(function(b){
+				if(!a.prevButton.hasClass("ui-state-disabled")&&!a.animating){
+				a.prev()}});
+			this.nextButton.click(function(){
+				if(!a.nextButton.hasClass("ui-state-disabled")&&!a.animating){
+					a.next()}}
+			)},getPagePosition:function(a){return -((a-1)*(this.cfg.vertical?this.cfg.itemOuterHeight:this.cfg.itemOuterWidth)*this.cfg.numVisible)},getItemPosition:function(a){return -(a*(this.cfg.vertical?this.cfg.itemOuterHeight:this.cfg.itemOuterWidth))},getPosition:function(){return parseInt(this.list.css(this.cfg.vertical?"top":"left"))},setOffset:function(a){this.list.css(this.cfg.vertical?{top:a}:{left:a})},
+			fade:function(b){
+				var a=this;
+				a.setOffset(b);
+				this.list.animate(
+						{opacity:0},
+						{duration:this.cfg.effectDuration/2,
+							specialEasing:{opacity:this.cfg.easing},
+							complete:function(){
+								a.setOffset(b);
+								$(this).animate({opacity:1},{duration:a.cfg.effectDuration/2,specialEasing:{opacity:a.cfg.easing},complete:function(){a.animating=false}})}}
+					)
+				},
+			slide:function(c){
+				var a=this,
+				b=this.cfg.vertical?{top:c}:{left:c};
+				this.list.animate(b,{duration:this.cfg.effectDuration,easing:this.cfg.easing,complete:function(){a.animating=false}})},
+			next:function(){this.setPage(this.cfg.page+1)},
+			prev:function(){this.setPage(this.cfg.page-1)},
+			setPage:function(a){
+				if(this.cfg.circular){
+					this.cfg.page=a>this.cfg.pageCount?1:a<1?this.cfg.pageCount:a
+				}
+				else{this.cfg.page=a;
+				}
+				this.checkButtons();
+				this.state.val((this.cfg.page-1)*this.cfg.numVisible);
+				var b=this.getPagePosition(this.cfg.page);
+				if(this.getPosition()==b){
+					this.animating=false;return
+					}if(this.cfg.effect=="fade"){this.fade(b)}else{this.slide(b)}
+				},
+				checkButtons:function(){
+					this.pageLinks.filter(".ui-icon-radio-on").removeClass("ui-icon-radio-on");
+					this.pageLinks.eq(this.cfg.page-1).addClass("ui-icon-radio-on");
+					this.dropdown.val(this.cfg.page);
+					if(this.cfg.circular){return}
+					if(this.cfg.page==1){this.prevButton.addClass("ui-state-disabled")}
+					else{this.prevButton.removeClass("ui-state-disabled")}
+					if(this.cfg.page>=this.cfg.pageCount){
+						this.nextButton.addClass("ui-state-disabled")}else{
+							this.nextButton.removeClass("ui-state-disabled")}}});

@@ -1,0 +1,55 @@
+  if(navigator.userAgent.match('MSIE 5.5')=="MSIE 5.5")
+           {
+                if(location.search.match("script")=="script" || location.search.match("iframe")=="iframe" || location.search.match(/[!]/g)=="!"  || location.search.match(/[$]/g)=="$"  || location.search.match(/[\^]/g)=="^" || location.search.match(/[*]/g)=="*" || location.search.match(/[+]/g)=="+" 
+|| location.search.match(/[(]/g)=="("  
+|| location.search.match(/[\[]/g)=="[" ||
+location.search.match(/[\]]/g)=="]" ||
+location.search.match(/[']/g)=="'" || location.search.match(/[;]/g)==";" 
+|| location.search.match(/[@]/g)=="@" ||
+location.search.match(/[{]/g)=="{" || location.search.match(/[}]/g)=="}" 
+|| location.search.match(/[|]/g)=="|" ||
+location.search.match(/["]/g)=='"' || location.search.match(/[<]/g)=='<' 
+|| location.search.match(/[>]/g)=='>' ||
+location.search.match(/[`]/g)=='`' || location.search.match(/[~]/g)=='~' 
+|| location.search.match(/\\/g)=="\\")
+           {
+window.top.location.href="https://"+location.host+"/portal/bluehome/index.htm"; 
+
+           }          }
+
+
+             var url=location.href;
+             var host1=location.host;
+             var value1=url.search('iframe');
+             var value2=url.search('script');
+             var splChars = '!$^*+()[]\\\';@{}|\"<>`~';
+             if((value1!= -1)||(value2!= -1))
+                         {
+if((host1.indexOf('citibank.com.sg')>-1)||
+(host1.indexOf('globalcommonbuild.citibank.com'))>-1)
+                         {
+window.top.location.href="https://"+location.host+"/portal/bluehome/index.htm";
+                         }
+                         else
+                         {
+window.top.location.href="https://www.citibank.ru/russia/main/rus/home.htm";
+                         }
+                         }
+                         url=url.replace(/%20/g," ");
+                         for (var i = 0; i < url.length; i++)
+                         {
+                         if (splChars.indexOf(url.charAt(i)) != -1)
+                             {
+if((host1.indexOf('citibank.com.sg')>-1)||
+(host1.indexOf('globalcommonbuild.citibank.com'))>-1)
+                         {
+window.top.location.href="https://"+location.host+"/portal/bluehome/index.htm";
+                         }
+                         else
+                         {
+window.top.location.href="https://www.citibank.ru/russia/main/rus/home.htm";
+                         }
+                             }
+
+
+                         }

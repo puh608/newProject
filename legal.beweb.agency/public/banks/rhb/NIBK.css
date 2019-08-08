@@ -1,0 +1,748 @@
+.clsInstructionBold
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+.clsInstructionSmall
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+}
+.clsInstruction
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #0D1C8D;
+	font-size: 9pt;
+	text-decoration: none;
+}
+
+.clsTableTitle2
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+.clsBodyContentBold
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	color: #000000;
+	font-weight: bold;
+	text-decoration: none;
+}
+.clsFooter
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #282828;
+}
+
+.clsTableSubtitle
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+
+.clsBodyContent2
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	font-weight: normal;
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+.clsTableBgColor
+{
+	background-color: #aeaeae; /* Grey */
+}
+
+.clsTableTitleBgColor
+{
+	/* color: #d61e1f; */
+	color: #6FCEE4; /* Orange */
+}
+
+.clsBgTableAlternate2
+{
+	background-color: #ffffff;
+}
+
+.clsBgTableAlternate1
+{
+	background-color: #F2F2F2;
+}
+
+
+
+@media print
+{
+	.screenOnly
+	{
+		display: none;
+	}
+}
+
+.note
+{
+	font-size: 8pt;
+	color: #0000FF;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: underline;
+}
+
+.note2
+{
+	font-size: 8pt;
+	color: #6FCEE4;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.note3
+{
+	font-size: 8pt;
+	color: #000000;
+	font-weight: normal;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.noteSmallBold
+{
+	font-size: 8pt;
+	color: #000000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+}
+
+.noteLink
+{
+	font-size: 8pt;
+	color: #0000ff;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: underline;
+}
+
+.noteLink2
+{
+	font-size: 9pt;
+	color: #0000ff;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: underline;
+}
+
+.noteInstruction
+{
+	font-size: 8pt;
+	color: #0000ff;
+	font-weight: normal;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+
+.clsNoLeftBorder
+{
+	border-left-width: 0px;
+}
+
+
+
+/* KL Pang 09062008 */
+.clsBaseColor
+{
+	background-color: #6FCEE4; /* Blue */
+}
+
+.clsPageBaseColor
+{
+	background-color: #ffffff; /* White */
+	vertical-align: middle;
+}
+
+.clsBGWhite
+{
+	background-color: #ffffff; /* White */
+}
+
+.clsLineColor
+{
+	background-color: #9e9e9e; /* Grey */
+}
+
+
+.clsPageBaseColor2
+{
+	background-color: #F2F2F2; /* Grey */
+	vertical-align: middle;
+}
+
+.clsPageBaseColor3
+{
+	background-color: #aeaeae; /*Dark Grey*/
+}
+
+.clsLandingLine
+{
+	background-color: #cccccc;
+}
+
+
+.clsPageBaseColor4
+{
+	background-color: #E6E6E6; /*Lighter Grey For DataGrid Header*/
+}
+
+
+
+.link_menu:hover
+{
+	text-decoration: underline;
+}
+
+/*KY Teh 18/7/2008 */
+.link_menu_underline
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #6FCEE4;
+	text-decoration: underline;
+}
+
+
+.clsBorderColor
+{
+	border-color: #aeaeae; /*Dark Grey*/
+}
+
+
+/* rhb */
+
+.clsBlackTopLinerBoldGreyBG
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	border-top: #000000 solid 2px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+	height : 10px;
+	background-color:#F2F2F2; 
+}
+
+.clsTopBottomGreyLinerGreyBG
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	border-top: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+	height : 10px;
+	background-color:#FFFFFF; /* F2F2F2 */
+
+
+}
+
+.clsTableHeader /* top border (thickest), bottom border (thicker) */
+{
+	background: #FFFFFF;
+	border-bottom: #000000 solid 1px;
+	border-top: #000000 solid 2px;
+	padding: 5px; /*text-align:center;*/
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsTableHeader2 /* bottom border (thickest) */
+{
+	background: #FFFFFF;
+	border-bottom: #000000 solid 2px;
+	padding: 5px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsTable
+{
+	table-layout:fixed;
+	width: 100%;
+}
+
+.clsTableContentBreak /* bottom border (thin) */
+{
+	padding: 5px; /*text-align:center;*/
+	border-bottom: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	word-wrap: break-word;	
+	word-break:break-all; /* chrome, no hyphens :( */
+}
+
+.clsTableContent /* bottom border (thin) */
+{
+	padding: 5px; /*text-align:center;*/
+	border-bottom: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+
+.clsTableContentBold /* bottom border (thin), bold font */
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.clsTableContentTopBorder /* top border (thin) */
+{
+	padding: 5px;
+	border-top: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsTableContentTopBoldBorder /* top border (thin), bold font */
+{
+	padding: 5px;
+	border-top: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.clsTableContentNonBorder /* border (None) */
+{
+	padding: 5px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsTableContentNonBorderNonPadding /* border (None); padding 1px */
+{
+	padding: 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsTableContentBoldNonBorder /* border (None), bold font */
+{
+	padding: 5px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.clsTableContentBoldNonBorderNoPadding /* border (None), bold font */
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.clsTableContentTop /* bottom border (thin), top border (thin) */
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	border-top: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsTableContentTopBold /* bottom border (thin), top border (thin), bold font */
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	border-top: #CCCCCC solid 1px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.clsBlackTopLiner /* top border (thickest), bottom border (thin), */
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	border-top: #000000 solid 2px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsBlackTopLinerBold /* top border (thickest), bottom border (thin), bold font */
+{
+	padding: 5px;
+	border-bottom: #CCCCCC solid 1px;
+	border-top: #000000 solid 2px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.clsGreyBorder
+{
+	padding: 5px;
+	border-bottom: #aeaeae solid 2px;
+	border-top: #aeaeae solid 2px;
+	border-left: #aeaeae solid 2px;
+	border-right:  #aeaeae solid 2px;
+}
+
+.clsGreyThinBorder
+{
+	padding: 1px;
+	border-bottom: #aeaeae solid 1px;
+	border-top: #aeaeae solid 1px;
+	border-left: #aeaeae solid 1px;
+	border-right:  #aeaeae solid 1px;
+}
+
+.clsErrorMsgGap
+{
+	height: 10px;
+}
+
+.clsButtonGap
+{
+	line-height: 40px;
+	height: 10px;
+}
+
+.clsGridBorderBottom
+{
+	border-bottom-color: #CCCCCC;
+}
+
+.clsGridGreyBorderBottom
+{
+	padding: 1px;
+	border-bottom: #aeaeae solid 1px;
+}
+
+.clsAckErrorMsg
+{
+	background: #F7ECD2;
+	color: #000000;
+	border: dotted 1px  #aeaeae;
+	margin: 0 auto 20px;
+	text-align: center;
+	padding: 5px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-weight:bold;
+}
+
+.clsOLAAckErrorMsg
+{
+	background: #F7ECD2;
+	color: #000000;
+	border: dotted 1px  #aeaeae;
+	margin: 0 auto 20px;
+	text-align: justify;
+	padding: 5px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-weight:bold;
+}
+
+.clsErrorMsg
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #FF0000;
+	text-decoration: None;
+	font-weight: normal;
+}
+
+.clsFnTitleBorderBottomThick
+{
+	font-weight: bolder;
+	font-size: 10pt;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #000000;
+	height: 30px;
+	vertical-align: text-top;
+	background: #ffffff;
+	border-bottom: #000000 solid 2px;
+}
+
+.clsFnTitle
+{
+	font-weight: bolder;
+	font-size: 10pt;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #000000;
+	height: 30px;
+	/*vertical-align: text-top;*/
+	background: #ffffff;
+}
+
+.clsFnTitleBorderBottom  /* bottom border (thin) */
+{
+	font-weight: bolder;
+	font-size: 10pt;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #000000;
+	height: 30px;
+	vertical-align: text-top;
+	background: #ffffff;
+	border-bottom: #CCCCCC solid 1px;
+}
+
+.clsTableBaseColour
+{
+	background: #CCCCCC;
+}
+
+.clsTableBorderDot /* dotted table border */
+{
+	border: dotted 1px #000000;
+	text-align: left;
+	padding: 5px;
+	color: #F2F2F2;
+}
+
+.clsTableBorderDot /* solid table border */
+{
+	border: dotted 1px #CCCCCC;
+	text-align: left;
+	padding: 5px;
+	color: #F2F2F2;
+}
+
+.clsBodyContent
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsOTPColor
+{
+	border: dotted 1px #1467BA;
+	text-align: left;
+	padding: 5px;
+	background-color: #BDE7EE; /* Blue */
+	height: 35px;
+}
+
+.clsDataGridRow
+{
+	border: dotted 1px #CCCCCC;
+	text-align: left;
+	/* padding: 5px; */
+	padding: 1px 1px;
+}
+
+.clsLinkContentBoldDisabled
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #aeaeae;
+	text-decoration: none;
+}
+
+.clsLinkDarkBlue
+{
+	color: #045FB4;
+}
+
+.clsLinkDarkBlueUnderline
+{
+	color: #045FB4;
+	text-decoration: underline;
+}
+
+.clsOTPTitle
+{
+	font-weight: bolder;
+	font-size: 10pt;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #000000;
+	height: 30px;
+	vertical-align: text-bottom;
+	background: #ffffff;
+}
+
+.clsContent
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsContentBold
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+.clsContentGrey
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	background-color: #aeaeae;
+	text-decoration: none;
+}
+.clsBoxedTable
+{
+	border:1px dotted #CCCCCC;
+	display:block;
+	margin:0 auto;
+	/*padding:1%;*/
+	padding:1;
+	width:auto;
+}
+
+.clsBlackTopRowLiner /* top border (thickest), bottom border none */
+{
+	padding: 5px;
+	border-top: #000000 solid 2px;
+	color: #000000;
+}
+
+.clsPageTitle
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #000000;
+}
+
+/* Used for Content Managed */
+/* Start */
+.clsContentManagedTitle
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+	color: #000000;
+}
+
+.clsContentManagedDscp
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	color: #000000;
+}
+
+.clsContentManagedFooter
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	color: #000000;
+}
+/* End */
+
+/* FORM */
+.dropDown
+{
+	font:8pt Verdana, Arial, Helvetica, sans-serif;
+}
+
+INPUT.Text 
+{
+	font-family:Verdana, Arial, Helvetica, sans-serif;		/* Edited : LihChyun	02/09/2009 is font-family, not font	*/
+	font-size: 8pt;
+}
+/* FORM ENDS */
+
+/* daniel 17/09/2008 */
+.clsPrintSaveFooterLinks
+{ 
+	margin:0; 
+	padding-top:5px; 
+	text-align:left; 
+	border-top:#6CCEE6 solid 1px;
+	font:8pt Verdana, Arial, Helvetica, sans-serif; 
+}
+
+.clsPrintSaveHeader
+{
+	background:url(../image/bg-body.gif) top repeat-x;
+	font:8pt Verdana, Arial, Helvetica, sans-serif; 
+	color:#333333; 
+	height:100%; 
+	margin:0; 
+	padding:0; 
+	text-align:center;
+}
+
+/* amin 08/04/2010 */
+.clsErrorMsgBold
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #FF0000;
+	text-decoration: None;
+	font-weight: bold;
+}
+/* Tinie 08/04/2015 */
+.clsPageDisclosure 
+{
+	padding: 5px;
+	border-bottom: #000000 solid 2px;
+	border-top: #000000 solid 2px;  
+	border-left: #000000 solid 2px; 
+	border-right: #000000 solid 2px; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	color: #000000;
+	text-decoration: none;
+}

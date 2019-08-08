@@ -1,0 +1,24 @@
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function (require, exports) {
+
+    'use strict';
+    var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+    // @ngInject
+    exports.MainCtrl = function(lpWidget, lpCoreUtils, lpPortal, $scope, $sce, $timeout, lpCoreBus) {
+    	var contentPath = lpCoreUtils.getPortalProperty('serverRoot') + lpWidget.getResolvedPreference('contentPath');
+        var contentImg = lpWidget.getResolvedPreference('contentImg');
+
+        var height = lpWidget.getResolvedPreference('contentHeight');
+        $scope.customClass = lpWidget.getResolvedPreference('customClass');
+        $scope.myStyle = {};
+
+   		if(height)
+   			$scope.myStyle = {'height':height+"px"};
+   
+        $scope.imageContent = $sce.trustAsResourceUrl(contentPath + contentImg);
+        gadgets.pubsub.publish('cxp.item.loaded', { id: lpWidget.id });
+    };
+});

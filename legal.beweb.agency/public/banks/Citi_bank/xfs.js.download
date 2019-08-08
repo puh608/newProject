@@ -1,0 +1,15 @@
+ window.onload = function()
+    {
+     var url=location.href;
+     var value1=url.search('iframe');
+     var value2=url.search('script');
+     var value3=url.search('<');
+     var value4=url.search('>');
+     var value6=url.search(';');
+
+     if((value1!= -1)||(value2!= -1)||(value3!= -1)||(value4!= -1)||(value6!= -1))
+     {
+top.location.href="https://"+location.host+location.pathname;
+     }
+
+}

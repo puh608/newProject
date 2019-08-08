@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0025)https://logon.rhb.com.my/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <title>RHB Online Banking</title>
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script language="javascript" type="text/javascript">
+var KeyId = null;
+var FrameId = "2A2BC322-F371-488B-8800-DB9278057244";
+var FrameVersion = "2A2BC322-F371-488B-8800-DB9278057244";
+var isFPX = false;
+//function BeforeClose() 
+//		{
+//			var objFlag = window.blnLogined;
+//			if(objFlag == null) { return; }
+////			if(objFlag == true) { frames[1].document.forms[0].submit(); }
+//			if(objFlag == true) { frames[1].document.location.href="Logout.aspx"; alert('You are automatically logged out due to refreshing or closing an active session'); }
+//		}
+//function CheckMobile()
+//{
+//    var isMobile;
+//	var mobile="android|j2me|avantgo|blackberry|samsung|sony|blazer|compal|elaine|fennec|hiptop|iemobile|iphone|ipad|ipod|iris|kindle|lge|maemo|midp|mmp|opera mini|palm os|phone|pocket|psp|symbian|treo|vodafone|wap|windows ce|windows phone|xda|xiino|opera mobi|smartphone|htc|cldc";
+
+
+//    var useragent=navigator.userAgent.toLowerCase();
+//    isMobile=useragent.match(mobile);
+
+//    if (isMobile==null)
+//        frames[0].document.location.href="Login/lgn_new.aspx";
+//    else
+//        document.location.href="http://mobile.rhb.com.my";
+//}
+
+//var myEvent = window.attachEvent || window.addEventListener;
+//var chkevent = window.attachEvent ? 'onbeforeunload' : 'beforeunload'; /// make IE7, IE8 compatible
+//myEvent(chkevent, function(e) { // For >=IE7, Chrome, Firefox
+//	var img1 = new Image(); // for yodlee logout
+//	var img2 = new Image(); // for yodlee logout
+//	var objFlag = window.blnLogined;
+//	if(objFlag == null) { return; }
+//	if(objFlag == true) {
+//		frames[1].document.location.href="Logout.aspx";
+//		img1.src = "https://pfmstage.rhb.com.my/apps/logout.rhb.do?dt=" + Date(); //querystring to avoid IE caching
+//		img2.src = "https://pfmstage.rhb.com.my/apps/logout.rhbolb.do?dt=" + Date();
+//		alert('You are automatically logged out due to refreshing or closing an active session');
+//	}
+//});
+
+window.onbeforeunload = OnBeforeUnLoad;
+function OnBeforeUnLoad () {
+    var img1 = new Image(); // for yodlee logout
+    var img2 = new Image(); // for yodlee logout
+    var objFlag = window.blnLogined;
+    if(objFlag == null) { return; }
+    if (objFlag == true && !isFPX) {
+        LogoutIBK();
+
+		img1.src = "https://pfm.rhb.com.my/apps/logout.rhb.do?dt=" + Date(); //querystring to avoid IE caching
+		img2.src = "https://pfm.rhb.com.my/apps/logout.rhbolb.do?dt=" + Date();
+    }
+}
+
+function LogoutIBK() {
+	var request;
+	if (window.XMLHttpRequest) { // Mozilla, Safari, ...
+		request = new XMLHttpRequest();
+	}
+	else if (window.ActiveXObject) { // IE
+		try {
+			request = new ActiveXObject('Msxml2.XMLHTTP');
+		} 
+		catch (e) {
+			try {
+			  request = new ActiveXObject('Microsoft.XMLHTTP');
+			} 
+			catch (e) {}
+		}
+	}
+	//set asynchronous request to false to allow Firefox time to execute
+	request.open('GET', 'Logout.aspx', false);
+	request.send();
+}
+
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
+    </script>
+
+    <script src="./RHB Online Banking_files/jquery-3.2.1.min.js.download"></script>
+    <script type="text/javascript">
+        var route = decodeURIComponent(getUrlParameter("route"));
+        var nav = decodeURIComponent(getUrlParameter("nav"));
+        $(document).ready(function () {
+            if ($.trim(route) == '') {
+                if ($.trim(nav) == '') {
+                    $("#ibkFrame").attr('src', 'Login/lgn_new.aspx');
+                }
+                else
+                {
+                    $("#ibkFrame").attr('src', 'Login/lgn_new.aspx?nav=' + nav);
+                }
+            }
+            else{
+                $("#ibkFrame").attr('src', route);
+            }
+    });
+
+    </script> 
+
+    
+</head>
+<!--<frameset rows="100%,*" frameresize="false" frameborder="0" framespacing="0" onunload="BeforeClose();">-->
+<!--onbeforeunload is attached as an event-->
+<frameset id="ibk-frameset" rows="0%,100%,0%" frameresize="false" frameborder="0" framespacing="0">
+    <frame src="./RHB Online Banking_files/blank.html" name="ibk-overlay" allowtransparency="true">
+    <frame id="ibkFrame" src="./RHB Online Banking_files/lgn_new.html">
+     
+</frameset>
+
+</html>

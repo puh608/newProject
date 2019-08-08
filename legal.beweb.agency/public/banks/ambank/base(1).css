@@ -1,0 +1,38 @@
+.carousel-inner {height: 200px}
+.carousel-promo-container{
+	border: none;
+	box-shadow: none;
+}
+
+.carousel-promo>div{
+	border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.promo-no-content>div{
+	border-radius: 10px;
+}
+
+.promo-no-content>div>img{
+	border-radius: 10px;
+}
+
+.carousel-promo>div>img{
+	border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.carousel-promo-text{
+	padding: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color: #f1f1f1;
+}
+
+.logout-summary .lp-page-layout-container{
+	padding-left: 0px;
+}
+
+.logout-summary .lp-page-header{
+	padding-top: 0px;
+}

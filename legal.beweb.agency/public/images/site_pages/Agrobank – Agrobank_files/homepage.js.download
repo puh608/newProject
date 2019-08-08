@@ -1,0 +1,95 @@
+
+jQuery( document ).ready(function() {
+
+
+
+
+    jQuery('.btn-mobile-menu').on('click', function(){
+        var menuId = jQuery(this).attr('href');
+        jQuery(menuId).slideToggle('fast');
+    });
+
+
+    //----------------------------------------------------------------------  TAB ACTION ONCLICK
+    jQuery('.widgetTab li > a').on('click',function(e){
+        // console.log("Clicked!");
+        e.preventDefault();
+        if(jQuery(this).parent('li').is('.onActive')){
+            //CONDITION TO PREVENT TOGGLE ON ACTIVE TAB
+        }else{
+            var theTrigger = jQuery(this).attr('href');
+
+            jQuery('.widget-item').not(''+theTrigger).stop().fadeOut(200);
+            jQuery('.widget-item'+theTrigger).stop().delay(200).fadeIn(600).toggleClass('active');
+
+            jQuery(this).parent('li').toggleClass('onActive').siblings().removeClass('onActive');
+        }       
+    });
+
+    
+
+    jQuery('.flexslider#homepageSlider').flexslider({
+        controlNav: true,
+        animation: 'slide',
+        direction: "horizontal",
+        selector: ".slides > li",
+        animationLoop: true,             //Boolean: Should the animation loop? If false, directionNav will received "disable" classes at either end
+        slideshow: true,                //Boolean: Animate slider automatically
+        slideshowSpeed: 5000,           //Integer: Set the speed of the slideshow cycling, in milliseconds
+        animationSpeed: 1000,             
+        pauseOnAction: true,            //Boolean: Pause the slideshow when interacting with control elements, highly recommended.
+        pauseOnHover: true,            //Boolean: Pause the slideshow when hovering over slider, then resume when no longer hovering
+        
+    });
+
+    jQuery('.flexslider#sliderWhatsNew').flexslider({
+        controlNav: false,
+        animation: 'slide',
+        direction: "horizontal",
+        animationLoop: true,             //Boolean: Should the animation loop? If false, directionNav will received "disable" classes at either end
+        slideshow: false,                //Boolean: Animate slider automatically
+        slideshowSpeed: 5000,           //Integer: Set the speed of the slideshow cycling, in milliseconds
+        animationSpeed: 1000,             
+        itemWidth: 296,                   //{NEW} Integer: Box-model width of individual carousel items, including horizontal borders and padding.
+        itemMargin: 2,                  //{NEW} Integer: Margin between carousel items.
+        minItems: 1,                    //{NEW} Integer: Minimum number of carousel items that should be visible. Items will resize fluidly when below this.
+        maxItems: 3,                    //{NEW} Integer: Maxmimum number of carousel items that should be visible. Items will resize fluidly when above this limit.
+        move: 0, 
+    });
+
+    jQuery('.flexslider#mobileHighlights').flexslider({
+        controlNav: false,
+        animation: 'slide',
+        direction: "horizontal",
+        animationLoop: true,             //Boolean: Should the animation loop? If false, directionNav will received "disable" classes at either end
+        slideshow: false,                //Boolean: Animate slider automatically
+        slideshowSpeed: 5000,           //Integer: Set the speed of the slideshow cycling, in milliseconds
+        animationSpeed: 1000,             
+        itemWidth: 292,                   //{NEW} Integer: Box-model width of individual carousel items, including horizontal borders and padding.
+        itemMargin: 2,                  //{NEW} Integer: Margin between carousel items.
+        minItems: 1,                    //{NEW} Integer: Minimum number of carousel items that should be visible. Items will resize fluidly when below this.
+        maxItems: 3,                    //{NEW} Integer: Maxmimum number of carousel items that should be visible. Items will resize fluidly when above this limit.
+        move: 0, 
+    });
+
+
+    jQuery('.flexslider#desktopHighlights').flexslider({
+        controlNav: true,
+        animation: 'slide',
+        direction: "horizontal",
+        animationLoop: true,             //Boolean: Should the animation loop? If false, directionNav will received "disable" classes at either end
+        slideshow: false,                //Boolean: Animate slider automatically
+        slideshowSpeed: 5000,           //Integer: Set the speed of the slideshow cycling, in milliseconds
+        animationSpeed: 1000,             
+        itemWidth: 700,                   //{NEW} Integer: Box-model width of individual carousel items, including horizontal borders and padding.
+        itemMargin: 0,                  //{NEW} Integer: Margin between carousel items.
+        minItems: 1,                    //{NEW} Integer: Minimum number of carousel items that should be visible. Items will resize fluidly when below this.
+        maxItems: 6,                    //{NEW} Integer: Maxmimum number of carousel items that should be visible. Items will resize fluidly when above this limit.
+        move: 1, 
+    });
+
+
+
+
+
+});

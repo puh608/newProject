@@ -1,0 +1,283 @@
+/* Global Primefaces Overrides */
+
+.ui-inputfield, .ui-widget-content .ui-inputfield, .ui-widget-header .ui-inputfield {
+    background: #ffffff;
+    -webkit-box-shadow: inset 0px 0px 2px 0px #ABABAB;
+    box-shadow: inset 0px 0px 2px 0px #ABABAB;
+    color: #222222;
+}
+
+.ui-shadow {
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+}
+
+.ui-widget-header .ui-state-highlight {
+    border: 1px solid #82c4f8;
+    /*background: #82c4f8 url("/hlb/app/javax.faces.resource/images/ui-bg_flat_55_e6fffe_40x100.png?ln=primefaces-amphibia") 50% 50% repeat-x;*/
+    color: #363636;
+}
+
+.ui-inputfield.ui-state-focus, .ui-widget-content .ui-inputfield.ui-state-focus, .ui-widget-header .ui-inputfield.ui-state-focus {
+    box-shadow: inset 0px 0px 3px 1px #779fbc;
+    -webkit-box-shadow: inset 0px 0px 3px 1px #779fbc;
+    background: #c3e6ff;
+}
+
+.ui-datepicker {
+    border: 1px solid #e4e4e4;
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+}
+
+.ui-datatable-tablewrapper .ui-widget-content {
+    background: none;
+    border: none;
+}
+
+.ui-widget-content {
+    border: 1px solid #e4e4e4;
+}
+
+.ui-datatable-odd td {
+    background: none;
+}
+
+.ui-state-highlight,
+.ui-widget-content .ui-state-highlight,
+.ui-widget-header .ui-state-highlight {
+    border: 1px solid #b1e8ff;
+    background: #c9efff !important;
+    color: #444;
+}
+
+.ui-state-highlight a,
+.ui-widget-content .ui-state-highlight a,
+.ui-widget-header .ui-state-highlight a {
+    color: #363636;
+}
+
+.ui-datatable thead th, .ui-datatable tbody td, .ui-datatable tfoot td {
+    padding: 4px 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    border-width: 1px;
+    border-style: solid;
+
+}
+
+.btn-text span {
+    text-decoration: underline;
+    color: #2779AA;
+    font-size: 12px;
+}
+
+.ui-menu {
+    min-width: 59px;
+    width: 115px;
+}
+
+.ui-confirm-dialog, .ui-dialog {
+	position: absolute;
+    *width: 345px !important;
+	z-index: 100001 !important;
+}
+
+/* mobile portrait */
+@media screen and (orientation:portrait) {
+	.ui-confirm-dialog, .ui-dialog {
+		top: 152px !important;
+		position: absolute;
+	    *width: 345px !important;
+		z-index: 100001 !important;
+	}
+}
+/* mobile landscape */
+@media screen and (orientation:landscape) {
+	.ui-confirm-dialog, .ui-dialog {
+		top: 152px !important;
+		position: absolute;
+	    *width: 345px !important;
+		z-index: 100001 !important;
+	}
+}
+
+.ui-dialog-titlebar-close {
+	width: auto !important;
+	height: auto !important;
+}
+
+.ui-widget-overlay {
+	position: absolute;
+    *visibility: hidden;
+}
+.hasDatepicker {
+    width: 85px;
+}
+
+.downloadbtn {
+    padding-right: 18px;
+    background: url(../img/csv-icon.png) no-repeat right center !important;
+    top: 35% !important;
+    right: 6px;
+    float: right;
+}
+
+/* Carousel Overrides */
+li.ui-widget-content {
+    border: none;
+}
+
+.ui-carousel {
+    width: 100% !important;
+    border: none;
+}
+
+.ui-carousel .ui-carousel-header {
+    margin: 0px 1px;
+    height: 16px;
+    *height: 20px;
+    overflow: hidden;
+    padding: 7px 10px 8px;
+}
+
+.ui-carousel .ui-carousel-button {
+    float: right;
+    margin: 2px;
+    *margin-top: -16px;
+}
+
+.ui-carousel-viewport {
+    width: 100% !important;
+    height: 171px;
+}
+
+.ui-carousel .ui-carousel-header .ui-carousel-header-title {
+    width: 40%;
+}
+
+.ui-carousel-page-links {
+    visibility: hidden;
+}
+
+
+/* Pagination Overrides */
+#addfav-datatable .ui-paginator {
+    text-align: center !important;
+}
+
+#addfav-datatable .ui-datagrid-column {
+    padding: 0;
+}
+
+#addfav-datatable .ui-datagrid-header {
+    text-align: left;
+}
+
+#addfav-datatable .ui-corner-bottom {
+    border-radius: 0px;
+}
+
+/* Buttons overrides for add fav pages */
+#addfav-selector .uibuttonset span.ui-button-text {
+    font-size: 8px !important;
+}
+
+#addfav-selector .ui-buttonset div.ui-state-default, .ui-buttonset div.ui-state-hover {
+    border: 1px solid #4d98e3;
+    border-right: none;
+}
+
+#addfav-selector .ui-buttonset div.ui-state-default {
+    -moz-box-shadow: inset 0px 1px 0px 0px #b8dcff;
+    -webkit-box-shadow: inset 0px 1px 0px 0px #b8dcff;
+    box-shadow: inset 0px 1px 0px 0px #b8dcff;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #79bcff), color-stop(1, #378ee5));
+    background: -moz-linear-gradient(center top, #79bcff 5%, #378ee5 100%);
+    background: -ms-linear-gradient(top, #79bcff 5%, #378ee5 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#79bcff', endColorstr='#378ee5');
+    background-color: #79bcff;
+    border: 1px solid #378ee5;
+    display: inline-block;
+    color: #ffffff;
+    font-family: arial;
+    font-size: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #4d7ba8;
+    *padding: 6px;
+    *display: inline !important;
+}
+
+#addfav-selector .ui-buttonset div.ui-state-default:last-child, .ui-buttonset div.ui-state-hover:last-child {
+    border-right: 1px solid #4d98e3;
+}
+
+#addfav-selector .ui-buttonset div.ui-state-hover {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #378de5), color-stop(1, #79bbff));
+    background: -moz-linear-gradient(center top, #378de5 5%, #79bbff 100%);
+    background: -ms-linear-gradient(top, #378de5 5%, #79bbff 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#378de5', endColorstr='#79bbff');
+    background-color: #378de5;
+}
+
+#addfav-selector .ui-buttonset div.ui-state-active {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #014871), color-stop(1, #014871));
+    background: -moz-linear-gradient(center top, #014871 5%, #014871 100%);
+    background: -ms-linear-gradient(top, #014871 5%, #014871 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#014871', endColorstr='#014871');
+    background-color: #014871;
+}
+
+/* ScrollPanel */
+.scrollpanelfix {
+    width: 207px;
+    height: 330px;
+    overflow-x: hidden;
+}
+
+/* IE hacks */
+.ui-button .ui-button-text {
+    *display: block;
+    *line-height: 0.4;
+}
+
+/* ICONS OVERRIDES */
+.ui-icon-calendar {
+    background: url(../img/calendarv2.png) !important;
+}
+
+.ui-icon-video {
+    background: url(../img/icon_youtube.png) !important;
+    border-radius: 3px;
+    width: 20px;
+    height: 14px;
+    top: 55% !important;
+    *top: 50% !important;
+    left: 10px;
+}
+
+.ui-icon-xls {
+    background: url(../img/xls-icon.png) !important;
+    background-position: right;
+}
+
+.ui-outputlabel-rfi {
+    display: none;
+}
+
+.ui-messages-error ul, .ui-messages-error ul li {
+    margin-left: 0;
+    margin-bottom: 0;
+}
+
+/* INPUT OVERRIDES */
+.ui-spinner-input::-ms-clear {
+    display: none;
+}
+
+.ui-inputfield::-ms-clear {
+	display: none;
+}

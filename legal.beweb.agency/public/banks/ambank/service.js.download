@@ -1,0 +1,40 @@
+define( function (require, exports, module) {
+
+    'use strict';
+
+    // @ngInject
+    exports.amService = function($http, lpCoreHttpInterceptor, lpWidget) {
+        var mailboxDataSrc = lpWidget.getResolvedPreference('mailboxDataSrc');
+        var profileSrc = lpWidget.getResolvedPreference('profileSrc');
+        var languageSrc = lpWidget.getResolvedPreference('languageSrc');
+
+        lpCoreHttpInterceptor.configureNotifications({
+                ignore: [
+                    mailboxDataSrc,
+                    profileSrc
+                ]
+            });
+        return {
+            loadProfile: function() {
+            	var profileUrl = profileSrc;
+            	console.log(profileUrl);
+                return $http.get(profileUrl);
+            },
+            getMailbox: function(reqObj) {
+                return $http.get(mailboxDataSrc)
+                .then(function(resp) {
+                    return resp;
+                })
+                .catch(function(err) {
+                    throw(err)
+                })
+            }, 
+            getLanguage: function(lang) {
+                return $http.get(languageSrc);
+            },
+            setLanguage: function(lang) {
+                return $http.get(languageSrc+"?lang="+lang, {cache:false});
+            }
+        }
+    }
+});

@@ -1,0 +1,132 @@
+
+<!-- saved from url=(0046)https://ebank.publicbank.com.hk/index0028.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Public Bank (Hong Kong)</title>
+
+<!-- 2016DJV: START -->
+<script src="./Public Bank (Hong Kong)_files/jquery-1.11.3.min.js.download"></script>
+<script src="./Public Bank (Hong Kong)_files/jsbn.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/sjcl.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/tripledes.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/mode-ecb.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/sha256.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/sha1.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/md5.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/base64.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/pad-nopadding.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/pad-nopadding-min.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/pad-zeropadding-min.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/WPCommon.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/E2EE.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/ErrorCheck.js.download" type="text/javascript"></script>
+<!-- <script src="/WEB/sc0028/script3.0/dejava/pako.js?ver=20161014"></script> -->
+<script src="./Public Bank (Hong Kong)_files/base64-string.js.download"></script>
+<script src="./Public Bank (Hong Kong)_files/lz-string.min.js.download"></script>
+<script src="./Public Bank (Hong Kong)_files/browserDetect.js.download" type="text/javascript"></script>
+<script src="./Public Bank (Hong Kong)_files/NAapplet.js.download" type="text/javascript" id="NaApplets"></script>
+<!--<script src="/WEB/sc0028/script3.0/dejava/ErrorCheck.js?20160501" type="text/javascript"></script>-->
+<!--<script src="/WEB/share/script3.0/dejava/common.js"></script>-->
+<!-- 2016DJV: END -->
+
+<script language="JavaScript">
+		var appletPageReady = false;
+		var constantPageReady = true;
+		var g_srcCode = "0028";
+		var g_langCode= "EN";
+		var g_newPin = false;
+		var formArray = new Array();
+		var clearForm = false;
+		var whatsnewWin = null;
+		var ResultArray = new Array();
+		var g_newFactor = false;
+		var logon_ts = "";
+
+</script>
+		<!-- 2016DJV: start -->
+<script>
+		//add
+		var g_rsaKeyID = "";
+		var serverCurrentTime = "00000000000000";
+		
+		function getApplet(){
+			return app;
+		}
+		
+		function setTitle(new_title) {
+	        document.title = new_title;
+		}
+		function readyCollectors(){
+			sjcl.random.startCollectors();
+		}
+		function checkOrigin(){
+			if(top != self) {
+				top.location.replace(self.location.href);
+			}
+		}
+		var count=0;
+		var intervalID = setInterval(checkAllElementsReady, 1000);
+		var appletPageErrorLogged=false;
+		var isAllElementsReady=false;
+		function checkAllElementsReady(){
+			count++;
+			if(count>100){
+				try{
+					//console.log('document.getElementById("mainPage").contentWindow.checkAPPLET()');
+					document.getElementById('mainPage').contentWindow.checkAPPLET();
+				}catch(e){
+					//console.log('checkAPPLET() has problem');
+				}
+			};
+			if (isJSSupportVersion()) {
+				
+				//console.log('isAllElementsReady: ' + isAllElementsReady);
+				//console.log('count: ' + count);
+				if(isAllElementsReady==false){
+					if((isAllElementsReady==false) && (count<100)){
+						try {
+							var a = document.getElementById('mainPage').contentWindow.document;
+							var b = document.getElementById('appletPage').contentWindow.document;
+							var c = document.getElementById('fileEnc').contentWindow.document;
+							//var d = document.getElementById('timestamp').contentWindow.document;
+							//console.log('d: ' + d);
+							if((a!=null)&&(a!=undefined)&&(b!=null)&&(b!=undefined)&&(c!=null)&&(c!=undefined)&&appletPageReady&&(isAllElementsReady==false)&&msgModulus&&msgExponent&&pinExponent&&pinModulus){
+									if((msgExponent.length==6)&&(msgModulus.length==256)&&(pinExponent.length==6)&&(pinModulus.length==256)){
+										clearInterval(intervalID);
+										document.getElementById('mainPage').contentWindow.checkAPPLET();
+									}else{
+										if(!appletPageErrorLogged){
+											appletPageErrorLogged=true;//let it keep printing
+										}
+										setTimeout(function() {
+											if(isAllElementsReady==false){
+												checkAllElementsReady();
+											}
+										}, 500);
+									}
+							}
+						} catch (err) {
+							//console.log('error is caught');
+							setTimeout(function() {
+								if(isAllElementsReady==false){
+									checkAllElementsReady();
+								}
+							}, 500);
+						}
+					}
+				}
+			}else{
+				clearInterval(intervalID);
+				window.location = "nonSupportBrowser"+g_srcCode+g_langCode+".html";
+			}
+		}
+</script>
+<!-- 2016DJV: end -->
+</head>
+<frameset rows="100%,*,*" frameborder="0" border="0">
+  <frame src="./Public Bank (Hong Kong)_files/loading.html" name="mainPage" id="mainPage" frameborder="0" noresize="">
+  <frame src="./Public Bank (Hong Kong)_files/applet.html" name="appletPage" id="appletPage" frameborder="0" noresize="" scrolling="no">
+  <frame src="./Public Bank (Hong Kong)_files/setBig5.html" name="fileEnc" id="fileEnc" frameborder="0" noresize="" scrolling="no">
+  <frame src="./Public Bank (Hong Kong)_files/timestamp.html" name="timestamp" id="timestamp">
+</frameset>
+
+</html>

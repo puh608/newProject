@@ -1,0 +1,6 @@
+#securepadlock{ color: rgb(255, 255, 255); background: rgb(237, 136, 0); padding: 4px 16px; text-align: center; text-transform:uppercase; font-size: 10px; position: relative;max-width:952px; margin:0 auto;  line-height: 22px;}
+#securearw{font-size:18px;}
+.close-securemsg{font-size: 12px; font-weight: bold; transform: scale(1.4,1.1); display: inline-block; cursor: pointer; position: absolute; right: 8px;top: 5px;bottom: 0;  height:20px;}
+.padlock-img{position:relative; top:0; width:8px}
+.padlock-img img{width:8px}
+#securepadlock.green{background:#006E0A}

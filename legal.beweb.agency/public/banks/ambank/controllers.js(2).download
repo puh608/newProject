@@ -1,0 +1,55 @@
+/**
+ * Controllers
+ * @module controllers
+ */
+define(function (require, exports) {
+
+    'use strict';
+
+    // @ngInject
+    exports.MainCtrl = function($scope, lpWidget, lpCoreUtils, lpCoreBus, $q, $http, $window, lpCoreHttpInterceptor, $timeout) {
+    	gadgets.pubsub.publish('cxp.item.loaded',{id: lpWidget.id});
+
+        setTimeout(function(){
+            $("#alert-slideout").removeClass("open");
+            
+        },3000);
+        var isclose=false;
+
+         $scope.closebox = function() {
+            $("#alert-slideout").removeClass("open");
+            $("#alert-slideout_inner").removeClass("open");
+            $("#closeWrapper").removeClass("open");
+             isclose=true;
+            setTimeout(function(){
+                isclose=false;                
+            },1400);             
+        }
+
+         $scope.MouseLeave = function () {
+            if(isclose==false)
+            $("#alert-slideout").removeClass("open");
+        $("#alert-slideout_inner").removeClass("open");
+        
+
+        }
+
+        $scope.MouseOver = function () {
+            if(isclose==false)
+            $("#alert-slideout").addClass("open");
+        $("#alert-slideout_inner").addClass("open");
+
+
+        }
+
+        $scope.goToUrl = function(){
+            $window.open('http://ambank.com.my/eng/security-alert', '_blank');
+        }
+
+        $scope.alertimgPath = lpWidget.getResolvedPreference('slideImgPath');
+        $scope.contentimg = lpWidget.getResolvedPreference('awarenessContent');
+        $scope.contentPath = lpCoreUtils.getPortalProperty('serverRoot') +
+                                 lpWidget.getResolvedPreference('contentPath');
+
+    };   
+});

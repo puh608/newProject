@@ -1,0 +1,918 @@
+/* CSS Document */
+
+/* ------------------------------------ */
+/*                                      */
+/*               General                */
+/*                                      */
+/* ------------------------------------ */
+ 
+
+div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+padding: 0;
+}
+ 
+body {
+	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+	line-height: 15px;
+	color: #373737;
+	margin: 0px 0px 0px 0px;
+	font-size:12px; background:none;
+}
+ 
+a:link {
+	color: #00A0AF;
+	text-decoration: none;
+}
+a:visited {
+	text-decoration: none;
+	color: #00A0AF;
+}
+a:hover {
+	text-decoration: underline;
+	color: #00A0AF;
+}
+a:active {
+	text-decoration: none;
+}
+
+fieldset {
+	border:#cbdbe5 1px solid;
+	padding:0 10px 10px 10px;
+}
+	
+legend {
+	font-weight:bold;
+	font-size:15px;
+	padding: 0 5px;
+	color:#0068b3; 
+}
+
+h1 {
+	color:#FFFFFF;
+	font-weight:bold;
+	font-size:18px;
+ }
+ 
+h2 {
+	color:#e56201;
+	font-weight:bold;
+	font-size:14px;
+ }
+ 
+#container {
+	width: 832px;
+	position: relative;
+	margin: 0px auto;
+	padding: 20px 15px 0 15px;
+	border-left:5px solid #00a0af;
+	border-right:5px solid #00a0af;
+	border-bottom:5px solid #00a0af;
+	overflow:auto;
+	overflow-y:hidden;
+	overflow-x:hidden;
+}
+
+#clear {
+	clear:both;
+}
+
+#content {
+	float: left;
+	width: 587px;
+	padding: 0 10px 0 15px;
+}
+
+#content2 {
+	float: left;
+	padding: 0 10px 0 15px;
+}
+
+hr {
+	border: none;
+	background-color:#cccccc;
+	height:1px;
+}
+
+/* ------------------------------------ */
+/*                                      */
+/*                Form                  */
+/*                                      */
+/* ------------------------------------ */
+
+
+input.text {
+	font-size:11px;
+	border:#bdc3c7 2px solid;
+	padding:3px;
+	color:#383838;
+}
+
+textarea {
+	font-size:11px;
+	border:#7f9db9 1px solid;
+	padding:3px;
+	font-family:Arial, Helvetica, sans-serif;
+	color:#383838;
+}
+
+
+select {
+	font-size:11px;
+	border:#7f9db9 1px solid;
+	color:#383838;
+}
+
+
+/* ----------------------------------------------  Inputs, textareas and selects  ---------------------------------------------- */
+
+
+	input[type="text"], textarea, select,  input[type="file"] {  
+		border-radius:2px; border: 2px solid #bdc3c7; padding:0.4em;
+	}
+
+	
+	div.styled, select, input[type="submit"], input[type="button"], 
+	input[type="file"], input[type="reset"]:after {
+		
+	}	
+	input[type="submit"], input[type="button"], input[type="reset"],input[type="button"],
+	input[type="file"]:after {
+		background:#00a0af;
+		color:#ffffff;
+		font-weight:bold;
+		border:1px solid #00a0af ;
+	}
+	
+	input[type="text"], textarea, input[type="file"] { 
+		background-color: #ffffff;
+		}
+	
+		.ie9 input[type="text"] { line-height:normal; } /* Get the stuff to line up right */
+
+	
+/* ----------------------------------------------  Select menu  ---------------------------------------------- */
+	
+	/* For IE and Firefox */
+
+	
+
+	
+/* ----------------------------------------------  File field  ----------------------------------------------  */
+
+	/* Webkit Only */
+	
+	input[type="file"] { 
+		position: relative; 
+		-webkit-appearance: none;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;	width: 40%;	padding:0;}
+		
+	input[type=file]::-webkit-file-upload-button {
+		width: 0; padding: 0; margin: 0;-webkit-appearance: none; border: none;}	
+		
+	input[type="file"]:after {
+		content: 'Upload File';
+		margin:0 0 0 0.5em;
+		display: inline-block; left: 100%; position: relative;
+		background:#00a0af;
+		color:#ffffff;
+		font-weight:bold;
+		border:1px solid #00a0af ;
+		padding:0.3em 0.5em; 
+	}	
+		
+		
+		input[type="file"]:active:after {box-shadow:none;}
+	
+	
+/* ----------------------------------------------  Checkboxes and Radio inputs  ----------------------------------------------  */	
+		
+	/* input[type="radio"], 
+	input[type="checkbox"] { position: relative; left: 0em; }
+		
+	
+	
+	input[type="checkbox"] + label:before { background-position: 0 -25px;}
+	input[type="checkbox"]:checked + label:before {background-position: 0 0 ; }
+		 
+	input[type="radio"] + label:before { background-position: -25px -25px;}	 	
+	input[type="radio"]:checked + label:before { background-position: -25px 0;}
+	
+		Remove the custom styling for IE 7-8 
+		
+		.ie8 label:before { display:none; content:none; }
+		
+		.ie8 input[type="checkbox"],
+		.ie8 input[type="radio"],
+		.ie7 input[type="checkbox"],
+		.ie7 input[type="radio"]{ 
+			position: static; left:0; }
+		
+		.ie8 input[type="checkbox"],
+		.ie8 input[type="radio"] { 
+			position:relative; top:5px; margin-right:0.5em;}	*/
+
+						
+			
+	input[type="text"]:focus, select:focus, textarea:focus{
+		border-color:#00a0af;
+		}
+
+/* ---------------------------------------------- Form Submit and Next buttons ---------------------------------------------- */	
+
+	input[type="submit"], 
+	input[type="button"], input[type="reset"] { 
+		padding:0.5em 1em; line-height:1em; cursor:pointer;
+		background-position: center bottom;
+		margin:10px 0px;}
+		
+		/* Gradient Generator by : http://www.colorzilla.com/gradient-editor/ */
+		
+	input[type="submit"]:active,
+        input[type="reset"]:active, 
+	input[type="button"]:active {-webkit-box-shadow: none; box-shadow:none;}
+		
+	input[type="submit"]:disabled,
+        input[type="reset"]:disabled, 
+	input[type="button"]:disabled {
+		background:#d4d0c8;
+		border:#d4d0c8;
+	}
+			
+		/* IE7 needs you to change the background to transparent when using image background for submit buttons */
+
+/* ------------------------------------ */
+/*                                      */
+/*                Header                */
+/*                                      */
+/* ------------------------------------ */
+
+
+#header {
+	width: 834px;
+	position: relative;
+	margin: 0px auto;
+	padding: 0 28px 10px 0;
+	height:112px;
+	border-bottom:1px solid #babcbe;
+	/*	-webkit-box-shadow: 0 8px 6px -6px #babcbe;
+	   -moz-box-shadow: 0 8px 6px -6px #babcbe;
+	        box-shadow: 0 8px 6px -6px #babcbe;*/
+	border-left:5px solid #00a0af;
+	border-right:5px solid #00a0af;
+	border-top:5px solid #00a0af;
+}
+ 
+#logo { 
+	float: left; 
+	width: 200px; 
+	height: 82px;
+	margin-top: -10px; 
+	/*margin: 0 140px 0 0;*/
+	
+}
+
+#headerRight{ float:right; width:600px; height:82px; color:#314372;}
+#upperHeader{ float:right; text-align:right;width:590px;padding-right:10px; height:25px;font-family:Arial, Helvetica, sans-serif;font-size:13px; color:#00535e; padding:14px;padding-top: 21px;}
+#lowerHeader{ float:right; width:606px;height:22px;padding:10px 0;font-size:12px;}
+#headDisclaimer{float:right;width:100px;padding:0 10px;line-height: 30px;;margin-right: 25px;}
+#contactNo{font-family:Arial, Helvetica, sans-serif;font-size:16px;margin-top:5px;}
+
+#top { 
+	float: right;
+	width: 316px; 
+	height: 35px; 
+	margin: 0px;
+ 
+}
+ 
+#headertitle { 
+	float: right; 
+	width: 546px; 
+	height: 27px; 
+	margin: 0;
+	padding: 20px 20px 30px 0;
+	text-align: right;
+}
+
+/* ------------------------------------ */
+/*                                      */
+/*     Welcome and Breadcrumb           */
+/*                                      */
+/* ------------------------------------ */
+
+#welcomeHeader{
+	float:left;
+	width:31px;
+	background:url(../images/welcome-header.png) no-repeat;
+	height:29px;
+        /*position: absolute;*/  
+    margin-left: 25px;
+}
+
+#welcome {
+	/*float: left;
+	width: 458px;
+	height:28px;
+	margin: 0;
+	padding: 40px 0 10px 112px;
+	background-image: url(../images/IB_icon.gif);
+	background-position:left;
+	background-repeat:no-repeat;*/
+	float:left; 
+	min-width:206px;
+	background:none;	
+	height:29px;
+        font-weight:bold;
+        margin-left:5px;
+}
+
+.welcometext {
+	font-size: 13px;
+	color:#00A0AF;
+	line-height: 30px;
+}
+
+#logoutButton{
+	border-style:none;background:none;
+        background-image: url(../images/logout.png);
+	/*height:37px;*/
+	font-size:13px;
+	/*color:#032a4b;*/
+	width:105px;
+	cursor: pointer;
+	text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+	height: 31px;
+        font-weight:normal;
+        margin:0px;
+        margin-left: -24px;
+}
+
+/*
+.usertext {
+	font-size: 14px;
+	font-weight:bold;
+	color:#9b023f;
+}
+*/
+#logout {
+	float: right;
+	width:70px;
+	margin:0 10px 0 0;
+}
+
+#breadcrumb {
+	float: left;
+	width: 780px;
+	height:45px;
+	margin: 0;
+	padding: 15px 0 0 18px;
+}
+
+
+/* ------------------------------------ */
+/*                                      */
+/*              Left bar                */
+/*                                      */
+/* ------------------------------------ */
+
+#accordian{
+	padding:0;
+	width:186px;
+	float:left;
+	z-index:2;
+}
+
+.accordion_headings{
+	padding:13px;
+	color:#ffffff;
+	cursor:pointer;
+	font-weight:normal;
+	font-size:12px;
+	margin:0 0 0 0; text-align:left;
+	background-image: url(../images/button-bg.gif);
+	background-position: top left;
+	background-repeat: repeat-x;
+ 	background:none; 
+	background-color:#00a0af;
+	border-bottom:1px solid #ffffff;
+	border-left:5px solid #00a0af;
+	}
+	
+	
+
+.accordion_headings a:link{
+	color:#ffffff;
+	text-decoration: none;
+
+}
+
+.accordion_headings a:visited{
+	color:#ffffff;
+	text-decoration: none;
+}
+
+.accordion_headings:hover{
+
+}
+
+.accordion_child{
+	padding:0;
+	font-size:11px;
+	margin:0;
+}
+
+.accordion_child a:hover{
+	color:#0d4d79;
+}
+
+.accordion_child ul {
+	margin:0;
+	}
+	
+.accordion_child li {
+	list-style:none;
+	}
+
+
+.accordion_child a, .accordion_child a:visited{
+	width:161px;
+	color:#515151;
+	padding: 5px 5px 5px 20px;
+	text-align: left;
+	text-decoration:none;
+border-top: 1px solid #fff;
+	border-bottom: 1px solid #fff;
+	display:block; background:#f5f5f5;
+}
+
+.header_highlight{
+background-image: url(../images/button-bg-hover.gif);
+	background-position: top left;
+	background-repeat: repeat-x;
+	color:#004067;
+}
+
+/* ------------------------------------ */
+/*                                      */
+/*                Text                  */
+/*                                      */
+/* ------------------------------------ */
+
+.text13B {
+	font-weight:bold;
+	font-size:16px;
+	color: #00535e;
+}
+
+.text11B {
+	font-weight:bold;
+	font-size:11px;
+	color: #383838;
+}
+
+.text11Bred {
+	font-weight:bold;
+	font-size:11px;
+	color: #9b023f;
+}
+
+.textbcrumb {
+	font-size:11px;
+	line-height: 25px;
+}
+
+#bullet ul {
+    list-style: none;
+	margin: 0;
+    padding: 0;
+	}
+
+#bullet li {
+	padding: 3px 3px 3px 20px;
+	text-align: left;
+	background-image:url(../images/but_org.png);
+	background-position: top left;
+	background-repeat:no-repeat;
+	list-style:none;
+}
+
+.textgreen12B {
+
+	font-size: 12px;
+	font-weight:bold;
+	color: #007c54;
+}
+
+.textblue12B {
+
+	font-size: 14px;
+	font-weight:bold;
+	color: #8a1f03;
+}
+
+
+
+
+/* ------------------------------------ */
+/*                                      */
+/*              Table                   */
+/*                                      */
+/* ------------------------------------ */
+
+#table-title
+{
+	font-size: 12px;
+	margin: 0;
+	width: 587px;
+	text-align: left;
+	border-collapse: collapse;
+	border: 2px solid #bcbcbc;
+	
+}
+
+#table-title th
+{
+	padding: 8px 17px 8px 17px;
+	font-weight: normal;
+	font-size: 14px;
+	font-weight:bold;
+	color: #00535e;
+	text-align:left;
+	background:#efefef;
+}
+
+#table-title td
+{
+	padding: 12px 17px 12px 17px;
+	font-size: 11px;
+	color: #383838;
+	border-top: 1px dashed #bcbcbc;
+}
+
+#table-org
+{
+	font-size: 11px;
+	margin: 0;
+	width: 587px;
+	text-align: left;
+	border-collapse: collapse;
+	border: 1px solid #c2c2c2;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#table-org th
+{
+	font-size: 11px;
+	font-weight: bold;
+	padding: 10px 10px;
+	border-right: 1px solid #fff;
+	border-left: 1px solid #fff;
+	color: #054b91;
+}
+
+#table-org td
+{
+	padding: 8px 15px;
+	border-right: 1px solid #fff;
+	border-left: 1px solid #fff;
+	color: #054b91;
+}
+
+#datePickerColumn td, #datePickerColumn th{
+	font-size: auto;
+	font-weight: bold;
+	padding: 0px !important;
+	border-right: none;
+	border-left: none;
+	color: #054b91;
+}
+
+.textright {
+	text-align:right
+}
+
+.taborg-odd
+{
+	background: #f8f8f8;
+}
+
+.taborg-even
+{
+	background: #f4f4f4;
+}
+
+#table-org #taborg-thodd
+{
+	background: #eeeeee;
+	border-bottom: 1px solid #eeeeee;
+}
+
+#table-org #taborg-theven
+{
+	background: #e6e6e6;
+	border-bottom: 1px solid #eeeeee;
+}
+
+#table-transfer
+{
+	font-size: 12px;
+	margin: 0;
+	width: 587px;
+	text-align: left;
+	border-collapse: collapse;
+}
+
+#table-transfer td 
+{
+	padding: 20px 10px 20px 10px;
+	border-bottom: 4px solid #c4f4ba;
+	color: #b3b3b3;
+	font-weight:bold;
+	text-align:center;
+}
+
+#table-transfer #tab-highlights
+{
+	background-image:url(../images/icon_arrowup.gif);
+	background-position: bottom ;
+	background-repeat:no-repeat;	
+	border-bottom: 4px solid #ade2a1;
+	color:#383838;
+}
+
+#table-form
+{
+	width:587px;
+}
+#table-form td
+{
+	padding: 3px;
+	font-size: 11px;
+	color: #383838;
+	vertical-align:top;
+}
+
+#table-info
+{
+	font-size: 12px;
+	text-align: left;
+	border-collapse: collapse;
+	border: 4px solid #bcbcbc;
+}
+
+#table-info td
+{
+	padding: 10px 20px 15px 20px;
+}
+
+#table-align
+{
+	width: 587px;
+	text-align: left;
+}
+
+/* ---------------------------------------- */
+/*                                          */
+/* Newly added for d table of new interface */
+/*                                          */
+/* ---------------------------------------- */
+.table-org
+{
+	font-size: 11px;
+	margin: 0;
+	width: 587px;
+	text-align: left;
+	border-collapse: collapse;
+	border: 1px solid #c2c2c2;
+}
+
+.table-org th
+{
+	font-size: 11px;
+	font-weight: bold;
+	padding: 10px 8px;
+	border-right: 1px solid #fff;
+	border-left: 1px solid #fff;
+	color: #054b91;
+}
+
+.table-org td
+{
+	padding: 8px 4px;
+	border-right: 1px solid #fff;
+	border-left: 1px solid #fff;
+	color: #054b91;
+}
+
+.table-org .taborg-thodd
+{
+	background: #eeeeee;
+	border-bottom: 1px solid #eeeeee;
+}
+
+.table-org .taborg-theven
+{
+	background: #e6e6e6;
+	border-bottom: 1px solid #eeeeee;
+}
+
+/* ------------------------------------ */
+/*                                      */
+/*              Footer                  */
+/*                                      */
+/* ------------------------------------ */
+
+#footer {
+
+	width:100%;
+	float:left;
+	background:url(../images/footer-bg.gif) top repeat-x;
+	padding: 14px 0 0 0; /*height:43px;*/
+	margin-top: 30px;
+	font-size:11px;
+	color: #515151; text-align:left;
+}
+#footer a{ color:#00A0AF; text-decoration:none;
+}
+
+#footer a:hover{ text-decoration:none; color:#000000;
+}
+
+.disclaimer { font-size:11px; margin-bottom:10px; text-align:left; padding-top:10px;}
+
+/*.column{float:left;margin-right:10px;}*/
+
+/* ------------------------------------------------------------ */
+/*  Table progress for My Favourite List                        */
+/*  (Add Favourite IBG Account, Add Favourite 3rd Party Account */
+/* ------------------------------------------------------------ */
+#table-progress 
+{
+	font-size: 14px;
+	margin: 0;
+	width: 587px;
+	text-align: left;
+	border-collapse: collapse;
+}
+
+#table-progress td 
+{
+	padding: 20px 10px 20px 10px;
+	border-bottom: 4px solid #babcbe;
+	color: #b3b3b3;
+	font-weight:bold;
+	text-align:center;
+}
+
+#table-progress #tab-highlights
+{
+	background-image:none;
+	background-position: bottom ;
+	background-repeat:no-repeat;	
+	border-bottom: 4px solid #00a0af;
+	color:#00a0af;
+}
+
+.receiptHeadings {
+	font-weight:bold;
+	font-size:18px;
+	color: #383838;
+	line-height: 20px;
+	text-align: left;	
+}
+
+/* ------------------------------------ */
+/*                                      */
+/*          Form Validation             */
+/*                                      */
+/* ------------------------------------ */
+.textRed {
+	font-weight:bold;
+	font-size:11px;
+	color:#FF0000;
+	text-align: left;
+}
+
+.validation-failed {
+  border: 1px solid #7f9db9;
+}
+.validation-advice {
+  margin: 1px; 
+  padding: 1px; 
+  color:#f00; 
+  background-color:#fff;
+}
+.warning {
+	border: 1px solid #c66;
+}
+.warning-advice {
+	margin: 1px;
+	padding: 1px;
+	color:#f00;
+	background-color:#fff;
+}
+
+/* ------------------------------------ */
+/*                                      */
+/*          MIT's DatePicker            */
+/*                                      */
+/* ------------------------------------ */
+
+input.DatePicker{
+	display: block;
+	width: 83px;
+	padding: 3px 3px 3px 3px;
+	border: 1px solid #7f9db9;
+	font-size: 11px;
+	background: #fff no-repeat top left;
+	cursor: pointer;
+}
+input:focus.DatePicker{
+	background: #fffce9 url no-repeat top left;
+}
+.dp_container{
+	position: relative;
+	padding: 0;
+	z-index: 500;
+}
+.dp_cal{
+	background-color: #fff;
+	border: 1px solid #7f9db9;
+	position: absolute;
+	width: 177px;
+	top: 24px;
+	left: 0;
+	margin: 0px 0px 3px 0px;
+}
+.dp_cal table{
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.dp_cal select{
+	margin: 2px 3px;
+	font-size: 11px;
+}
+.dp_cal select option{
+	padding: 1px 3px;
+}
+.dp_cal th,
+.dp_cal td{
+	width: 14.2857%;
+	text-align: center;
+	font-size: 11px;
+	padding: 2px 0;
+}
+.dp_cal th{
+	border: solid #aad4f2;
+	border-width: 1px 0;
+	color: #797774;
+	background: #daf2e6;
+	font-weight: bold;
+}
+.dp_cal td{
+	cursor: pointer;
+}
+.dp_cal thead th{
+	background: #d9eefc;
+}
+.dp_cal td.dp_roll{
+	color: #000;
+	background: #fff6bf;
+}
+/* must have this for the IE6 select box hiding */
+.dp_hide{
+	visibility: hidden;
+}
+.dp_empty{
+	background: #eee;
+}
+.dp_today{
+	background: #daf2e6;
+}
+.dp_selected{
+	color: #fff;
+	background: #328dcf;
+}
+
+.biller_logo{
+	width:38px;
+	height:38px;
+}
+
+#closeButton{
+background-color: #00a0af;
+    color: #ffffff;
+    padding: 0.5em 1em;
+    line-height: 1em;
+    border: 1px solid #00a0af;
+    font-size: 14px;
+    margin: 10px 0px;
+}
